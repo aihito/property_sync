@@ -6,7 +6,7 @@
 
 | 路径 | 说明 |
 |------|------|
-| [docs/core-principles.md](docs/core-principles.md) | 核心原理（Proxy / 队列 / offset / 背包 / Meta） |
+| [docs/core-principles.md](docs/core-principles.md) | 核心原理（Proxy / 消息 / 路径 / 背包选型 / Flag） |
 | [docs/game-example.md](docs/game-example.md) | RPG 场景使用说明 |
 | [docs/build-and-test.md](docs/build-and-test.md) | 依赖、CMake 编译与测试命令 |
 | [examples/rpg_player/](examples/rpg_player/) | 可对照的玩家属性同步示例代码 |

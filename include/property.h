@@ -9,10 +9,10 @@
 namespace spiritsaway::property
 {
 
-	template <typename T>
-	prop_replay_proxy<T, void> make_replay_proxy(T& data)
-	{
-		return prop_replay_proxy<T, void>(data);
-	}
-
+template <typename T>
+prop_replay_proxy<T, void> make_replay_proxy(T& data)
+{
+    return prop_replay_proxy<T, void>(data);
 }
+
+} // namespace spiritsaway::property
