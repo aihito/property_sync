@@ -1,0 +1,193 @@
+# clang-format configuration for CCO project
+# Based on Google style with some customizations
+
+---
+Language: Cpp
+BasedOnStyle: Google
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+IndentCaseLabels: true
+IndentGotoLabels: true
+IndentPPDirectives: None
+IndentWrappedFunctionNames: false
+
+# Alignment
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignConsecutiveMacros: false
+AlignEscapedNewlines: Left
+AlignOperands: true
+AlignTrailingComments: true
+
+# Allow
+AllowAllArgumentsOnNextLine: true
+AllowAllConstructorInitializersOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+
+# Breaking
+AlwaysBreakAfterDefinitionReturnType: None
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: Never
+  AfterEnum: true
+  AfterFunction: true           # This keeps function braces on same line
+  AfterNamespace: true
+  AfterObjCDeclaration: false
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: false
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true 
+BreakBeforeInheritanceComma: false
+BreakInheritanceList: BeforeColon
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma 
+BreakAfterJavaFieldAnnotations: false
+BreakStringLiterals: true
+
+# Column limit
+ColumnLimit: 0
+
+# Comments
+CommentPragmas: '^ IWYU pragma:'
+FixNamespaceComments: true
+
+# Formatting
+CompactNamespaces: false
+PackConstructorInitializers: Never
+ConstructorInitializerIndentWidth: 4
+DeriveLineEnding: true
+DerivePointerAlignment: true
+DisableFormat: false
+ExperimentalAutoDetectBinPacking: false
+
+# Includes
+IncludeBlocks: Regroup
+IndentExternBlock: AfterExternBlock
+IndentRequires: false
+
+# Penalties
+PenaltyBreakAssignment: 4
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 240
+PenaltyBreakString: 1000
+PenaltyBreakTemplateDeclaration: 10
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 200
+
+# Pointer and reference alignment
+PointerAlignment: Left
+
+# Sorting
+SortUsingDeclarations: true
+
+# Spaces
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyBlock: false
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+SpacesInConditionalStatement: false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpaceBeforeSquareBrackets: false
+
+# Line endings
+UseCRLF: false
+
+# C++ specific
+Cpp11BracedListStyle: true
+Standard: Latest
+
+# Macros
+MacroBlockBegin: ''
+MacroBlockEnd: ''
+
+# Namespaces
+NamespaceIndentation: None
+
+# Raw strings
+RawStringFormats:
+  - Language: Cpp
+    Delimiters:
+      - cc
+      - CC
+      - cpp
+      - Cpp
+      - CPP
+      - c++
+      - C++
+    CanonicalDelimiter: ''
+    BasedOnStyle: google
+
+# Reflowing comments
+ReflowComments: true
+
+# Short namespace lines
+ShortNamespaceLines: 1
+
+# Sorting includes
+SortIncludes: Never
+
+# Keep empty lines
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# Binary operators
+BinPackArguments: false
+BinPackParameters: false
+
+# Function calls (already defined in Allow section above)
+
+# Access modifiers
+EmptyLineAfterAccessModifier: Never
+EmptyLineBeforeAccessModifier: Never
+AccessModifierOffset: -4
+
+# Indent access modifiers
+IndentAccessModifiers: false
+
+# Empty lines
+SeparateDefinitionBlocks: Leave
+
+# Whitespace sensitive macros
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
+  - NS_SWIFT_NAME
+  - CF_SWIFT_NAME
