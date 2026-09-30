@@ -1,0 +1,23 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "files.encoding": "utf8",
+    "clangd.arguments": [
+        "-log=info",
+        "-pretty",
+        "--background-index",
+        "-compile-commands-dir=${workspaceFolder}/build/",
+        "-completion-style=detailed",
+        "--header-insertion=never",
+        "-j=6",
+    ],
+    "clangd.onConfigChanged": "restart",
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "xaver.clang-format",
+    "clang-format.executable": "/usr/sbin/clang-format",
+    "clangd.path": "/usr/sbin/clangd",
+    "editor.inlayHints.enabled": "off",
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "files.associations": {
+        "*.ipp": "cpp"
+    }
+}

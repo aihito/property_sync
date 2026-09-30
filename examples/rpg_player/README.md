@@ -1,20 +1,19 @@
 # RPG Player 示例
 
-用「玩家昵称 / 血量 / 金币 / 道具背包 / Buff 背包」演示属性增量同步。
+覆盖 **基础值 / array / vector / map / bag / slots / vec / flag**，运行时按章节打印每条同步消息。
 
-原理说明见 [`docs/game-example.md`](../../docs/game-example.md)。
+说明文档：[`docs/game-example.md`](../../docs/game-example.md)。
 
 ## 文件
 
 | 文件 | 说明 |
 |------|------|
-| `prop_flags.h` | 同步 / 存库 flag |
-| `macro.h` | `Meta(...)` 标注宏 |
-| `rpg_items.h` | Item / Buff 定义 |
+| `rpg_items.h` | Item(bag) / Buff(bag) / EquipItem(slots) / LoginRecord(vec) |
 | `rpg_player.h` | Player 根属性 |
-| `main.cpp` | Server record → Client replay 演示 |
+| `main.cpp` | 分 10 节的 Record → Replay 演示 |
+| `prop_flags.h` / `macro.h` | flag 与 Meta 宏 |
 
-# 构建（在仓库根目录，需已安装 any_container / nlohmann_json，并能找到 Clang）
+## 构建
 
 ```bash
 cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/deps
@@ -22,12 +21,17 @@ cmake --build build --target rpg_player_example -j
 ./build/examples/rpg_player/rpg_player_example
 ```
 
-CMake 会先编译 `generate_property_sync`，再自动生成 `Item` / `Buff` / `Player` 的 inch 文件，最后编译本示例。可用 `-DWITH_EXAMPLES=OFF` 关闭。
+CMake 会自动跑 `generate_property_sync` 生成 inch。关闭示例：`-DWITH_EXAMPLES=OFF`。
 
-## 演示流程（main 输出）
+## 章节对照
 
-1. 改昵称、扣血 → 观察者收到 set  
-2. 加药水并改 `count` → insert + item_change  
-3. 加 Buff 并叠层 → insert + item_change  
-4. 改金币 → **不进** sync_clients 队列（仅 save_db）  
-5. 全部 replay 后打印 server / client encode，可见字段一致  
+1. 基础值 set/clear  
+2. array 坐标  
+3. vector 标签  
+4. map 属性  
+5. bag 道具（含仅存库的 name）  
+6. bag Buff 叠层  
+7. slots 装备栏（resize/swap/move）  
+8. vec 登录记录（顺序/中间插入）  
+9. flag：金币不同步给观察者  
+10. 最终 PASS  

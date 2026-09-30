@@ -1,0 +1,170 @@
+{
+	"version": "2.0.0",
+	"options": {
+		"env": {
+			"DEPS": "/home/game/open-source/game-server/_deps/install",
+			"CLANG_CMAKE": "/usr/lib64/llvm21/lib64/cmake"
+		}
+	},
+	"tasks": [
+		{
+			"label": "cmake: configure (Debug + compile_commands)",
+			"type": "shell",
+			"command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build\" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_PREFIX_PATH=\"${env:DEPS};${env:DEPS}/lib64/cmake;${env:CLANG_CMAKE}\" -DClang_DIR=\"${env:CLANG_CMAKE}/clang\" -DLLVM_DIR=\"${env:CLANG_CMAKE}/llvm\" -DWITH_TEST=ON -DWITH_EXAMPLES=ON",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			},
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			}
+		},
+		{
+			"label": "cmake: configure (Release)",
+			"type": "shell",
+			"command": "cmake -S \"${workspaceFolder}\" -B \"${workspaceFolder}/build-release\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=OFF -DCMAKE_PREFIX_PATH=\"${env:DEPS};${env:DEPS}/lib64/cmake;${env:CLANG_CMAKE}\" -DClang_DIR=\"${env:CLANG_CMAKE}/clang\" -DLLVM_DIR=\"${env:CLANG_CMAKE}/llvm\" -DWITH_TEST=ON -DWITH_EXAMPLES=ON",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": []
+		},
+		{
+			"label": "build: rpg_player_example (Debug)",
+			"type": "shell",
+			"command": "cmake --build \"${workspaceFolder}/build\" --target rpg_player_example -j\"$(nproc)\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"cmake: configure (Debug + compile_commands)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "build: property_test (Debug)",
+			"type": "shell",
+			"command": "cmake --build \"${workspaceFolder}/build\" --target property_test -j\"$(nproc)\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"cmake: configure (Debug + compile_commands)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build: generate_property_sync (Debug)",
+			"type": "shell",
+			"command": "cmake --build \"${workspaceFolder}/build\" --target generate_property_sync -j\"$(nproc)\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"cmake: configure (Debug + compile_commands)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build: all (Debug)",
+			"type": "shell",
+			"command": "cmake --build \"${workspaceFolder}/build\" -j\"$(nproc)\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"cmake: configure (Debug + compile_commands)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build: rpg_player_example (Release)",
+			"type": "shell",
+			"command": "cmake --build \"${workspaceFolder}/build-release\" --target rpg_player_example -j\"$(nproc)\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"cmake: configure (Release)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"panel": "shared"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "run: rpg_player_example (Debug)",
+			"type": "shell",
+			"command": "\"${workspaceFolder}/build/examples/rpg_player/rpg_player_example\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"dependsOn": [
+				"build: rpg_player_example (Debug)"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": true,
+				"panel": "dedicated"
+			},
+			"problemMatcher": []
+		}
+	]
+}

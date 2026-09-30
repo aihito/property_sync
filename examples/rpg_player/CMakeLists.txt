@@ -49,13 +49,43 @@ set(RPG_INCLUDE_DIRS_JSON
 	"\"${RPG_EXAMPLE_GEN_DIR}\""
 )
 if(RPG_CLANG_RESOURCE_DIR)
+	# normalize e.g. /usr/bin/../lib/clang/21 → absolute path
+	get_filename_component(RPG_CLANG_RESOURCE_DIR "${RPG_CLANG_RESOURCE_DIR}" REALPATH)
 	list(APPEND RPG_INCLUDE_DIRS_JSON "\"${RPG_CLANG_RESOURCE_DIR}/include\"")
 endif()
+
+# any_container / nlohmann headers — required for libclang to parse bag base classes & STL maps
+foreach(_tgt any_container nlohmann_json::nlohmann_json)
+	if(TARGET ${_tgt})
+		get_target_property(_rpg_tgt_incs ${_tgt} INTERFACE_INCLUDE_DIRECTORIES)
+		if(_rpg_tgt_incs)
+			foreach(_inc IN LISTS _rpg_tgt_incs)
+				# strip generator expressions like $<BUILD_INTERFACE:...>
+				string(REGEX REPLACE "^\\$<BUILD_INTERFACE:(.*)>$" "\\1" _inc "${_inc}")
+				string(REGEX REPLACE "^\\$<INSTALL_INTERFACE:(.*)>$" "" _inc "${_inc}")
+				if(_inc AND EXISTS "${_inc}")
+					list(APPEND RPG_INCLUDE_DIRS_JSON "\"${_inc}\"")
+				endif()
+			endforeach()
+		endif()
+	endif()
+endforeach()
+
+# CMAKE_PREFIX_PATH / DEPS fallbacks
 foreach(_prefix IN LISTS CMAKE_PREFIX_PATH)
 	if(EXISTS "${_prefix}/include")
 		list(APPEND RPG_INCLUDE_DIRS_JSON "\"${_prefix}/include\"")
 	endif()
 endforeach()
+if(DEFINED ENV{DEPS} AND EXISTS "$ENV{DEPS}/include")
+	list(APPEND RPG_INCLUDE_DIRS_JSON "\"$ENV{DEPS}/include\"")
+endif()
+# common local install used in this workspace
+if(EXISTS "/home/game/open-source/game-server/_deps/install/include")
+	list(APPEND RPG_INCLUDE_DIRS_JSON "\"/home/game/open-source/game-server/_deps/install/include\"")
+endif()
+
+list(REMOVE_DUPLICATES RPG_INCLUDE_DIRS_JSON)
 set(RPG_INCLUDE_DIRS_CSV "")
 set(_rpg_first TRUE)
 foreach(_inc IN LISTS RPG_INCLUDE_DIRS_JSON)
@@ -85,6 +115,12 @@ set(RPG_GENERATED_FILES
 	${RPG_EXAMPLE_GEN_DIR}/Buff.generated.inch
 	${RPG_EXAMPLE_GEN_DIR}/Buff.generated.incpp
 	${RPG_EXAMPLE_GEN_DIR}/Buff.proxy.inch
+	${RPG_EXAMPLE_GEN_DIR}/EquipItem.generated.inch
+	${RPG_EXAMPLE_GEN_DIR}/EquipItem.generated.incpp
+	${RPG_EXAMPLE_GEN_DIR}/EquipItem.proxy.inch
+	${RPG_EXAMPLE_GEN_DIR}/LoginRecord.generated.inch
+	${RPG_EXAMPLE_GEN_DIR}/LoginRecord.generated.incpp
+	${RPG_EXAMPLE_GEN_DIR}/LoginRecord.proxy.inch
 	${RPG_EXAMPLE_GEN_DIR}/Player.generated.inch
 	${RPG_EXAMPLE_GEN_DIR}/Player.generated.incpp
 	${RPG_EXAMPLE_GEN_DIR}/Player.proxy.inch

@@ -21,6 +21,19 @@ export REPO=/path/to/property_sync
 cd "$REPO"
 ```
 
+```bash
+cd /home/game/open-source/game-server/property_sync
+DEPS=/home/game/open-source/game-server/_deps/install
+cmake -S . -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$DEPS;$DEPS/lib64/cmake;/usr/lib64/llvm21/lib64/cmake" \
+  -DClang_DIR=/usr/lib64/llvm21/lib64/cmake/clang \
+  -DLLVM_DIR=/usr/lib64/llvm21/lib64/cmake/llvm \
+  -DWITH_TEST=ON \
+  -DWITH_EXAMPLES=ON
+cmake --build build --target rpg_player_example -j"$(nproc)"
+```
+
 ### 1.1 拉取并安装依赖（可选）
 
 ```bash
