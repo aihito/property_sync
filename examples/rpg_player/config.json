@@ -1,0 +1,23 @@
+{
+  "include_dirs": [
+    "../../include",
+    "/usr/include",
+    "/usr/local/include",
+    "/home/game/open-source/game-server/_deps/install/include",
+    "/usr/lib/clang/21/include",
+    "../../build/examples/rpg_player/generated"
+  ],
+  "src_file": "./generate_entry.cpp",
+  "definitions": [
+    "-x",
+    "c++",
+    "-std=c++17",
+    "-fparse-all-comments",
+    "-resource-dir",
+    "/usr/lib/clang/21"
+  ],
+  "mustache_folder": "../../meta/mustache",
+  "generated_folder": "../../build/examples/rpg_player/generated",
+  "namespace": "spiritsaway::rpg_example",
+  "flag_class": "spiritsaway::property::rpg_property_flags"
+}

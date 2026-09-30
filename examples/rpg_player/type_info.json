@@ -1,0 +1,183 @@
+[
+    {
+        "annotation": {
+            "property": {}
+        },
+        "bases": [
+            "spiritsaway::property::property_bag_item<int>"
+        ],
+        "comment": "/// 道具：按 id 索引的背包元素",
+        "constructors": null,
+        "fields": [
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Item::m_count",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Item::m_count",
+                "var_type": "int",
+                "with_default": true
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "save_db": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Item::m_name",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Item::m_name",
+                "var_type": "std::__cxx11::basic_string<char>",
+                "with_default": false
+            }
+        ],
+        "methods": null,
+        "name": "spiritsaway::rpg_example::Item",
+        "namespace": "spiritsaway::rpg_example",
+        "node_type": "class",
+        "qualified_name": "spiritsaway::rpg_example::Item",
+        "static_fields": null,
+        "static_methods": null,
+        "template_args": []
+    },
+    {
+        "annotation": {
+            "property": {}
+        },
+        "bases": null,
+        "comment": "/// RPG 玩家根属性：演示同步可见性与背包增量",
+        "constructors": null,
+        "fields": [
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Player::m_nickname",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_nickname",
+                "var_type": "std::__cxx11::basic_string<char>",
+                "with_default": false
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Player::m_hp",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_hp",
+                "var_type": "int",
+                "with_default": true
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Player::m_level",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_level",
+                "var_type": "int",
+                "with_default": true
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "save_db": ""
+                    }
+                },
+                "comment": "/// 仅存库：周围玩家不应看到金币变化",
+                "name": "spiritsaway::rpg_example::Player::m_gold",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_gold",
+                "var_type": "int",
+                "with_default": true
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "save_db": "",
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Player::m_inventory",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_inventory",
+                "var_type": "spiritsaway::property::property_bag<spiritsaway::rpg_example::Item>",
+                "with_default": false
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "save_db": "",
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Player::m_buffs",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Player::m_buffs",
+                "var_type": "spiritsaway::property::property_bag<spiritsaway::rpg_example::Buff>",
+                "with_default": false
+            }
+        ],
+        "methods": null,
+        "name": "spiritsaway::rpg_example::Player",
+        "namespace": "spiritsaway::rpg_example",
+        "node_type": "class",
+        "qualified_name": "spiritsaway::rpg_example::Player",
+        "static_fields": null,
+        "static_methods": null,
+        "template_args": []
+    },
+    {
+        "annotation": {
+            "property": {}
+        },
+        "bases": [
+            "spiritsaway::property::property_bag_item<int>"
+        ],
+        "comment": "/// Buff：按 buff_id 索引，支持字段级增量同步（叠层、到期时间）",
+        "constructors": null,
+        "fields": [
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Buff::m_level",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Buff::m_level",
+                "var_type": "int",
+                "with_default": true
+            },
+            {
+                "annotation": {
+                    "property": {
+                        "sync_clients": ""
+                    }
+                },
+                "name": "spiritsaway::rpg_example::Buff::m_expire_ts",
+                "node_type": "variable",
+                "qualified_name": "spiritsaway::rpg_example::Buff::m_expire_ts",
+                "var_type": "float",
+                "with_default": true
+            }
+        ],
+        "methods": null,
+        "name": "spiritsaway::rpg_example::Buff",
+        "namespace": "spiritsaway::rpg_example",
+        "node_type": "class",
+        "qualified_name": "spiritsaway::rpg_example::Buff",
+        "static_fields": null,
+        "static_methods": null,
+        "template_args": []
+    }
+]

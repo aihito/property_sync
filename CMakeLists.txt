@@ -20,6 +20,7 @@ find_package(any_container CONFIG REQUIRED)
 INCLUDE_DIRECTORIES(${any_container_include_dirs})
 
 option(WITH_TEST "with test" ON)
+option(WITH_EXAMPLES "with examples" ON)
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE $<INSTALL_INTERFACE:include>)
@@ -27,6 +28,9 @@ target_include_directories(${PROJECT_NAME} INTERFACE $<INSTALL_INTERFACE:include
 target_link_libraries(${PROJECT_NAME} INTERFACE any_container)
 
 target_precompile_headers(${PROJECT_NAME} INTERFACE [["property_sync/property.h"]])
+
+# Codegen tool — must be available before examples that depend on it
+add_subdirectory(meta)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(IS_TOPLEVEL_PROJECT TRUE)
@@ -70,6 +74,8 @@ if(WITH_TEST)
 add_subdirectory(test)
 endif(WITH_TEST)
 
-endif(IS_TOPLEVEL_PROJECT)
+if(WITH_EXAMPLES)
+add_subdirectory(examples)
+endif(WITH_EXAMPLES)
 
-add_subdirectory(meta)
+endif(IS_TOPLEVEL_PROJECT)

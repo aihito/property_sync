@@ -1,5 +1,16 @@
 # property sync
 
+游戏角色属性的**增量同步**库：服务端通过 proxy 记录变更，客户端 replay 回放，类似 Unreal Replication 的属性修改同步部分。
+
+## 文档与示例
+
+| 路径 | 说明 |
+|------|------|
+| [docs/core-principles.md](docs/core-principles.md) | 核心原理（Proxy / 队列 / offset / 背包 / Meta） |
+| [docs/game-example.md](docs/game-example.md) | RPG 场景使用说明 |
+| [docs/build-and-test.md](docs/build-and-test.md) | 依赖、CMake 编译与测试命令 |
+| [examples/rpg_player/](examples/rpg_player/) | 可对照的玩家属性同步示例代码 |
+| [test/](test/) | 完整 Record/Replay 单元测试 |
 
 ## 属性同步介绍
 在游戏中，角色的属性其实就是我们常说的存档，他包含了描述一个角色自身的完整数据，例如名称、等级、血量、伤害计算相关数据、buff数据、技能数据、装备包裹数据、任务包裹数据、代币数据、交易数据等，统一以一个玩家一个doc的形式存储在数据库里。一个角色的数据除了自身数据之外，还包括与其他玩家之间的关联数据，如好友、群组、聊天、帮派、队伍等，这些数据一般都是单独存库，不放在玩家身上，以避免多份数据之间的不一致问题。这些关联数据，有些时候是提供rpc形式提供客户端的读取接口，有些时候通过按需延迟初始化的属性挂载到玩家属性身上。
