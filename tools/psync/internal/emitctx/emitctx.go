@@ -3,6 +3,8 @@ package emitctx
 import (
 	"sort"
 	"strconv"
+	"strings"
+	"unicode"
 
 	"property_sync/psync/internal/ir"
 	"property_sync/psync/internal/wire"
@@ -50,13 +52,13 @@ func protoTypeOf(f ir.FieldDef) string {
 	case "dict":
 		return "map<string, int64>"
 	case "bag":
-		return "repeated " + deref(t.Name) + "Snapshot"
+		return "repeated " + deref(t.Name)
 	case "slots":
-		return deref(t.Name) + "SlotsSnapshot"
+		return deref(t.Name) + "Slots"
 	case "vec":
-		return "repeated " + deref(t.Name) + "Snapshot"
+		return "repeated " + deref(t.Name)
 	case "object":
-		return deref(t.Name) + "Snapshot"
+		return deref(t.Name)
 	}
 	return "bytes"
 }
@@ -131,7 +133,7 @@ func ClassToMustache(cls *ir.ClassDef, legacyWire bool, flagClass string) map[st
 			if f.Type.Kind == "object" && *f.Type.Name == cls.Name {
 				continue
 			}
-			file := *f.Type.Name + ".proto"
+			file := toSnakeProto(*f.Type.Name) + ".proto"
 			if !seen[file] {
 				seen[file] = true
 				protoImports = append(protoImports, map[string]any{"import_file": file})
@@ -235,4 +237,23 @@ func joinPipe(parts []string) string {
 		s += " | " + parts[i]
 	}
 	return s
+}
+
+// toSnakeProto: Player → player, LoginRecord → login_record (proto file stem).
+func toSnakeProto(s string) string {
+	if s == "" {
+		return s
+	}
+	var b strings.Builder
+	for i, r := range s {
+		if unicode.IsUpper(r) {
+			if i > 0 {
+				b.WriteByte('_')
+			}
+			b.WriteRune(unicode.ToLower(r))
+			continue
+		}
+		b.WriteRune(r)
+	}
+	return b.String()
 }

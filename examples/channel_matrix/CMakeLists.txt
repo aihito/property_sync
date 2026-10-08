@@ -83,11 +83,11 @@ if(PROTOC_EXECUTABLE)
 		COMMAND ${PROTOC_EXECUTABLE}
 			--descriptor_set_out=${CM_PROTO_DESC}
 			-I${CM_GEN}/proto
-			${CM_GEN}/proto/Item.proto
-			${CM_GEN}/proto/Buff.proto
-			${CM_GEN}/proto/EquipItem.proto
-			${CM_GEN}/proto/LoginRecord.proto
-			${CM_GEN}/proto/Player.proto
+			${CM_GEN}/proto/item.proto
+			${CM_GEN}/proto/buff.proto
+			${CM_GEN}/proto/equip_item.proto
+			${CM_GEN}/proto/login_record.proto
+			${CM_GEN}/proto/player.proto
 		DEPENDS channel_matrix_generate
 		COMMENT "channel_matrix: protoc descriptor check"
 		VERBATIM
@@ -101,20 +101,21 @@ file(MAKE_DIRECTORY ${CM_PB_GEN})
 set(CM_PB_SRCS)
 set(CM_PB_HDRS)
 if(PROPERTY_SYNC_HAVE_PROTOBUF AND PROTOC_EXECUTABLE)
-	foreach(_pb Item Buff EquipItem LoginRecord Player)
+	foreach(_pb item buff equip_item login_record player)
 		list(APPEND CM_PB_SRCS ${CM_PB_GEN}/${_pb}.pb.cc)
 		list(APPEND CM_PB_HDRS ${CM_PB_GEN}/${_pb}.pb.h)
 	endforeach()
 	add_custom_command(
 		OUTPUT ${CM_PB_SRCS} ${CM_PB_HDRS}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CM_PB_GEN}
 		COMMAND ${PROTOC_EXECUTABLE}
 			--cpp_out=${CM_PB_GEN}
 			-I${CM_GEN}/proto
-			${CM_GEN}/proto/Item.proto
-			${CM_GEN}/proto/Buff.proto
-			${CM_GEN}/proto/EquipItem.proto
-			${CM_GEN}/proto/LoginRecord.proto
-			${CM_GEN}/proto/Player.proto
+			${CM_GEN}/proto/item.proto
+			${CM_GEN}/proto/buff.proto
+			${CM_GEN}/proto/equip_item.proto
+			${CM_GEN}/proto/login_record.proto
+			${CM_GEN}/proto/player.proto
 		DEPENDS channel_matrix_generate
 		COMMENT "channel_matrix: protoc --cpp_out → ${CM_PB_GEN}"
 		VERBATIM

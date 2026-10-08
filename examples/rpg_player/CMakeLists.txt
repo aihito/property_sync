@@ -187,12 +187,12 @@ if(PROTOC_EXECUTABLE)
 		COMMAND ${PROTOC_EXECUTABLE}
 			--descriptor_set_out=${RPG_PROTO_DESC}
 			-I${RPG_PROTO_DIR}
-			${RPG_PROTO_DIR}/property_mutate.proto
-			${RPG_PROTO_DIR}/Item.proto
-			${RPG_PROTO_DIR}/Buff.proto
-			${RPG_PROTO_DIR}/EquipItem.proto
-			${RPG_PROTO_DIR}/LoginRecord.proto
-			${RPG_PROTO_DIR}/Player.proto
+			${RPG_PROTO_DIR}/mutate.proto
+			${RPG_PROTO_DIR}/item.proto
+			${RPG_PROTO_DIR}/buff.proto
+			${RPG_PROTO_DIR}/equip_item.proto
+			${RPG_PROTO_DIR}/login_record.proto
+			${RPG_PROTO_DIR}/player.proto
 		DEPENDS rpg_player_generate
 		COMMENT "protoc compile-check rpg_player protos"
 		VERBATIM

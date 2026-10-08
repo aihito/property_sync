@@ -1,5 +1,5 @@
 --[[
-  CLI for lua-protobuf PlayerSnapshot archive.
+  CLI for lua-protobuf Player archive.
 
   Usage:
     lua pb_archive_cli.lua <proto_dir> <lua_module_dir> save <db_view.json> <out.pb>
@@ -36,11 +36,11 @@ end
 if cmd == "save" then
   local view = read_json(assert(arg[4]))
   local n = Archive.save_file(view, assert(arg[5]))
-  print(string.format("[PASS] lua-pb saved PlayerSnapshot (%d bytes) → %s", n, arg[5]))
+  print(string.format("[PASS] lua-pb saved Player (%d bytes) → %s", n, arg[5]))
 elseif cmd == "load" then
   local view, n = Archive.load_file(assert(arg[4]))
   write_json(assert(arg[5]), view)
-  print(string.format("[PASS] lua-pb loaded PlayerSnapshot (%d bytes) → %s", n, arg[5]))
+  print(string.format("[PASS] lua-pb loaded Player (%d bytes) → %s", n, arg[5]))
 elseif cmd == "roundtrip" then
   local view = read_json(assert(arg[4]))
   local ok = Archive.roundtrip_ok(view)

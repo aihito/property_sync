@@ -11,7 +11,7 @@ local pb = require("pb")
 local protoc = require("protoc")
 
 local M = {
-  TYPE = "property_sync.generated.PlayerSnapshot",
+  TYPE = "psync.Player",
   _ready = false,
 }
 
@@ -93,7 +93,7 @@ function M.init(proto_dir)
   local p = protoc.new()
   p.include_imports = true
   p:addpath(proto_dir)
-  assert(p:loadfile("Player.proto"))
+  assert(p:loadfile("player.proto"))
   M._ready = true
   M._proto_dir = proto_dir
   return M

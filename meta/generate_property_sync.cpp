@@ -1,3 +1,4 @@
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -45,6 +46,30 @@ std::string read_file_text(const std::filesystem::path& path)
 		return {};
 	}
 	return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+}
+
+// Player → player, LoginRecord → login_record
+std::string to_snake_case(const std::string& s)
+{
+	std::string out;
+	out.reserve(s.size() + 4);
+	for (std::size_t i = 0; i < s.size(); ++i)
+	{
+		const unsigned char c = static_cast<unsigned char>(s[i]);
+		if (std::isupper(c))
+		{
+			if (i > 0)
+			{
+				out.push_back('_');
+			}
+			out.push_back(static_cast<char>(std::tolower(c)));
+		}
+		else
+		{
+			out.push_back(static_cast<char>(c));
+		}
+	}
+	return out;
 }
 
 mustache::mustache load_mustache(const std::string& mustache_folder, const std::string& file_name)
@@ -265,7 +290,7 @@ FieldClassify classify_field(const std::string& cpp_type, const class_node* rela
 	if (cpp_type.find("property_bag") != std::string::npos)
 	{
 		out.proto_type = "repeated bytes";
-		set_item_from_template("bag", "repeated ", "Snapshot");
+		set_item_from_template("bag", "repeated ", "");
 		if (out.item_class.empty())
 		{
 			out.proto_type = "repeated bytes";
@@ -275,7 +300,7 @@ FieldClassify classify_field(const std::string& cpp_type, const class_node* rela
 	if (cpp_type.find("property_slots") != std::string::npos)
 	{
 		out.proto_type = "bytes";
-		set_item_from_template("slots", "", "SlotsSnapshot");
+		set_item_from_template("slots", "", "Slots");
 		if (out.item_class.empty())
 		{
 			out.proto_type = "bytes";
@@ -285,7 +310,7 @@ FieldClassify classify_field(const std::string& cpp_type, const class_node* rela
 	if (cpp_type.find("property_vec") != std::string::npos)
 	{
 		out.proto_type = "repeated bytes";
-		set_item_from_template("vec", "repeated ", "Snapshot");
+		set_item_from_template("vec", "repeated ", "");
 		if (out.item_class.empty())
 		{
 			out.proto_type = "repeated bytes";
@@ -342,7 +367,7 @@ FieldClassify classify_field(const std::string& cpp_type, const class_node* rela
 		{
 			out.has_property_interface = true;
 			out.wire_kind = "object";
-			out.proto_type = related_class->unqualified_name() + "Snapshot";
+			out.proto_type = related_class->unqualified_name();
 			out.item_class = related_class->qualified_name();
 			return out;
 		}
@@ -441,7 +466,7 @@ ClassModel parse_class_model(const class_node* one_class, const std::string& fla
 			if (field.classify.wire_kind != "object"
 				|| short_type_name(field.classify.item_class) != model.class_name)
 			{
-				const std::string file = short_type_name(field.classify.item_class) + ".proto";
+				const std::string file = to_snake_case(short_type_name(field.classify.item_class)) + ".proto";
 				if (imported_protos.insert(file).second)
 				{
 					model.proto_imports.push_back(file);
@@ -544,9 +569,10 @@ mustache::data field_to_mustache(const FieldModel& field, bool first_field)
 	return d;
 }
 
-mustache::data class_model_to_mustache(const ClassModel& model)
+mustache::data class_model_to_mustache(const ClassModel& model, const std::string& proto_package)
 {
 	mustache::data render_args;
+	render_args.set("proto_package", proto_package);
 	render_args.set("is_property_item", static_cast<int>(model.item_type));
 	render_args.set("property_idx_begin", std::to_string(model.property_idx_begin));
 	render_args.set("property_idx_max", std::to_string(model.property_idx_max));
@@ -617,14 +643,20 @@ std::unordered_map<std::string, std::string> generate_property(
 	auto property_mutate_proto_mustache = load_mustache(mustache_folder, "property_mutate_proto.mustache");
 	auto property_cmd_lua_mustache = load_mustache(mustache_folder, "property_cmd_lua.mustache");
 
-	mustache::data empty_args;
 	const auto gen_root = std::filesystem::path(generated_folder);
+	const std::string proto_pkg = "psync";
+	mustache::data empty_args;
+	empty_args.set("proto_package", proto_pkg);
 	std::filesystem::create_directories(gen_root / "schema");
 	std::filesystem::create_directories(gen_root / "proto");
 	std::filesystem::create_directories(gen_root / "lua");
 
 	generator::append_output_to_stream(
-		result, (gen_root / "proto" / "property_mutate.proto").string(), property_mutate_proto_mustache.render(empty_args));
+		result, (gen_root / "proto" / "mutate.proto").string(), property_mutate_proto_mustache.render(empty_args));
+	// Drop legacy filenames from older Meta runs.
+	std::error_code ec;
+	std::filesystem::remove(gen_root / "proto" / "property_mutate.proto", ec);
+	std::filesystem::remove(gen_root / "proto" / "Mutate.proto", ec);
 	generator::append_output_to_stream(
 		result, (gen_root / "lua" / "property_cmd.lua").string(), property_cmd_lua_mustache.render(empty_args));
 
@@ -651,9 +683,10 @@ std::unordered_map<std::string, std::string> generate_property(
 			base_namespace, one_class->get_resident_ns()->qualified_name, generated_folder);
 
 		const ClassModel model = parse_class_model(one_class, flag_class);
-		const mustache::data render_args = class_model_to_mustache(model);
+		const mustache::data render_args = class_model_to_mustache(model, proto_pkg);
 
 		const auto stem = one_class->unqualified_name();
+		const auto proto_stem = to_snake_case(stem);
 		generator::append_output_to_stream(
 			result, (generated_folder_path / (stem + ".proxy.inch")).string(), property_proxy_mustache.render(render_args));
 		generator::append_output_to_stream(
@@ -663,7 +696,11 @@ std::unordered_map<std::string, std::string> generate_property(
 		generator::append_output_to_stream(
 			result, (gen_root / "schema" / (stem + ".schema.json")).string(), property_schema_mustache.render(render_args));
 		generator::append_output_to_stream(
-			result, (gen_root / "proto" / (stem + ".proto")).string(), property_proto_mustache.render(render_args));
+			result, (gen_root / "proto" / (proto_stem + ".proto")).string(), property_proto_mustache.render(render_args));
+		if (proto_stem != stem)
+		{
+			std::filesystem::remove(gen_root / "proto" / (stem + ".proto"), ec);
+		}
 		generator::append_output_to_stream(
 			result, (gen_root / "lua" / (stem + "_meta.lua")).string(), property_lua_mustache.render(render_args));
 	}

@@ -4,1011 +4,1281 @@
 namespace spiritsaway::rpg_example
 {
 Player::Player()
-    : m_nickname{}
+	: m_nickname{}
 
-    , m_hp{}
-    , m_level{}
-    , m_gold{}
-    , m_pos{}
-    , m_tags{}
-    , m_attrs{}
-    , m_inventory{}
-    , m_buffs{}
-    , m_equipment{}
-    , m_login_history{}
+	, m_hp{}
+	, m_level{}
+	, m_gold{}
+	, m_pos{}
+	, m_tags{}
+	, m_attrs{}
+	, m_inventory{}
+	, m_buffs{}
+	, m_equipment{}
+	, m_login_history{}
 {
+
 }
 
 bool Player::replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
 {
-    using std::swap;
-    auto split_result = offset.split();
-    auto field_index = split_result.second;
-    auto remain_offset = split_result.first;
-    switch (field_index) {
-        case index_for_nickname: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_nickname);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_hp: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_hp);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_level: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_level);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_gold: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_gold);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_pos: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_pos);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_tags: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_tags);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_attrs: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_attrs);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_inventory: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_inventory);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_buffs: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_buffs);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_equipment: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_equipment);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_login_history: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_login_history);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_end_for_Player: {
-            if (cmd == spiritsaway::property::property_cmd::clear) {
-                Player temp_clear_instance{};
-                swap(*this, temp_clear_instance);
-                return true;
-            }
-            else if (cmd == spiritsaway::property::property_cmd::set) {
-                Player new_value;
-                if (!serialize::decode(data, new_value)) {
-                    return false;
-                }
-                else {
-                    swap(*this, new_value);
-                    return true;
-                }
-            }
-            else {
-                return false;
-            }
-        }
-        default:
-            return false;
-    }
+	using std::swap;
+	auto split_result = offset.split();
+	auto field_index = split_result.second;
+	auto remain_offset = split_result.first;
+	switch(field_index)
+	{
+		case index_for_nickname:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_nickname);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_hp:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_hp);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_level:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_level);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_gold:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_gold);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_pos:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_pos);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_tags:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_tags);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_attrs:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_attrs);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_inventory:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_inventory);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_buffs:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_buffs);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_equipment:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_equipment);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_login_history:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_login_history);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_end_for_Player:
+		{
+			if(cmd == spiritsaway::property::property_cmd::clear)
+			{
+				Player temp_clear_instance{};
+				swap(*this, temp_clear_instance);
+				return true;
+			}
+			else if(cmd == spiritsaway::property::property_cmd::set)
+			{
+				
+				Player new_value;
+				if(!serialize::decode(data, new_value))
+				{
+					return false;
+				}
+				else
+				{
+					swap(*this, new_value);
+					return true;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		default:
+			return false;
+	}
 }
 
 bool Player::operator==(const Player& other) const
 {
-    if (m_nickname != other.m_nickname) {
-        return false;
-    }
-    if (m_hp != other.m_hp) {
-        return false;
-    }
-    if (m_level != other.m_level) {
-        return false;
-    }
-    if (m_gold != other.m_gold) {
-        return false;
-    }
-    if (m_pos != other.m_pos) {
-        return false;
-    }
-    if (m_tags != other.m_tags) {
-        return false;
-    }
-    if (m_attrs != other.m_attrs) {
-        return false;
-    }
-    if (m_inventory != other.m_inventory) {
-        return false;
-    }
-    if (m_buffs != other.m_buffs) {
-        return false;
-    }
-    if (m_equipment != other.m_equipment) {
-        return false;
-    }
-    if (m_login_history != other.m_login_history) {
-        return false;
-    }
-    return true;
+	if(m_nickname != other.m_nickname)
+	{
+		return false;
+	}
+	if(m_hp != other.m_hp)
+	{
+		return false;
+	}
+	if(m_level != other.m_level)
+	{
+		return false;
+	}
+	if(m_gold != other.m_gold)
+	{
+		return false;
+	}
+	if(m_pos != other.m_pos)
+	{
+		return false;
+	}
+	if(m_tags != other.m_tags)
+	{
+		return false;
+	}
+	if(m_attrs != other.m_attrs)
+	{
+		return false;
+	}
+	if(m_inventory != other.m_inventory)
+	{
+		return false;
+	}
+	if(m_buffs != other.m_buffs)
+	{
+		return false;
+	}
+	if(m_equipment != other.m_equipment)
+	{
+		return false;
+	}
+	if(m_login_history != other.m_login_history)
+	{
+		return false;
+	}
+	return true;
 }
 bool Player::operator!=(const Player& other) const
 {
-    return !(operator==(other));
+	return !(operator==(other));
 }
+
 
 json Player::encode(bool ignore_default) const
 {
-    json result;
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-        result["nickname"] = spiritsaway::serialize::encode(m_nickname);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-        result["hp"] = spiritsaway::serialize::encode(m_hp);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-        result["level"] = spiritsaway::serialize::encode(m_level);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-        result["gold"] = spiritsaway::serialize::encode(m_gold);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-        result["pos"] = spiritsaway::serialize::encode(m_pos);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-        result["tags"] = spiritsaway::serialize::encode(m_tags);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-        result["attrs"] = spiritsaway::serialize::encode(m_attrs);
-    }
-    if (!ignore_default || !m_inventory.has_default_value()) {
-        result["inventory"] = m_inventory.encode(ignore_default);
-    }
-    if (!ignore_default || !m_buffs.has_default_value()) {
-        result["buffs"] = m_buffs.encode(ignore_default);
-    }
-    if (!ignore_default || !m_equipment.has_default_value()) {
-        result["equipment"] = m_equipment.encode(ignore_default);
-    }
-    if (!ignore_default || !m_login_history.has_default_value()) {
-        result["login_history"] = m_login_history.encode(ignore_default);
-    }
-    return result;
+	json result;
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+	{
+		result["nickname"] = spiritsaway::serialize::encode(m_nickname);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+	{
+		result["hp"] = spiritsaway::serialize::encode(m_hp);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+	{
+		result["level"] = spiritsaway::serialize::encode(m_level);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+	{
+		result["gold"] = spiritsaway::serialize::encode(m_gold);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+	{
+		result["pos"] = spiritsaway::serialize::encode(m_pos);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+	{
+		result["tags"] = spiritsaway::serialize::encode(m_tags);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+	{
+		result["attrs"] = spiritsaway::serialize::encode(m_attrs);
+	}
+	if(!ignore_default || !m_inventory.has_default_value())
+	{
+		result["inventory"] = m_inventory.encode(ignore_default);
+	}
+	if(!ignore_default || !m_buffs.has_default_value())
+	{
+		result["buffs"] = m_buffs.encode(ignore_default);
+	}
+	if(!ignore_default || !m_equipment.has_default_value())
+	{
+		result["equipment"] = m_equipment.encode(ignore_default);
+	}
+	if(!ignore_default || !m_login_history.has_default_value())
+	{
+		result["login_history"] = m_login_history.encode(ignore_default);
+	}
+	return result;
 }
 void Player::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const
 {
-    if ((flag_for_nickname & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_nickname, m_nickname)));
-        }
-    }
-    if ((flag_for_hp & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_hp, m_hp)));
-        }
-    }
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_level, m_level)));
-        }
-    }
-    if ((flag_for_gold & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_gold, m_gold)));
-        }
-    }
-    if ((flag_for_pos & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_pos, m_pos)));
-        }
-    }
-    if ((flag_for_tags & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_tags, m_tags)));
-        }
-    }
-    if ((flag_for_attrs & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_attrs, m_attrs)));
-        }
-    }
-    if ((flag_for_inventory & flag.value) == flag.value) {
-        if (!ignore_default || !m_inventory.has_default_value()) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_inventory, m_inventory.encode_with_flag(flag, ignore_default, true))));
-        }
-    }
-    if ((flag_for_buffs & flag.value) == flag.value) {
-        if (!ignore_default || !m_buffs.has_default_value()) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_buffs, m_buffs.encode_with_flag(flag, ignore_default, true))));
-        }
-    }
-    if ((flag_for_equipment & flag.value) == flag.value) {
-        if (!ignore_default || !m_equipment.has_default_value()) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_equipment, m_equipment.encode_with_flag(flag, ignore_default, true))));
-        }
-    }
-    if ((flag_for_login_history & flag.value) == flag.value) {
-        if (!ignore_default || !m_login_history.has_default_value()) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_login_history, m_login_history.encode_with_flag(flag, ignore_default, true))));
-        }
-    }
-    return;
+
+	if((flag_for_nickname & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_nickname, m_nickname)));
+		}
+	}
+	if((flag_for_hp & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_hp, m_hp)));
+		}
+	}
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_level, m_level)));
+		}
+	}
+	if((flag_for_gold & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_gold, m_gold)));
+		}
+	}
+	if((flag_for_pos & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_pos, m_pos)));
+		}
+	}
+	if((flag_for_tags & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_tags, m_tags)));
+		}
+	}
+	if((flag_for_attrs & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_attrs, m_attrs)));
+		}
+	}
+	if((flag_for_inventory & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_inventory.has_default_value())
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_inventory, m_inventory.encode_with_flag(flag, ignore_default, true))));
+		}
+	}
+	if((flag_for_buffs & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_buffs.has_default_value())
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_buffs, m_buffs.encode_with_flag(flag, ignore_default, true))));
+		}
+	}
+	if((flag_for_equipment & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_equipment.has_default_value())
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_equipment, m_equipment.encode_with_flag(flag, ignore_default, true))));
+		}
+	}
+	if((flag_for_login_history & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_login_history.has_default_value())
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_login_history, m_login_history.encode_with_flag(flag, ignore_default, true))));
+		}
+	}
+	return;
 }
 
 void Player::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const
 {
-    if ((flag_for_nickname & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-            result["nickname"] = spiritsaway::serialize::encode(m_nickname);
-        }
-    }
-    if ((flag_for_hp & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-            result["hp"] = spiritsaway::serialize::encode(m_hp);
-        }
-    }
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            result["level"] = spiritsaway::serialize::encode(m_level);
-        }
-    }
-    if ((flag_for_gold & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-            result["gold"] = spiritsaway::serialize::encode(m_gold);
-        }
-    }
-    if ((flag_for_pos & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-            result["pos"] = spiritsaway::serialize::encode(m_pos);
-        }
-    }
-    if ((flag_for_tags & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-            result["tags"] = spiritsaway::serialize::encode(m_tags);
-        }
-    }
-    if ((flag_for_attrs & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-            result["attrs"] = spiritsaway::serialize::encode(m_attrs);
-        }
-    }
-    if ((flag_for_inventory & flag.value) == flag.value) {
-        if (!ignore_default || !m_inventory.has_default_value()) {
-            result["inventory"] = m_inventory.encode_with_flag(flag, ignore_default, false);
-        }
-    }
-    if ((flag_for_buffs & flag.value) == flag.value) {
-        if (!ignore_default || !m_buffs.has_default_value()) {
-            result["buffs"] = m_buffs.encode_with_flag(flag, ignore_default, false);
-        }
-    }
-    if ((flag_for_equipment & flag.value) == flag.value) {
-        if (!ignore_default || !m_equipment.has_default_value()) {
-            result["equipment"] = m_equipment.encode_with_flag(flag, ignore_default, false);
-        }
-    }
-    if ((flag_for_login_history & flag.value) == flag.value) {
-        if (!ignore_default || !m_login_history.has_default_value()) {
-            result["login_history"] = m_login_history.encode_with_flag(flag, ignore_default, false);
-        }
-    }
-    return;
+
+	if((flag_for_nickname & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+		{
+			result["nickname"] = spiritsaway::serialize::encode(m_nickname);
+		}
+	}
+	if((flag_for_hp & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+		{
+			result["hp"] = spiritsaway::serialize::encode(m_hp);
+		}
+	}
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+		{
+			result["level"] = spiritsaway::serialize::encode(m_level);
+		}
+	}
+	if((flag_for_gold & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+		{
+			result["gold"] = spiritsaway::serialize::encode(m_gold);
+		}
+	}
+	if((flag_for_pos & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+		{
+			result["pos"] = spiritsaway::serialize::encode(m_pos);
+		}
+	}
+	if((flag_for_tags & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+		{
+			result["tags"] = spiritsaway::serialize::encode(m_tags);
+		}
+	}
+	if((flag_for_attrs & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+		{
+			result["attrs"] = spiritsaway::serialize::encode(m_attrs);
+		}
+	}
+	if((flag_for_inventory & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_inventory.has_default_value())
+		{
+			result["inventory"] = m_inventory.encode_with_flag(flag, ignore_default, false);
+		}
+	}
+	if((flag_for_buffs & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_buffs.has_default_value())
+		{
+			result["buffs"] = m_buffs.encode_with_flag(flag, ignore_default, false);
+		}
+	}
+	if((flag_for_equipment & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_equipment.has_default_value())
+		{
+			result["equipment"] = m_equipment.encode_with_flag(flag, ignore_default, false);
+		}
+	}
+	if((flag_for_login_history & flag.value) == flag.value)
+	{
+		if(!ignore_default || !m_login_history.has_default_value())
+		{
+			result["login_history"] = m_login_history.encode_with_flag(flag, ignore_default, false);
+		}
+	}
+	return;
 }
 json Player::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const
 {
-    if (replace_key_by_index) {
-        json::array_t result;
-        encode_with_flag(flag, ignore_default, result);
-        return result;
-    }
-    else {
-        json::object_t result;
-        encode_with_flag(flag, ignore_default, result);
-        return result;
-    }
+	if (replace_key_by_index)
+	{
+		json::array_t result;
+		encode_with_flag(flag, ignore_default, result);
+		return result;
+	}
+	else
+	{
+		json::object_t result;
+		encode_with_flag(flag, ignore_default, result);
+		return result;
+	}
 }
 
 std::vector<std::uint8_t> Player::get_fields_with_flag(const spiritsaway::property::property_flags flag) const
 {
-    std::vector<std::uint8_t> result;
+	std::vector<std::uint8_t> result;
 
-    if ((flag_for_nickname & flag.value) == flag.value) {
-        result.push_back(index_for_nickname);
-    }
-    if ((flag_for_hp & flag.value) == flag.value) {
-        result.push_back(index_for_hp);
-    }
-    if ((flag_for_level & flag.value) == flag.value) {
-        result.push_back(index_for_level);
-    }
-    if ((flag_for_gold & flag.value) == flag.value) {
-        result.push_back(index_for_gold);
-    }
-    if ((flag_for_pos & flag.value) == flag.value) {
-        result.push_back(index_for_pos);
-    }
-    if ((flag_for_tags & flag.value) == flag.value) {
-        result.push_back(index_for_tags);
-    }
-    if ((flag_for_attrs & flag.value) == flag.value) {
-        result.push_back(index_for_attrs);
-    }
-    if ((flag_for_inventory & flag.value) == flag.value) {
-        result.push_back(index_for_inventory);
-    }
-    if ((flag_for_buffs & flag.value) == flag.value) {
-        result.push_back(index_for_buffs);
-    }
-    if ((flag_for_equipment & flag.value) == flag.value) {
-        result.push_back(index_for_equipment);
-    }
-    if ((flag_for_login_history & flag.value) == flag.value) {
-        result.push_back(index_for_login_history);
-    }
-    return result;
+	if((flag_for_nickname & flag.value) == flag.value)
+	{
+		result.push_back(index_for_nickname);
+	}
+	if((flag_for_hp & flag.value) == flag.value)
+	{
+		result.push_back(index_for_hp);
+	}
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		result.push_back(index_for_level);
+	}
+	if((flag_for_gold & flag.value) == flag.value)
+	{
+		result.push_back(index_for_gold);
+	}
+	if((flag_for_pos & flag.value) == flag.value)
+	{
+		result.push_back(index_for_pos);
+	}
+	if((flag_for_tags & flag.value) == flag.value)
+	{
+		result.push_back(index_for_tags);
+	}
+	if((flag_for_attrs & flag.value) == flag.value)
+	{
+		result.push_back(index_for_attrs);
+	}
+	if((flag_for_inventory & flag.value) == flag.value)
+	{
+		result.push_back(index_for_inventory);
+	}
+	if((flag_for_buffs & flag.value) == flag.value)
+	{
+		result.push_back(index_for_buffs);
+	}
+	if((flag_for_equipment & flag.value) == flag.value)
+	{
+		result.push_back(index_for_equipment);
+	}
+	if((flag_for_login_history & flag.value) == flag.value)
+	{
+		result.push_back(index_for_login_history);
+	}
+	return result;
 }
 
 std::vector<std::uint8_t> Player::get_fields_without_flag(const spiritsaway::property::property_flags flag) const
 {
-    std::vector<std::uint8_t> result;
+	std::vector<std::uint8_t> result;
 
-    if ((flag_for_nickname & flag.value) != flag.value) {
-        result.push_back(index_for_nickname);
-    }
-    if ((flag_for_hp & flag.value) != flag.value) {
-        result.push_back(index_for_hp);
-    }
-    if ((flag_for_level & flag.value) != flag.value) {
-        result.push_back(index_for_level);
-    }
-    if ((flag_for_gold & flag.value) != flag.value) {
-        result.push_back(index_for_gold);
-    }
-    if ((flag_for_pos & flag.value) != flag.value) {
-        result.push_back(index_for_pos);
-    }
-    if ((flag_for_tags & flag.value) != flag.value) {
-        result.push_back(index_for_tags);
-    }
-    if ((flag_for_attrs & flag.value) != flag.value) {
-        result.push_back(index_for_attrs);
-    }
-    if ((flag_for_inventory & flag.value) != flag.value) {
-        result.push_back(index_for_inventory);
-    }
-    if ((flag_for_buffs & flag.value) != flag.value) {
-        result.push_back(index_for_buffs);
-    }
-    if ((flag_for_equipment & flag.value) != flag.value) {
-        result.push_back(index_for_equipment);
-    }
-    if ((flag_for_login_history & flag.value) != flag.value) {
-        result.push_back(index_for_login_history);
-    }
-    return result;
+	if((flag_for_nickname & flag.value) != flag.value)
+	{
+		result.push_back(index_for_nickname);
+	}
+	if((flag_for_hp & flag.value) != flag.value)
+	{
+		result.push_back(index_for_hp);
+	}
+	if((flag_for_level & flag.value) != flag.value)
+	{
+		result.push_back(index_for_level);
+	}
+	if((flag_for_gold & flag.value) != flag.value)
+	{
+		result.push_back(index_for_gold);
+	}
+	if((flag_for_pos & flag.value) != flag.value)
+	{
+		result.push_back(index_for_pos);
+	}
+	if((flag_for_tags & flag.value) != flag.value)
+	{
+		result.push_back(index_for_tags);
+	}
+	if((flag_for_attrs & flag.value) != flag.value)
+	{
+		result.push_back(index_for_attrs);
+	}
+	if((flag_for_inventory & flag.value) != flag.value)
+	{
+		result.push_back(index_for_inventory);
+	}
+	if((flag_for_buffs & flag.value) != flag.value)
+	{
+		result.push_back(index_for_buffs);
+	}
+	if((flag_for_equipment & flag.value) != flag.value)
+	{
+		result.push_back(index_for_equipment);
+	}
+	if((flag_for_login_history & flag.value) != flag.value)
+	{
+		result.push_back(index_for_login_history);
+	}
+	return result;
 }
+
+
 
 json Player::encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-    json result;
+	json result;
 
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_nickname: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-                    result["nickname"] = spiritsaway::serialize::encode(m_nickname);
-                }
-                break;
-            }
-            case index_for_hp: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-                    result["hp"] = spiritsaway::serialize::encode(m_hp);
-                }
-                break;
-            }
-            case index_for_level: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_gold: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-                    result["gold"] = spiritsaway::serialize::encode(m_gold);
-                }
-                break;
-            }
-            case index_for_pos: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-                    result["pos"] = spiritsaway::serialize::encode(m_pos);
-                }
-                break;
-            }
-            case index_for_tags: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-                    result["tags"] = spiritsaway::serialize::encode(m_tags);
-                }
-                break;
-            }
-            case index_for_attrs: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-                    result["attrs"] = spiritsaway::serialize::encode(m_attrs);
-                }
-                break;
-            }
-            case index_for_inventory: {
-                if (!ignore_default || !m_inventory.has_default_value()) {
-                    result["inventory"] = m_inventory.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_buffs: {
-                if (!ignore_default || !m_buffs.has_default_value()) {
-                    result["buffs"] = m_buffs.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_equipment: {
-                if (!ignore_default || !m_equipment.has_default_value()) {
-                    result["equipment"] = m_equipment.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_login_history: {
-                if (!ignore_default || !m_login_history.has_default_value()) {
-                    result["login_history"] = m_login_history.encode(ignore_default);
-                }
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-    return result;
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_nickname:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+				{
+					result["nickname"] = spiritsaway::serialize::encode(m_nickname);
+				}
+				break;
+			}
+			case index_for_hp:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+				{
+					result["hp"] = spiritsaway::serialize::encode(m_hp);
+				}
+				break;
+			}
+			case index_for_level:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_gold:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+				{
+					result["gold"] = spiritsaway::serialize::encode(m_gold);
+				}
+				break;
+			}
+			case index_for_pos:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+				{
+					result["pos"] = spiritsaway::serialize::encode(m_pos);
+				}
+				break;
+			}
+			case index_for_tags:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+				{
+					result["tags"] = spiritsaway::serialize::encode(m_tags);
+				}
+				break;
+			}
+			case index_for_attrs:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+				{
+					result["attrs"] = spiritsaway::serialize::encode(m_attrs);
+				}
+				break;
+			}
+			case index_for_inventory:
+			{
+				if(!ignore_default || !m_inventory.has_default_value())
+				{
+					result["inventory"] = m_inventory.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_buffs:
+			{
+				if(!ignore_default || !m_buffs.has_default_value())
+				{
+					result["buffs"] = m_buffs.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_equipment:
+			{
+				if(!ignore_default || !m_equipment.has_default_value())
+				{
+					result["equipment"] = m_equipment.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_login_history:
+			{
+				if(!ignore_default || !m_login_history.has_default_value())
+				{
+					result["login_history"] = m_login_history.encode(ignore_default);
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+				
+		}
+		
+	}
+	return result;
 }
 
 json Player::encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-    json result;
+	json result;
 
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_nickname: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-                    result["nickname"] = spiritsaway::serialize::encode(m_nickname);
-                }
-                break;
-            }
-            case index_for_hp: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-                    result["hp"] = spiritsaway::serialize::encode(m_hp);
-                }
-                break;
-            }
-            case index_for_level: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_gold: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-                    result["gold"] = spiritsaway::serialize::encode(m_gold);
-                }
-                break;
-            }
-            case index_for_pos: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-                    result["pos"] = spiritsaway::serialize::encode(m_pos);
-                }
-                break;
-            }
-            case index_for_tags: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-                    result["tags"] = spiritsaway::serialize::encode(m_tags);
-                }
-                break;
-            }
-            case index_for_attrs: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-                    result["attrs"] = spiritsaway::serialize::encode(m_attrs);
-                }
-                break;
-            }
-            case index_for_inventory: {
-                if (!ignore_default || !m_inventory.has_default_value()) {
-                    result["inventory"] = m_inventory.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_buffs: {
-                if (!ignore_default || !m_buffs.has_default_value()) {
-                    result["buffs"] = m_buffs.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_equipment: {
-                if (!ignore_default || !m_equipment.has_default_value()) {
-                    result["equipment"] = m_equipment.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_login_history: {
-                if (!ignore_default || !m_login_history.has_default_value()) {
-                    result["login_history"] = m_login_history.encode(ignore_default);
-                }
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-    return result;
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_nickname:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+				{
+					result["nickname"] = spiritsaway::serialize::encode(m_nickname);
+				}
+				break;
+			}
+			case index_for_hp:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+				{
+					result["hp"] = spiritsaway::serialize::encode(m_hp);
+				}
+				break;
+			}
+			case index_for_level:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_gold:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+				{
+					result["gold"] = spiritsaway::serialize::encode(m_gold);
+				}
+				break;
+			}
+			case index_for_pos:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+				{
+					result["pos"] = spiritsaway::serialize::encode(m_pos);
+				}
+				break;
+			}
+			case index_for_tags:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+				{
+					result["tags"] = spiritsaway::serialize::encode(m_tags);
+				}
+				break;
+			}
+			case index_for_attrs:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+				{
+					result["attrs"] = spiritsaway::serialize::encode(m_attrs);
+				}
+				break;
+			}
+			case index_for_inventory:
+			{
+				if(!ignore_default || !m_inventory.has_default_value())
+				{
+					result["inventory"] = m_inventory.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_buffs:
+			{
+				if(!ignore_default || !m_buffs.has_default_value())
+				{
+					result["buffs"] = m_buffs.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_equipment:
+			{
+				if(!ignore_default || !m_equipment.has_default_value())
+				{
+					result["equipment"] = m_equipment.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_login_history:
+			{
+				if(!ignore_default || !m_login_history.has_default_value())
+				{
+					result["login_history"] = m_login_history.encode(ignore_default);
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		
+	}
+	return result;
 }
 
 json Player::encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const
 {
-    json result;
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_nickname: {
-                if ((flag_for_nickname & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-                    result["nickname"] = spiritsaway::serialize::encode(m_nickname);
-                }
-                break;
-            }
-            case index_for_hp: {
-                if ((flag_for_hp & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-                    result["hp"] = spiritsaway::serialize::encode(m_hp);
-                }
-                break;
-            }
-            case index_for_level: {
-                if ((flag_for_level & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_gold: {
-                if ((flag_for_gold & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-                    result["gold"] = spiritsaway::serialize::encode(m_gold);
-                }
-                break;
-            }
-            case index_for_pos: {
-                if ((flag_for_pos & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-                    result["pos"] = spiritsaway::serialize::encode(m_pos);
-                }
-                break;
-            }
-            case index_for_tags: {
-                if ((flag_for_tags & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-                    result["tags"] = spiritsaway::serialize::encode(m_tags);
-                }
-                break;
-            }
-            case index_for_attrs: {
-                if ((flag_for_attrs & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-                    result["attrs"] = spiritsaway::serialize::encode(m_attrs);
-                }
-                break;
-            }
-            case index_for_inventory: {
-                if ((flag_for_inventory & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !m_inventory.has_default_value()) {
-                    result["inventory"] = m_inventory.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_buffs: {
-                if ((flag_for_buffs & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !m_buffs.has_default_value()) {
-                    result["buffs"] = m_buffs.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_equipment: {
-                if ((flag_for_equipment & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !m_equipment.has_default_value()) {
-                    result["equipment"] = m_equipment.encode(ignore_default);
-                }
-                break;
-            }
-            case index_for_login_history: {
-                if ((flag_for_login_history & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !m_login_history.has_default_value()) {
-                    result["login_history"] = m_login_history.encode(ignore_default);
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }
-    return result;
+	json result;
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_nickname:
+			{
+				if((flag_for_nickname & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+				{
+					result["nickname"] = spiritsaway::serialize::encode(m_nickname);
+				}
+				break;
+			}
+			case index_for_hp:
+			{
+				if((flag_for_hp & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+				{
+					result["hp"] = spiritsaway::serialize::encode(m_hp);
+				}
+				break;
+			}
+			case index_for_level:
+			{
+				if((flag_for_level & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_gold:
+			{
+				if((flag_for_gold & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+				{
+					result["gold"] = spiritsaway::serialize::encode(m_gold);
+				}
+				break;
+			}
+			case index_for_pos:
+			{
+				if((flag_for_pos & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+				{
+					result["pos"] = spiritsaway::serialize::encode(m_pos);
+				}
+				break;
+			}
+			case index_for_tags:
+			{
+				if((flag_for_tags & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+				{
+					result["tags"] = spiritsaway::serialize::encode(m_tags);
+				}
+				break;
+			}
+			case index_for_attrs:
+			{
+				if((flag_for_attrs & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+				{
+					result["attrs"] = spiritsaway::serialize::encode(m_attrs);
+				}
+				break;
+			}
+			case index_for_inventory:
+			{
+				if((flag_for_inventory & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default || !m_inventory.has_default_value())
+				{
+					result["inventory"] = m_inventory.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_buffs:
+			{
+				if((flag_for_buffs & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default || !m_buffs.has_default_value())
+				{
+					result["buffs"] = m_buffs.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_equipment:
+			{
+				if((flag_for_equipment & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default || !m_equipment.has_default_value())
+				{
+					result["equipment"] = m_equipment.encode(ignore_default);
+				}
+				break;
+			}
+			case index_for_login_history:
+			{
+				if((flag_for_login_history & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default || !m_login_history.has_default_value())
+				{
+					result["login_history"] = m_login_history.encode(ignore_default);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+		
+	}
+	return result;
 }
 
 bool Player::decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx)
 {
-    while (next_idx < data.size()) {
-        const auto& one_item = data[next_idx];
-        if (one_item.first >= index_end_for_Player) {
-            return true;
-        }
-        if (one_item.first < index_begin_for_Player) {
-            return false;
-        }
-        switch (one_item.first) {
-            case index_for_nickname: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_nickname)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_hp: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_hp)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_level: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_level)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_gold: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_gold)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_pos: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_pos)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_tags: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_tags)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_attrs: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_attrs)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_inventory: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_inventory)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_buffs: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_buffs)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_equipment: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_equipment)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_login_history: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_login_history)) {
-                    return false;
-                }
-                break;
-            }
-            default:
-                return false;
-        }
-        next_idx++;
-    }
-    return true;
+	while(next_idx < data.size())
+	{
+		const auto& one_item = data[next_idx];
+		if(one_item.first >= index_end_for_Player)
+		{
+			return true;
+		}
+		if(one_item.first < index_begin_for_Player)
+		{
+			return false;
+		}
+		switch(one_item.first)
+		{
+			case index_for_nickname:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_nickname))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_hp:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_hp))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_level:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_level))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_gold:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_gold))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_pos:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_pos))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_tags:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_tags))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_attrs:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_attrs))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_inventory:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_inventory))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_buffs:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_buffs))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_equipment:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_equipment))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_login_history:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_login_history))
+				{
+					return false;
+				}
+				break;
+			}
+			default:
+				return false;
+		}
+		next_idx++;
+	}
+	return true;
 }
 
 bool Player::decode(const json::object_t& data)
 {
-    decltype(data.end()) iter;
-    iter = data.find("nickname");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_nickname)) {
-            return false;
-        }
-    }
-
-    iter = data.find("hp");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_hp)) {
-            return false;
-        }
-    }
-
-    iter = data.find("level");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_level)) {
-            return false;
-        }
-    }
-
-    iter = data.find("gold");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_gold)) {
-            return false;
-        }
-    }
-
-    iter = data.find("pos");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_pos)) {
-            return false;
-        }
-    }
-
-    iter = data.find("tags");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_tags)) {
-            return false;
-        }
-    }
-
-    iter = data.find("attrs");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_attrs)) {
-            return false;
-        }
-    }
-
-    iter = data.find("inventory");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_inventory)) {
-            return false;
-        }
-    }
-
-    iter = data.find("buffs");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_buffs)) {
-            return false;
-        }
-    }
-
-    iter = data.find("equipment");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_equipment)) {
-            return false;
-        }
-    }
-
-    iter = data.find("login_history");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_login_history)) {
-            return false;
-        }
-    }
-
-    return true;
+	decltype(data.end()) iter;
+	iter = data.find("nickname");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_nickname))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("hp");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_hp))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("level");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_level))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("gold");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_gold))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("pos");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_pos))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("tags");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_tags))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("attrs");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_attrs))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("inventory");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_inventory))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("buffs");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_buffs))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("equipment");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_equipment))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("login_history");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_login_history))
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 bool Player::decode(const json& data)
 {
-    if (data.is_object()) {
-        json::object_t obj_data = data.get<json::object_t>();
-        return decode(obj_data);
-    }
-    else if (data.is_array()) {
-        std::vector<std::pair<std::uint8_t, json>> array_data;
-        if (!spiritsaway::serialize::decode(data, array_data)) {
-            return false;
-        }
-        std::uint32_t next_idx = 0;
-        if (!decode(array_data, next_idx)) {
-            return false;
-        }
-        if (next_idx != array_data.size()) {
-            return false;
-        }
-        return true;
-    }
-    return false;
+	if(data.is_object())
+	{
+		json::object_t obj_data = data.get<json::object_t>();
+		return decode(obj_data);
+	}
+	else if(data.is_array())
+	{
+		std::vector<std::pair<std::uint8_t, json>> array_data;
+		if(!spiritsaway::serialize::decode(data, array_data))
+		{
+			return false;
+		}
+		std::uint32_t next_idx = 0;
+		if(!decode(array_data, next_idx))
+		{
+			return false;
+		}
+		if(next_idx != array_data.size())
+		{
+			return false;
+		}
+		return true;
+	}
+	return false;
+	
 }
 
 bool Player::has_default_value() const
 {
-    if (!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-        return false;
-    }
-    if (!m_inventory.has_default_value()) {
-        return false;
-    }
-    if (!m_buffs.has_default_value()) {
-        return false;
-    }
-    if (!m_equipment.has_default_value()) {
-        return false;
-    }
-    if (!m_login_history.has_default_value()) {
-        return false;
-    }
-    return true;
+	if(!spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs))
+	{
+		return false;
+	}
+	if(!m_inventory.has_default_value())
+	{
+		return false;
+	}
+	if(!m_buffs.has_default_value())
+	{
+		return false;
+	}
+	if(!m_equipment.has_default_value())
+	{
+		return false;
+	}
+	if(!m_login_history.has_default_value())
+	{
+		return false;
+	}
+	return true;
 }
 
-} // namespace spiritsaway::rpg_example
+}
 
 #if PROPERTY_SYNC_WITH_PROTOBUF
-#include "Player.pb.h"
-#include "Item.pb.h"
-#include "Buff.pb.h"
-#include "EquipItem.pb.h"
-#include "LoginRecord.pb.h"
+#include "player.pb.h"
+#include "item.pb.h"
+#include "buff.pb.h"
+#include "equip_item.pb.h"
+#include "login_record.pb.h"
 #include <algorithm>
 #include <memory>
 
 namespace spiritsaway::rpg_example
 {
-void Player::to_pb(spiritsaway::property::property_flags flag, bool ignore_default, std::uint32_t schema_version, property_sync::generated::PlayerSnapshot& dst) const
+void Player::to_pb(spiritsaway::property::property_flags flag, bool ignore_default,
+	std::uint32_t schema_version, psync::Player& dst) const
 {
-    dst.Clear();
-    dst.set_schema_version(schema_version);
-    if ((flag_for_nickname & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
-            dst.set_nickname(m_nickname);
-        }
-    }
-    if ((flag_for_hp & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
-            dst.set_hp(static_cast<std::int64_t>(m_hp));
-        }
-    }
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            dst.set_level(static_cast<std::int64_t>(m_level));
-        }
-    }
-    if ((flag_for_gold & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
-            dst.set_gold(static_cast<std::int64_t>(m_gold));
-        }
-    }
-    if ((flag_for_pos & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
-            dst.clear_pos();
-            for (const auto& v : m_pos) dst.add_pos(v);
-        }
-    }
-    if ((flag_for_tags & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
-            dst.clear_tags();
-            for (const auto& v : m_tags) dst.add_tags(v);
-        }
-    }
-    if ((flag_for_attrs & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
-            auto* m = dst.mutable_attrs();
-            m->clear();
-            for (const auto& kv : m_attrs) (*m)[kv.first] = static_cast<std::int64_t>(kv.second);
-        }
-    }
-    if ((flag_for_inventory & flag.value) == flag.value) {
-        dst.clear_inventory();
-        for (const auto& ptr : m_inventory.data()) {
-            if (!ptr) continue;
-            ptr->to_pb(flag, ignore_default, schema_version, *dst.add_inventory());
-        }
-    }
-    if ((flag_for_buffs & flag.value) == flag.value) {
-        dst.clear_buffs();
-        for (const auto& ptr : m_buffs.data()) {
-            if (!ptr) continue;
-            ptr->to_pb(flag, ignore_default, schema_version, *dst.add_buffs());
-        }
-    }
-    if ((flag_for_equipment & flag.value) == flag.value) {
-        EquipItem::to_pb_slots(m_equipment, flag, ignore_default, schema_version, *dst.mutable_equipment());
-    }
-    if ((flag_for_login_history & flag.value) == flag.value) {
-        dst.clear_login_history();
-        for (std::uint32_t i = 0; i < m_login_history.size(); ++i) {
-            const auto* ptr = m_login_history.get(i);
-            if (!ptr) continue;
-            ptr->to_pb(flag, ignore_default, schema_version, *dst.add_login_history());
-        }
-    }
+	dst.Clear();
+	dst.set_schema_version(schema_version);
+	if ((flag_for_nickname & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_nickname)>()(m_nickname)) {
+			dst.set_nickname(m_nickname);
+		}
+	}
+	if ((flag_for_hp & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_hp)>()(m_hp)) {
+			dst.set_hp(static_cast<std::int64_t>(m_hp));
+		}
+	}
+	if ((flag_for_level & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
+			dst.set_level(static_cast<std::int64_t>(m_level));
+		}
+	}
+	if ((flag_for_gold & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_gold)>()(m_gold)) {
+			dst.set_gold(static_cast<std::int64_t>(m_gold));
+		}
+	}
+	if ((flag_for_pos & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_pos)>()(m_pos)) {
+			dst.clear_pos();
+			for (const auto& v : m_pos) dst.add_pos(v);
+		}
+	}
+	if ((flag_for_tags & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_tags)>()(m_tags)) {
+			dst.clear_tags();
+			for (const auto& v : m_tags) dst.add_tags(v);
+		}
+	}
+	if ((flag_for_attrs & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_attrs)>()(m_attrs)) {
+			auto* m = dst.mutable_attrs();
+			m->clear();
+			for (const auto& kv : m_attrs) (*m)[kv.first] = static_cast<std::int64_t>(kv.second);
+		}
+	}
+	if ((flag_for_inventory & flag.value) == flag.value) {
+		dst.clear_inventory();
+		for (const auto& ptr : m_inventory.data()) {
+			if (!ptr) continue;
+			ptr->to_pb(flag, ignore_default, schema_version, *dst.add_inventory());
+		}
+	}
+	if ((flag_for_buffs & flag.value) == flag.value) {
+		dst.clear_buffs();
+		for (const auto& ptr : m_buffs.data()) {
+			if (!ptr) continue;
+			ptr->to_pb(flag, ignore_default, schema_version, *dst.add_buffs());
+		}
+	}
+	if ((flag_for_equipment & flag.value) == flag.value) {
+		EquipItem::to_pb_slots(m_equipment, flag, ignore_default, schema_version, *dst.mutable_equipment());
+	}
+	if ((flag_for_login_history & flag.value) == flag.value) {
+		dst.clear_login_history();
+		for (std::uint32_t i = 0; i < m_login_history.size(); ++i) {
+			const auto* ptr = m_login_history.get(i);
+			if (!ptr) continue;
+			ptr->to_pb(flag, ignore_default, schema_version, *dst.add_login_history());
+		}
+	}
 }
 
-bool Player::from_pb(const property_sync::generated::PlayerSnapshot& src)
+bool Player::from_pb(const psync::Player& src)
 {
-    *this = Player{};
-    m_nickname = src.nickname();
-    m_hp = static_cast<decltype(m_hp)>(src.hp());
-    m_level = static_cast<decltype(m_level)>(src.level());
-    m_gold = static_cast<decltype(m_gold)>(src.gold());
-    {
-        const int n = std::min(src.pos_size(), static_cast<int>(m_pos.size()));
-        for (int i = 0; i < n; ++i) m_pos[static_cast<std::size_t>(i)] = src.pos(i);
-    }
-    m_tags.clear();
-    m_tags.reserve(static_cast<std::size_t>(src.tags_size()));
-    for (int i = 0; i < src.tags_size(); ++i) m_tags.push_back(src.tags(i));
-    m_attrs.clear();
-    for (const auto& kv : src.attrs()) {
-        m_attrs[kv.first] = static_cast<decltype(m_attrs)::mapped_type>(kv.second);
-    }
-    m_inventory.clear();
-    for (const auto& one : src.inventory()) {
-        Item item;
-        if (!item.from_pb(one)) return false;
-        m_inventory.insert_item(std::move(item));
-    }
-    m_buffs.clear();
-    for (const auto& one : src.buffs()) {
-        Buff item;
-        if (!item.from_pb(one)) return false;
-        m_buffs.insert_item(std::move(item));
-    }
-    if (!EquipItem::from_pb_slots(src.equipment(), m_equipment)) return false;
-    m_login_history.clear();
-    for (const auto& one : src.login_history()) {
-        auto item = std::make_unique<LoginRecord>();
-        if (!item->from_pb(one)) return false;
-        m_login_history.emplace_back(std::move(item));
-    }
-    return true;
+	*this = Player{};
+	m_nickname = src.nickname();
+	m_hp = static_cast<decltype(m_hp)>(src.hp());
+	m_level = static_cast<decltype(m_level)>(src.level());
+	m_gold = static_cast<decltype(m_gold)>(src.gold());
+	{
+		const int n = std::min(src.pos_size(), static_cast<int>(m_pos.size()));
+		for (int i = 0; i < n; ++i) m_pos[static_cast<std::size_t>(i)] = src.pos(i);
+	}
+	m_tags.clear();
+	m_tags.reserve(static_cast<std::size_t>(src.tags_size()));
+	for (int i = 0; i < src.tags_size(); ++i) m_tags.push_back(src.tags(i));
+	m_attrs.clear();
+	for (const auto& kv : src.attrs()) {
+		m_attrs[kv.first] = static_cast<decltype(m_attrs)::mapped_type>(kv.second);
+	}
+	m_inventory.clear();
+	for (const auto& one : src.inventory()) {
+		Item item;
+		if (!item.from_pb(one)) return false;
+		m_inventory.insert_item(std::move(item));
+	}
+	m_buffs.clear();
+	for (const auto& one : src.buffs()) {
+		Buff item;
+		if (!item.from_pb(one)) return false;
+		m_buffs.insert_item(std::move(item));
+	}
+	if (!EquipItem::from_pb_slots(src.equipment(), m_equipment)) return false;
+	m_login_history.clear();
+	for (const auto& one : src.login_history()) {
+		auto item = std::make_unique<LoginRecord>();
+		if (!item->from_pb(one)) return false;
+		m_login_history.emplace_back(std::move(item));
+	}
+	return true;
 }
 } // namespace spiritsaway::rpg_example
 #endif // PROPERTY_SYNC_WITH_PROTOBUF

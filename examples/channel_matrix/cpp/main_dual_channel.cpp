@@ -19,7 +19,7 @@
 #include "property_codec.h"
 
 #if PROPERTY_SYNC_WITH_PROTOBUF
-#include "Player.pb.h"
+#include "player.pb.h"
 #endif
 
 using namespace spiritsaway::serialize;
@@ -186,7 +186,7 @@ int main(int argc, char** argv)
     codec_blob db_blob;
 #if PROPERTY_SYNC_WITH_PROTOBUF
     {
-        property_sync::generated::PlayerSnapshot snap;
+        psync::Player snap;
         server.to_pb(db_flag, /*ignore_default=*/true, /*schema_version=*/1, snap);
         Player loaded;
         if (!loaded.from_pb(snap)) {
@@ -216,7 +216,7 @@ int main(int argc, char** argv)
         }
     }
 
-    if (!encode_snapshot_both_roundtrip_ok<Player, property_sync::generated::PlayerSnapshot>(
+    if (!encode_snapshot_both_roundtrip_ok<Player, psync::Player>(
             server, db_flag, db_blob, true, 1, &codec_err
         )) {
         std::cerr << "[FAIL] DB codec both roundtrip: " << codec_err << "\n";

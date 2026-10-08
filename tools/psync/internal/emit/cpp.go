@@ -115,7 +115,7 @@ func headerContext(cls *ir.ClassDef, ctx map[string]any) map[string]any {
 	return out
 }
 
-func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[string]string, error) {
+func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool, pbUnit, pbCppNs string) (map[string]string, error) {
 	ctx := emitctx.ClassToMustache(cls, legacyWire, "")
 	body, err := renderTemplate(filepath.Join(md, "property_h.mustache"), ctx)
 	if err != nil {
@@ -132,7 +132,8 @@ func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[str
 	hdr := headerContext(cls, ctx)
 	hdr["class_body"] = body
 	hdr["proxy_body"] = proxy
-	hdr["pb_members"] = renderPbMemberDecls(cls)
+	hdr["pb_ns_tail"] = pbUnit
+	hdr["pb_members"] = renderPbMemberDecls(cls, pbCppNs)
 	fullH, err := renderTemplate(filepath.Join(md, "class_header_full.mustache"), hdr)
 	if err != nil {
 		return nil, fmt.Errorf("class_header_full.mustache: %w", err)
@@ -144,7 +145,7 @@ func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[str
 	if err != nil {
 		return nil, fmt.Errorf("class_cpp_full.mustache: %w", err)
 	}
-	fullCpp += renderPbMemberImpl(cls)
+	fullCpp += renderPbMemberImpl(cls, pbCppNs)
 	return map[string]string{
 		cls.Name + ".h":   fullH,
 		cls.Name + ".cpp": fullCpp,
@@ -177,6 +178,8 @@ func writeCpp(unit *ir.CompilationUnit, outDir string, md string, legacyWire, fl
 	if err := os.MkdirAll(root, 0o755); err != nil {
 		return nil, err
 	}
+	pbUnit := ProtoNsTail(outDir)
+	pbCppNs := ProtoCppNs(outDir)
 	var written []string
 	if fd := emitctx.DefaultFlags(unit); fd != nil {
 		text, err := renderTemplate(filepath.Join(md, "flags_h.mustache"), emitctx.FlagsToMustache(fd))
@@ -211,7 +214,7 @@ func writeCpp(unit *ir.CompilationUnit, outDir string, md string, legacyWire, fl
 		return order[i].name < order[j].name
 	})
 	for _, it := range order {
-		arts, err := renderClassArtifacts(it.cls, md, legacyWire)
+		arts, err := renderClassArtifacts(it.cls, md, legacyWire, pbUnit, pbCppNs)
 		if err != nil {
 			return nil, err
 		}

@@ -4,15 +4,19 @@
 
 | 路径 | 内容 |
 |------|------|
-| `generated/proto/<Class>.proto` | `<Class>Snapshot`；slot 类另含 `<Class>SlotsSnapshot` |
+| `generated/proto/<snake>.proto` | 消息 `<Class>`（PascalCase，与 DSL/C++ 对齐）；slot 类另含 `<Class>Slots` |
+| `generated/proto/mutate.proto` | `PropertyCmd` / `MutateMsg` / `MutateBatch` |
 | `generated/cpp/<Class>.h/.cpp` | 成员函数 `to_pb` / `from_pb`（`#if PROPERTY_SYNC_WITH_PROTOBUF`） |
+
+**文件名**：snake_case（`Player` → `player.proto`，`LoginRecord` → `login_record.proto`）。  
+**package / C++ 命名空间**：统一 `psync`（例：`psync.Player` / `psync::Player`）。
 
 ## 字段号
 
-- Snapshot 中 **`schema_version = 1000`**（高号）。  
+- 全量消息中 **`schema_version = 1000`**（高号）。  
 - 业务字段：**proto field number = property `index` + 1**（Protobuf 不允许 field 0）。  
 - bag 基字段：`id = 1`；slot 基字段：`id = 1`，`slot = 2`。  
-- `property_slots` 字段类型为 `<Item>SlotsSnapshot`（`sz` + `data`），与 JSON encode 同形。  
+- `property_slots` 字段类型为 `<Item>Slots`（`sz` + `data`），与 JSON encode 同形。  
 - 废弃字段：不要复用号码；使用 `reserved`。
 
 ## Codec（JSON / Protobuf 并存）

@@ -6,413 +6,506 @@ namespace spiritsaway::rpg_example
 
 bool Buff::replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
 {
-    using std::swap;
-    auto split_result = offset.split();
-    auto field_index = split_result.second;
-    auto remain_offset = split_result.first;
-    switch (field_index) {
-        case index_for_level: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_level);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_for_expire_ts: {
-            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_expire_ts);
-            return temp_proxy.replay(remain_offset, cmd, data);
-        }
-        case index_end_for_Buff: {
-            if (cmd == spiritsaway::property::property_cmd::update_fields) {
-                std::vector<std::uint8_t> related_fields;
-                std::vector<std::pair<std::uint8_t, json>> field_values;
-                if (!serialize::decode_multi(data, related_fields, field_values)) {
-                    return false;
-                }
-                clear_fields(related_fields);
-                return set_fields(field_values);
-            }
-            else {
-                return false;
-            }
-        }
-        default:
-            return spiritsaway::property::property_bag_item<int>::replay_mutate_msg(offset, cmd, data);
-    }
+	using std::swap;
+	auto split_result = offset.split();
+	auto field_index = split_result.second;
+	auto remain_offset = split_result.first;
+	switch(field_index)
+	{
+		case index_for_level:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_level);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_for_expire_ts:
+		{
+			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_expire_ts);
+			return temp_proxy.replay(remain_offset, cmd, data);
+		}
+		case index_end_for_Buff:
+		{
+			if(cmd == spiritsaway::property::property_cmd::update_fields)
+			{
+				std::vector<std::uint8_t> related_fields;
+				std::vector<std::pair<std::uint8_t, json>> field_values;
+				if(!serialize::decode_multi(data, related_fields, field_values))
+				{
+					return false;
+				}
+				clear_fields(related_fields);
+				return set_fields(field_values);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		default:
+			return spiritsaway::property::property_bag_item<int>::replay_mutate_msg(offset, cmd, data);
+	}
 }
 
 bool Buff::operator==(const Buff& other) const
 {
-    if (!spiritsaway::property::property_bag_item<int>::operator==(other)) {
-        return false;
-    }
-    if (m_level != other.m_level) {
-        return false;
-    }
-    if (m_expire_ts != other.m_expire_ts) {
-        return false;
-    }
-    return true;
+	if(!spiritsaway::property::property_bag_item<int>::operator==(other))
+	{
+		return false;
+	}
+	if(m_level != other.m_level)
+	{
+		return false;
+	}
+	if(m_expire_ts != other.m_expire_ts)
+	{
+		return false;
+	}
+	return true;
 }
 bool Buff::operator!=(const Buff& other) const
 {
-    return !(operator==(other));
+	return !(operator==(other));
 }
+
 
 json Buff::encode(bool ignore_default) const
 {
-    json result = spiritsaway::property::property_bag_item<int>::encode(ignore_default);
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-        result["level"] = spiritsaway::serialize::encode(m_level);
-    }
-    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-        result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
-    }
-    return result;
+	json result = spiritsaway::property::property_bag_item<int>::encode(ignore_default);
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+	{
+		result["level"] = spiritsaway::serialize::encode(m_level);
+	}
+	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+	{
+		result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
+	}
+	return result;
 }
 void Buff::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const
 {
-    spiritsaway::property::property_bag_item<int>::encode_with_flag(flag, ignore_default, result);
+	spiritsaway::property::property_bag_item<int>::encode_with_flag(flag, ignore_default, result);
 
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_level, m_level)));
-        }
-    }
-    if ((flag_for_expire_ts & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_expire_ts, m_expire_ts)));
-        }
-    }
-    return;
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_level, m_level)));
+		}
+	}
+	if((flag_for_expire_ts & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+		{
+			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_expire_ts, m_expire_ts)));
+		}
+	}
+	return;
 }
 
 void Buff::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const
 {
-    spiritsaway::property::property_bag_item<int>::encode_with_flag(flag, ignore_default, result);
+	spiritsaway::property::property_bag_item<int>::encode_with_flag(flag, ignore_default, result);
 
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            result["level"] = spiritsaway::serialize::encode(m_level);
-        }
-    }
-    if ((flag_for_expire_ts & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-            result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
-        }
-    }
-    return;
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+		{
+			result["level"] = spiritsaway::serialize::encode(m_level);
+		}
+	}
+	if((flag_for_expire_ts & flag.value) == flag.value)
+	{
+		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+		{
+			result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
+		}
+	}
+	return;
 }
 json Buff::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const
 {
-    if (replace_key_by_index) {
-        json::array_t result;
-        encode_with_flag(flag, ignore_default, result);
-        return result;
-    }
-    else {
-        json::object_t result;
-        encode_with_flag(flag, ignore_default, result);
-        return result;
-    }
+	if (replace_key_by_index)
+	{
+		json::array_t result;
+		encode_with_flag(flag, ignore_default, result);
+		return result;
+	}
+	else
+	{
+		json::object_t result;
+		encode_with_flag(flag, ignore_default, result);
+		return result;
+	}
 }
 
 std::vector<std::uint8_t> Buff::get_fields_with_flag(const spiritsaway::property::property_flags flag) const
 {
-    std::vector<std::uint8_t> result;
-    result = spiritsaway::property::property_bag_item<int>::get_fields_with_flag(flag);
+	std::vector<std::uint8_t> result;
+	result = spiritsaway::property::property_bag_item<int>::get_fields_with_flag(flag);
 
-    if ((flag_for_level & flag.value) == flag.value) {
-        result.push_back(index_for_level);
-    }
-    if ((flag_for_expire_ts & flag.value) == flag.value) {
-        result.push_back(index_for_expire_ts);
-    }
-    return result;
+	if((flag_for_level & flag.value) == flag.value)
+	{
+		result.push_back(index_for_level);
+	}
+	if((flag_for_expire_ts & flag.value) == flag.value)
+	{
+		result.push_back(index_for_expire_ts);
+	}
+	return result;
 }
 
 std::vector<std::uint8_t> Buff::get_fields_without_flag(const spiritsaway::property::property_flags flag) const
 {
-    std::vector<std::uint8_t> result;
-    result = spiritsaway::property::property_bag_item<int>::get_fields_without_flag(flag);
+	std::vector<std::uint8_t> result;
+	result = spiritsaway::property::property_bag_item<int>::get_fields_without_flag(flag);
 
-    if ((flag_for_level & flag.value) != flag.value) {
-        result.push_back(index_for_level);
-    }
-    if ((flag_for_expire_ts & flag.value) != flag.value) {
-        result.push_back(index_for_expire_ts);
-    }
-    return result;
+	if((flag_for_level & flag.value) != flag.value)
+	{
+		result.push_back(index_for_level);
+	}
+	if((flag_for_expire_ts & flag.value) != flag.value)
+	{
+		result.push_back(index_for_expire_ts);
+	}
+	return result;
 }
+
+
 
 json Buff::encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-    json result;
-    result = spiritsaway::property::property_bag_item<int>::encode_fields(offsets, ignore_default);
+	json result;
+	result = spiritsaway::property::property_bag_item<int>::encode_fields(offsets, ignore_default);
 
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_level: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_expire_ts: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-                    result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
-                }
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-    return result;
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_level:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_expire_ts:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+				{
+					result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+				
+		}
+		
+	}
+	return result;
 }
 
 json Buff::encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-    json result;
-    result = spiritsaway::property::property_bag_item<int>::encode_except_fields(offsets, ignore_default);
+	json result;
+	result = spiritsaway::property::property_bag_item<int>::encode_except_fields(offsets, ignore_default);
 
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_level: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_expire_ts: {
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-                    result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
-                }
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-    return result;
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_level:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_expire_ts:
+			{
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+				{
+					result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
+				}
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		
+	}
+	return result;
 }
 
 json Buff::encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const
 {
-    json result;
-    result = spiritsaway::property::property_bag_item<int>::encode_fields_with_flag(offsets, flag, ignore_default);
-    for (const auto& one_offset : offsets) {
-        switch (one_offset) {
-            case index_for_level: {
-                if ((flag_for_level & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-                    result["level"] = spiritsaway::serialize::encode(m_level);
-                }
-                break;
-            }
-            case index_for_expire_ts: {
-                if ((flag_for_expire_ts & flag.value) != flag.value) {
-                    break;
-                }
-                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-                    result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }
-    return result;
+	json result;
+	result = spiritsaway::property::property_bag_item<int>::encode_fields_with_flag(offsets, flag, ignore_default);
+	for(const auto& one_offset: offsets)
+	{
+		switch(one_offset)
+		{
+			case index_for_level:
+			{
+				if((flag_for_level & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+				{
+					result["level"] = spiritsaway::serialize::encode(m_level);
+				}
+				break;
+			}
+			case index_for_expire_ts:
+			{
+				if((flag_for_expire_ts & flag.value) != flag.value)
+				{
+					break;
+				}
+				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+				{
+					result["expire_ts"] = spiritsaway::serialize::encode(m_expire_ts);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+		
+	}
+	return result;
 }
 
 bool Buff::decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx)
 {
-    if (!spiritsaway::property::property_bag_item<int>::decode(data, next_idx)) {
-        return false;
-    }
-    while (next_idx < data.size()) {
-        const auto& one_item = data[next_idx];
-        if (one_item.first >= index_end_for_Buff) {
-            return true;
-        }
-        if (one_item.first < index_begin_for_Buff) {
-            return false;
-        }
-        switch (one_item.first) {
-            case index_for_level: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_level)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_expire_ts: {
-                if (!spiritsaway::serialize::decode(one_item.second, m_expire_ts)) {
-                    return false;
-                }
-                break;
-            }
-            default:
-                return false;
-        }
-        next_idx++;
-    }
-    return true;
+	if(!spiritsaway::property::property_bag_item<int>::decode(data, next_idx))
+	{
+		return false;
+	}
+	while(next_idx < data.size())
+	{
+		const auto& one_item = data[next_idx];
+		if(one_item.first >= index_end_for_Buff)
+		{
+			return true;
+		}
+		if(one_item.first < index_begin_for_Buff)
+		{
+			return false;
+		}
+		switch(one_item.first)
+		{
+			case index_for_level:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_level))
+				{
+					return false;
+				}
+				break;
+			}
+			case index_for_expire_ts:
+			{
+				if(!spiritsaway::serialize::decode(one_item.second, m_expire_ts))
+				{
+					return false;
+				}
+				break;
+			}
+			default:
+				return false;
+		}
+		next_idx++;
+	}
+	return true;
 }
 
 bool Buff::decode(const json::object_t& data)
 {
-    if (!spiritsaway::property::property_bag_item<int>::decode(data)) {
-        return false;
-    }
-    decltype(data.end()) iter;
-    iter = data.find("level");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_level)) {
-            return false;
-        }
-    }
-
-    iter = data.find("expire_ts");
-    if (iter != data.end()) {
-        if (!spiritsaway::serialize::decode(iter->second, m_expire_ts)) {
-            return false;
-        }
-    }
-
-    return true;
+	if(!spiritsaway::property::property_bag_item<int>::decode(data))
+	{
+		return false;
+	}
+	decltype(data.end()) iter;
+	iter = data.find("level");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_level))
+		{
+			return false;
+		}
+	}
+	
+	iter = data.find("expire_ts");
+	if(iter != data.end())
+	{
+		if(!spiritsaway::serialize::decode(iter->second, m_expire_ts))
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 bool Buff::decode(const json& data)
 {
-    if (data.is_object()) {
-        json::object_t obj_data = data.get<json::object_t>();
-        return decode(obj_data);
-    }
-    else if (data.is_array()) {
-        std::vector<std::pair<std::uint8_t, json>> array_data;
-        if (!spiritsaway::serialize::decode(data, array_data)) {
-            return false;
-        }
-        std::uint32_t next_idx = 0;
-        if (!decode(array_data, next_idx)) {
-            return false;
-        }
-        if (next_idx != array_data.size()) {
-            return false;
-        }
-        return true;
-    }
-    return false;
+	if(data.is_object())
+	{
+		json::object_t obj_data = data.get<json::object_t>();
+		return decode(obj_data);
+	}
+	else if(data.is_array())
+	{
+		std::vector<std::pair<std::uint8_t, json>> array_data;
+		if(!spiritsaway::serialize::decode(data, array_data))
+		{
+			return false;
+		}
+		std::uint32_t next_idx = 0;
+		if(!decode(array_data, next_idx))
+		{
+			return false;
+		}
+		if(next_idx != array_data.size())
+		{
+			return false;
+		}
+		return true;
+	}
+	return false;
+	
 }
 
 bool Buff::has_default_value() const
 {
-    if (!spiritsaway::property::property_bag_item<int>::has_default_value()) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-        return false;
-    }
-    if (!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-        return false;
-    }
-    return true;
+	if(!spiritsaway::property::property_bag_item<int>::has_default_value())
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_level)>()(m_level))
+	{
+		return false;
+	}
+	if(!spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts))
+	{
+		return false;
+	}
+	return true;
 }
 void Buff::update_fields(const Buff& other, const json& other_json, std::vector<std::uint8_t>& field_indexes)
 {
-    spiritsaway::property::property_bag_item<int>::update_fields(other, other_json, field_indexes);
-    auto temp_iter_for_level = other_json.find("level");
-    if (temp_iter_for_level != other_json.end()) {
-        m_level = other.m_level;
-        field_indexes.push_back(index_for_level);
-    }
-    auto temp_iter_for_expire_ts = other_json.find("expire_ts");
-    if (temp_iter_for_expire_ts != other_json.end()) {
-        m_expire_ts = other.m_expire_ts;
-        field_indexes.push_back(index_for_expire_ts);
-    }
+	spiritsaway::property::property_bag_item<int>::update_fields(other, other_json, field_indexes);
+	auto temp_iter_for_level = other_json.find("level");
+	if(temp_iter_for_level != other_json.end())
+	{
+		m_level = other.m_level;
+		field_indexes.push_back(index_for_level);
+	}
+	auto temp_iter_for_expire_ts = other_json.find("expire_ts");
+	if(temp_iter_for_expire_ts != other_json.end())
+	{
+		m_expire_ts = other.m_expire_ts;
+		field_indexes.push_back(index_for_expire_ts);
+	}
 }
 
 void Buff::clear_fields(const std::vector<std::uint8_t>& related_indexes)
 {
-    spiritsaway::property::property_bag_item<int>::clear_fields(related_indexes);
-    for (auto one_idx : related_indexes) {
-        switch (one_idx) {
-            case index_for_level: {
-                m_level = {};
-                break;
-            }
-            case index_for_expire_ts: {
-                m_expire_ts = {};
-                break;
-            }
-            default:
-                break;
-        }
-    }
+	spiritsaway::property::property_bag_item<int>::clear_fields(related_indexes);
+	for(auto one_idx: related_indexes)
+	{
+		switch(one_idx)
+		{
+		case index_for_level:
+		{
+			m_level = {};
+			break;
+		}
+		case index_for_expire_ts:
+		{
+			m_expire_ts = {};
+			break;
+		}
+		default:
+			break;
+		}
+	}
 }
 
 bool Buff::set_fields(const std::vector<std::pair<std::uint8_t, json>>& field_values)
 {
-    if (!spiritsaway::property::property_bag_item<int>::set_fields(field_values)) {
-        return false;
-    }
-    for (auto one_idx_pair : field_values) {
-        switch (one_idx_pair.first) {
-            case index_for_level: {
-                if (!serialize::decode(one_idx_pair.second, m_level)) {
-                    return false;
-                }
-                break;
-            }
-            case index_for_expire_ts: {
-                if (!serialize::decode(one_idx_pair.second, m_expire_ts)) {
-                    return false;
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }
-    return true;
+	if(!spiritsaway::property::property_bag_item<int>::set_fields(field_values))
+	{
+		return false;
+	}
+	for(auto one_idx_pair: field_values)
+	{
+		switch(one_idx_pair.first)
+		{
+		case index_for_level:
+		{
+			if(!serialize::decode(one_idx_pair.second, m_level))
+			{
+				return false;
+			}
+			break;
+		}
+		case index_for_expire_ts:
+		{
+			if(!serialize::decode(one_idx_pair.second, m_expire_ts))
+			{
+				return false;
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	return true;
+	
 }
 
-} // namespace spiritsaway::rpg_example
+}
 
 #if PROPERTY_SYNC_WITH_PROTOBUF
-#include "Buff.pb.h"
+#include "buff.pb.h"
 #include <algorithm>
 #include <memory>
 
 namespace spiritsaway::rpg_example
 {
-void Buff::to_pb(spiritsaway::property::property_flags flag, bool ignore_default, std::uint32_t schema_version, property_sync::generated::BuffSnapshot& dst) const
+void Buff::to_pb(spiritsaway::property::property_flags flag, bool ignore_default,
+	std::uint32_t schema_version, psync::Buff& dst) const
 {
-    dst.Clear();
-    dst.set_schema_version(schema_version);
-    dst.set_id(m_id);
-    if ((flag_for_level & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
-            dst.set_level(static_cast<std::int64_t>(m_level));
-        }
-    }
-    if ((flag_for_expire_ts & flag.value) == flag.value) {
-        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
-            dst.set_expire_ts(m_expire_ts);
-        }
-    }
+	dst.Clear();
+	dst.set_schema_version(schema_version);
+	dst.set_id(m_id);
+	if ((flag_for_level & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_level)>()(m_level)) {
+			dst.set_level(static_cast<std::int64_t>(m_level));
+		}
+	}
+	if ((flag_for_expire_ts & flag.value) == flag.value) {
+		if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_expire_ts)>()(m_expire_ts)) {
+			dst.set_expire_ts(m_expire_ts);
+		}
+	}
 }
 
-bool Buff::from_pb(const property_sync::generated::BuffSnapshot& src)
+bool Buff::from_pb(const psync::Buff& src)
 {
-    *this = Buff{};
-    m_id = static_cast<decltype(m_id)>(src.id());
-    m_level = static_cast<decltype(m_level)>(src.level());
-    m_expire_ts = src.expire_ts();
-    return true;
+	*this = Buff{};
+	m_id = static_cast<decltype(m_id)>(src.id());
+	m_level = static_cast<decltype(m_level)>(src.level());
+	m_expire_ts = src.expire_ts();
+	return true;
 }
 } // namespace spiritsaway::rpg_example
 #endif // PROPERTY_SYNC_WITH_PROTOBUF

@@ -3,16 +3,16 @@ syntax = "proto3";
 // Field numbers: business = property index + 1 (proto forbids 0); schema_version = 1000.
 // Compatibility: only append fields; never reuse numbers. See docs/compatibility.md.
 
-package property_sync.generated;
+package {{proto_package}};
 
 {{#proto_imports}}
 import "{{import_file}}";
 {{/proto_imports}}
 
 {{#is_property_item}}
-// Item / bag / slot / vec element snapshot
+// Item / bag / slot / vec element
 {{/is_property_item}}
-message {{class_name}}Snapshot {
+message {{class_name}} {
   uint32 schema_version = 1000;
 {{#is_bag_item}}
   int64 id = 1; // index=0 bag key
@@ -28,8 +28,8 @@ message {{class_name}}Snapshot {
 
 {{#is_slot_item}}
 // Mirrors C++ property_slots encode: { sz, data }
-message {{class_name}}SlotsSnapshot {
+message {{class_name}}Slots {
   uint32 sz = 1;
-  repeated {{class_name}}Snapshot data = 2;
+  repeated {{class_name}} data = 2;
 }
 {{/is_slot_item}}

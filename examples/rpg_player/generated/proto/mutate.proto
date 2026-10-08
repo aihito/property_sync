@@ -1,6 +1,6 @@
 syntax = "proto3";
 // Shared mutate wire format — auto-generated stub (cmd values match property_cmd).
-package property_sync.generated;
+package psync;
 
 enum PropertyCmd {
   CMD_CLEAR = 0;

@@ -19,12 +19,12 @@
 {{/is_entity}}
 
 #if PROPERTY_SYNC_WITH_PROTOBUF
-namespace property_sync { namespace generated {
-class {{{class_name}}}Snapshot;
+namespace {{{pb_ns_tail}}} {
+class {{{class_name}}};
 {{#is_slot_item}}
-class {{{class_name}}}SlotsSnapshot;
+class {{{class_name}}}Slots;
 {{/is_slot_item}}
-} }
+}
 #endif
 
 namespace {{{class_namespace}}}

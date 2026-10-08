@@ -8,11 +8,9 @@ import (
 	"property_sync/psync/internal/wire"
 )
 
-const pbPkg = "property_sync::generated"
-
 // renderPbMemberDecls: declarations injected into the class body.
-func renderPbMemberDecls(cls *ir.ClassDef) string {
-	snap := pbPkg + "::" + cls.Name + "Snapshot"
+func renderPbMemberDecls(cls *ir.ClassDef, pbCppNs string) string {
+	snap := pbCppNs + "::" + cls.Name
 	var b strings.Builder
 	fmt.Fprintf(&b, "\n#if PROPERTY_SYNC_WITH_PROTOBUF\n")
 	fmt.Fprintf(&b, "public:\n")
@@ -20,7 +18,7 @@ func renderPbMemberDecls(cls *ir.ClassDef) string {
 	fmt.Fprintf(&b, "\t\tstd::uint32_t schema_version, %s& dst) const;\n", snap)
 	fmt.Fprintf(&b, "\tbool from_pb(const %s& src);\n", snap)
 	if cls.Kind == "slot_item" {
-		slots := pbPkg + "::" + cls.Name + "SlotsSnapshot"
+		slots := pbCppNs + "::" + cls.Name + "Slots"
 		fmt.Fprintf(&b, "\tstatic void to_pb_slots(const spiritsaway::property::property_slots<%s>& src,\n", cls.Name)
 		fmt.Fprintf(&b, "\t\tspiritsaway::property::property_flags flag, bool ignore_default,\n")
 		fmt.Fprintf(&b, "\t\tstd::uint32_t schema_version, %s& dst);\n", slots)
@@ -31,17 +29,17 @@ func renderPbMemberDecls(cls *ir.ClassDef) string {
 }
 
 // renderPbMemberImpl: definitions appended to Class.cpp.
-func renderPbMemberImpl(cls *ir.ClassDef) string {
+func renderPbMemberImpl(cls *ir.ClassDef, pbCppNs string) string {
 	ns := wire.NsCpp(cls.Namespace)
-	snap := pbPkg + "::" + cls.Name + "Snapshot"
+	snap := pbCppNs + "::" + cls.Name
 	var c strings.Builder
 
 	fmt.Fprintf(&c, "\n#if PROPERTY_SYNC_WITH_PROTOBUF\n")
-	fmt.Fprintf(&c, "#include \"%s.pb.h\"\n", cls.Name)
+	fmt.Fprintf(&c, "#include \"%s.pb.h\"\n", ProtoFileStem(cls.Name))
 	seenInc := map[string]bool{}
 	for _, f := range cls.Fields {
 		if (f.Type.Kind == "bag" || f.Type.Kind == "slots" || f.Type.Kind == "vec" || f.Type.Kind == "object") && f.Type.Name != nil {
-			inc := *f.Type.Name + ".pb.h"
+			inc := ProtoFileStem(*f.Type.Name) + ".pb.h"
 			if !seenInc[inc] {
 				seenInc[inc] = true
 				fmt.Fprintf(&c, "#include \"%s\"\n", inc)
@@ -81,7 +79,7 @@ func renderPbMemberImpl(cls *ir.ClassDef) string {
 	fmt.Fprintf(&c, "\treturn true;\n}\n")
 
 	if cls.Kind == "slot_item" {
-		slots := pbPkg + "::" + cls.Name + "SlotsSnapshot"
+		slots := pbCppNs + "::" + cls.Name + "Slots"
 		fmt.Fprintf(&c, "\nvoid %s::to_pb_slots(const spiritsaway::property::property_slots<%s>& src,\n", cls.Name, cls.Name)
 		fmt.Fprintf(&c, "\tspiritsaway::property::property_flags flag, bool ignore_default,\n")
 		fmt.Fprintf(&c, "\tstd::uint32_t schema_version, %s& dst)\n{\n", slots)

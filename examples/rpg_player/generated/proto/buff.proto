@@ -3,17 +3,17 @@ syntax = "proto3";
 // Field numbers: business = property index + 1 (proto forbids 0); schema_version = 1000.
 // Compatibility: only append fields; never reuse numbers. See docs/compatibility.md.
 
-package property_sync.generated;
+package psync;
 
 
 
-// Item / bag / slot / vec element snapshot
-message ItemSnapshot {
+// Item / bag / slot / vec element
+message Buff {
   uint32 schema_version = 1000;
   int64 id = 1; // index=0 bag key
 
-  int64 count = 2; // index=1 kind=number
-  string name = 3; // index=2 kind=string
+  int64 level = 2; // index=1 kind=number
+  float expire_ts = 3; // index=2 kind=number
 }
 
 

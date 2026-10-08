@@ -71,11 +71,11 @@ func protoTypeOf(t ir.TypeRef) string {
 		v = or(protoScalar[v], v)
 		return fmt.Sprintf("map<%s, %s>", k, v)
 	case "bag", "vec":
-		return "repeated " + deref(t.Name) + "Snapshot"
+		return "repeated " + deref(t.Name)
 	case "slots":
-		return deref(t.Name) + "SlotsSnapshot"
+		return deref(t.Name) + "Slots"
 	case "object":
-		return deref(t.Name) + "Snapshot"
+		return deref(t.Name)
 	}
 	return "bytes"
 }
@@ -95,7 +95,7 @@ func buildEmitClass(cls *ir.ClassDef, legacyWire bool) emitClass {
 		}
 		hasSync := f.Type.Kind == "bag" || f.Type.Kind == "slots" || f.Type.Kind == "vec"
 		if hasSync && itemShort != "" {
-			imp := itemShort + ".proto"
+			imp := ProtoFileStem(itemShort) + ".proto"
 			if !seen[imp] {
 				seen[imp] = true
 				imports = append(imports, imp)
@@ -225,7 +225,7 @@ func emitLuaRecord(ec emitClass, flags *ir.FlagsDef) string {
 	}, "\n")
 }
 
-func emitProto(ec emitClass) string {
+func emitProto(ec emitClass, pkg string) string {
 	var lines []string
 	lines = append(lines,
 		`syntax = "proto3";`,
@@ -233,7 +233,7 @@ func emitProto(ec emitClass) string {
 		"// Field numbers: business = property index + 1 (proto forbids 0); schema_version = 1000.",
 		"// Compatibility: only append fields; never reuse numbers. See docs/compatibility.md.",
 		"",
-		"package property_sync.generated;",
+		"package "+pkg+";",
 		"",
 	)
 	for _, imp := range ec.ProtoImports {
@@ -243,9 +243,9 @@ func emitProto(ec emitClass) string {
 		lines = append(lines, "")
 	}
 	if ec.isPropertyItem() {
-		lines = append(lines, "// Item / bag / slot / vec element snapshot")
+		lines = append(lines, "// Item / bag / slot / vec element")
 	}
-	lines = append(lines, fmt.Sprintf("message %sSnapshot {", ec.Name))
+	lines = append(lines, fmt.Sprintf("message %s {", ec.Name))
 	lines = append(lines, "  uint32 schema_version = 1000;")
 	if ec.isBagItem() {
 		lines = append(lines, "  int64 id = 1; // index=0 bag key")
@@ -261,9 +261,9 @@ func emitProto(ec emitClass) string {
 	if ec.isSlotItem() {
 		lines = append(lines,
 			fmt.Sprintf("// Mirrors C++ property_slots encode: { sz, data }"),
-			fmt.Sprintf("message %sSlotsSnapshot {", ec.Name),
+			fmt.Sprintf("message %sSlots {", ec.Name),
 			"  uint32 sz = 1;",
-			fmt.Sprintf("  repeated %sSnapshot data = 2;", ec.Name),
+			fmt.Sprintf("  repeated %s data = 2;", ec.Name),
 			"}",
 			"",
 		)
@@ -280,7 +280,18 @@ func writeSchemaLuaProto(unit *ir.CompilationUnit, outDir string, legacyWire, co
 			return nil, err
 		}
 	}
+	pkg := ProtoPackage(outDir)
 	var written []string
+	mp := filepath.Join(protoDir, "mutate.proto")
+	if err := os.WriteFile(mp, []byte(emitMutateProto(pkg)), 0o644); err != nil {
+		return nil, err
+	}
+	written = append(written, mp)
+	// Drop legacy filenames from older emit / Meta runs.
+	for _, stale := range []string{"Mutate.proto", "property_mutate.proto"} {
+		_ = os.Remove(filepath.Join(protoDir, stale))
+	}
+
 	names := sortedClassNames(unit)
 	for _, name := range names {
 		cls := unit.Classes[name]
@@ -309,11 +320,15 @@ func writeSchemaLuaProto(unit *ir.CompilationUnit, outDir string, legacyWire, co
 		}
 		written = append(written, rp)
 
-		pp := filepath.Join(protoDir, name+".proto")
-		if err := os.WriteFile(pp, []byte(emitProto(ec)), 0o644); err != nil {
+		stem := ProtoFileStem(name)
+		pp := filepath.Join(protoDir, stem+".proto")
+		if err := os.WriteFile(pp, []byte(emitProto(ec, pkg)), 0o644); err != nil {
 			return nil, err
 		}
 		written = append(written, pp)
+		if stem != name {
+			_ = os.Remove(filepath.Join(protoDir, name+".proto")) // PascalCase → snake_case
+		}
 	}
 	if copyRuntime {
 		root := runtimeDir
