@@ -6,470 +6,438 @@ namespace spiritsaway::rpg_example
 
 bool EquipItem::replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
 {
-	using std::swap;
-	auto split_result = offset.split();
-	auto field_index = split_result.second;
-	auto remain_offset = split_result.first;
-	switch(field_index)
-	{
-		case index_for_enhance:
-		{
-			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_enhance);
-			return temp_proxy.replay(remain_offset, cmd, data);
-		}
-		case index_for_name:
-		{
-			auto temp_proxy = spiritsaway::property::make_replay_proxy(m_name);
-			return temp_proxy.replay(remain_offset, cmd, data);
-		}
-		case index_end_for_EquipItem:
-		{
-			if(cmd == spiritsaway::property::property_cmd::update_fields)
-			{
-				std::vector<std::uint8_t> related_fields;
-				std::vector<std::pair<std::uint8_t, json>> field_values;
-				if(!serialize::decode_multi(data, related_fields, field_values))
-				{
-					return false;
-				}
-				clear_fields(related_fields);
-				return set_fields(field_values);
-			}
-			else
-			{
-				return false;
-			}
-		}
-		default:
-			return spiritsaway::property::property_slot_item<int>::replay_mutate_msg(offset, cmd, data);
-	}
+    using std::swap;
+    auto split_result = offset.split();
+    auto field_index = split_result.second;
+    auto remain_offset = split_result.first;
+    switch (field_index) {
+        case index_for_enhance: {
+            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_enhance);
+            return temp_proxy.replay(remain_offset, cmd, data);
+        }
+        case index_for_name: {
+            auto temp_proxy = spiritsaway::property::make_replay_proxy(m_name);
+            return temp_proxy.replay(remain_offset, cmd, data);
+        }
+        case index_end_for_EquipItem: {
+            if (cmd == spiritsaway::property::property_cmd::update_fields) {
+                std::vector<std::uint8_t> related_fields;
+                std::vector<std::pair<std::uint8_t, json>> field_values;
+                if (!serialize::decode_multi(data, related_fields, field_values)) {
+                    return false;
+                }
+                clear_fields(related_fields);
+                return set_fields(field_values);
+            }
+            else {
+                return false;
+            }
+        }
+        default:
+            return spiritsaway::property::property_slot_item<int>::replay_mutate_msg(offset, cmd, data);
+    }
 }
 
 bool EquipItem::operator==(const EquipItem& other) const
 {
-	if(!spiritsaway::property::property_slot_item<int>::operator==(other))
-	{
-		return false;
-	}
-	if(m_enhance != other.m_enhance)
-	{
-		return false;
-	}
-	if(m_name != other.m_name)
-	{
-		return false;
-	}
-	return true;
+    if (!spiritsaway::property::property_slot_item<int>::operator==(other)) {
+        return false;
+    }
+    if (m_enhance != other.m_enhance) {
+        return false;
+    }
+    if (m_name != other.m_name) {
+        return false;
+    }
+    return true;
 }
 bool EquipItem::operator!=(const EquipItem& other) const
 {
-	return !(operator==(other));
+    return !(operator==(other));
 }
-
 
 json EquipItem::encode(bool ignore_default) const
 {
-	json result = spiritsaway::property::property_slot_item<int>::encode(ignore_default);
-	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-	{
-		result["enhance"] = spiritsaway::serialize::encode(m_enhance);
-	}
-	if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-	{
-		result["name"] = spiritsaway::serialize::encode(m_name);
-	}
-	return result;
+    json result = spiritsaway::property::property_slot_item<int>::encode(ignore_default);
+    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+        result["enhance"] = spiritsaway::serialize::encode(m_enhance);
+    }
+    if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+        result["name"] = spiritsaway::serialize::encode(m_name);
+    }
+    return result;
 }
 void EquipItem::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const
 {
-	spiritsaway::property::property_slot_item<int>::encode_with_flag(flag, ignore_default, result);
+    spiritsaway::property::property_slot_item<int>::encode_with_flag(flag, ignore_default, result);
 
-	if((flag_for_enhance & flag.value) == flag.value)
-	{
-		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-		{
-			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_enhance, m_enhance)));
-		}
-	}
-	if((flag_for_name & flag.value) == flag.value)
-	{
-		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-		{
-			result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_name, m_name)));
-		}
-	}
-	return;
+    if ((flag_for_enhance & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_enhance, m_enhance)));
+        }
+    }
+    if ((flag_for_name & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+            result.push_back(spiritsaway::serialize::encode(std::make_pair(index_for_name, m_name)));
+        }
+    }
+    return;
 }
 
 void EquipItem::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const
 {
-	spiritsaway::property::property_slot_item<int>::encode_with_flag(flag, ignore_default, result);
+    spiritsaway::property::property_slot_item<int>::encode_with_flag(flag, ignore_default, result);
 
-	if((flag_for_enhance & flag.value) == flag.value)
-	{
-		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-		{
-			result["enhance"] = spiritsaway::serialize::encode(m_enhance);
-		}
-	}
-	if((flag_for_name & flag.value) == flag.value)
-	{
-		if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-		{
-			result["name"] = spiritsaway::serialize::encode(m_name);
-		}
-	}
-	return;
+    if ((flag_for_enhance & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+            result["enhance"] = spiritsaway::serialize::encode(m_enhance);
+        }
+    }
+    if ((flag_for_name & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+            result["name"] = spiritsaway::serialize::encode(m_name);
+        }
+    }
+    return;
 }
 json EquipItem::encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const
 {
-	if (replace_key_by_index)
-	{
-		json::array_t result;
-		encode_with_flag(flag, ignore_default, result);
-		return result;
-	}
-	else
-	{
-		json::object_t result;
-		encode_with_flag(flag, ignore_default, result);
-		return result;
-	}
+    if (replace_key_by_index) {
+        json::array_t result;
+        encode_with_flag(flag, ignore_default, result);
+        return result;
+    }
+    else {
+        json::object_t result;
+        encode_with_flag(flag, ignore_default, result);
+        return result;
+    }
 }
 
 std::vector<std::uint8_t> EquipItem::get_fields_with_flag(const spiritsaway::property::property_flags flag) const
 {
-	std::vector<std::uint8_t> result;
-	result = spiritsaway::property::property_slot_item<int>::get_fields_with_flag(flag);
+    std::vector<std::uint8_t> result;
+    result = spiritsaway::property::property_slot_item<int>::get_fields_with_flag(flag);
 
-	if((flag_for_enhance & flag.value) == flag.value)
-	{
-		result.push_back(index_for_enhance);
-	}
-	if((flag_for_name & flag.value) == flag.value)
-	{
-		result.push_back(index_for_name);
-	}
-	return result;
+    if ((flag_for_enhance & flag.value) == flag.value) {
+        result.push_back(index_for_enhance);
+    }
+    if ((flag_for_name & flag.value) == flag.value) {
+        result.push_back(index_for_name);
+    }
+    return result;
 }
 
 std::vector<std::uint8_t> EquipItem::get_fields_without_flag(const spiritsaway::property::property_flags flag) const
 {
-	std::vector<std::uint8_t> result;
-	result = spiritsaway::property::property_slot_item<int>::get_fields_without_flag(flag);
+    std::vector<std::uint8_t> result;
+    result = spiritsaway::property::property_slot_item<int>::get_fields_without_flag(flag);
 
-	if((flag_for_enhance & flag.value) != flag.value)
-	{
-		result.push_back(index_for_enhance);
-	}
-	if((flag_for_name & flag.value) != flag.value)
-	{
-		result.push_back(index_for_name);
-	}
-	return result;
+    if ((flag_for_enhance & flag.value) != flag.value) {
+        result.push_back(index_for_enhance);
+    }
+    if ((flag_for_name & flag.value) != flag.value) {
+        result.push_back(index_for_name);
+    }
+    return result;
 }
-
-
 
 json EquipItem::encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-	json result;
-	result = spiritsaway::property::property_slot_item<int>::encode_fields(offsets, ignore_default);
+    json result;
+    result = spiritsaway::property::property_slot_item<int>::encode_fields(offsets, ignore_default);
 
-	for(const auto& one_offset: offsets)
-	{
-		switch(one_offset)
-		{
-			case index_for_enhance:
-			{
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-				{
-					result["enhance"] = spiritsaway::serialize::encode(m_enhance);
-				}
-				break;
-			}
-			case index_for_name:
-			{
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-				{
-					result["name"] = spiritsaway::serialize::encode(m_name);
-				}
-				break;
-			}
-			default:
-			{
-				break;
-			}
-				
-		}
-		
-	}
-	return result;
+    for (const auto& one_offset : offsets) {
+        switch (one_offset) {
+            case index_for_enhance: {
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+                    result["enhance"] = spiritsaway::serialize::encode(m_enhance);
+                }
+                break;
+            }
+            case index_for_name: {
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+                    result["name"] = spiritsaway::serialize::encode(m_name);
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 json EquipItem::encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default) const
 {
-	json result;
-	result = spiritsaway::property::property_slot_item<int>::encode_except_fields(offsets, ignore_default);
+    json result;
+    result = spiritsaway::property::property_slot_item<int>::encode_except_fields(offsets, ignore_default);
 
-	for(const auto& one_offset: offsets)
-	{
-		switch(one_offset)
-		{
-			case index_for_enhance:
-			{
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-				{
-					result["enhance"] = spiritsaway::serialize::encode(m_enhance);
-				}
-				break;
-			}
-			case index_for_name:
-			{
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-				{
-					result["name"] = spiritsaway::serialize::encode(m_name);
-				}
-				break;
-			}
-			default:
-			{
-				break;
-			}
-		}
-		
-	}
-	return result;
+    for (const auto& one_offset : offsets) {
+        switch (one_offset) {
+            case index_for_enhance: {
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+                    result["enhance"] = spiritsaway::serialize::encode(m_enhance);
+                }
+                break;
+            }
+            case index_for_name: {
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+                    result["name"] = spiritsaway::serialize::encode(m_name);
+                }
+                break;
+            }
+            default: {
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 json EquipItem::encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const
 {
-	json result;
-	result = spiritsaway::property::property_slot_item<int>::encode_fields_with_flag(offsets, flag, ignore_default);
-	for(const auto& one_offset: offsets)
-	{
-		switch(one_offset)
-		{
-			case index_for_enhance:
-			{
-				if((flag_for_enhance & flag.value) != flag.value)
-				{
-					break;
-				}
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-				{
-					result["enhance"] = spiritsaway::serialize::encode(m_enhance);
-				}
-				break;
-			}
-			case index_for_name:
-			{
-				if((flag_for_name & flag.value) != flag.value)
-				{
-					break;
-				}
-				if(!ignore_default ||!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-				{
-					result["name"] = spiritsaway::serialize::encode(m_name);
-				}
-				break;
-			}
-			default:
-				break;
-		}
-		
-	}
-	return result;
+    json result;
+    result = spiritsaway::property::property_slot_item<int>::encode_fields_with_flag(offsets, flag, ignore_default);
+    for (const auto& one_offset : offsets) {
+        switch (one_offset) {
+            case index_for_enhance: {
+                if ((flag_for_enhance & flag.value) != flag.value) {
+                    break;
+                }
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+                    result["enhance"] = spiritsaway::serialize::encode(m_enhance);
+                }
+                break;
+            }
+            case index_for_name: {
+                if ((flag_for_name & flag.value) != flag.value) {
+                    break;
+                }
+                if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+                    result["name"] = spiritsaway::serialize::encode(m_name);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    return result;
 }
 
 bool EquipItem::decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx)
 {
-	if(!spiritsaway::property::property_slot_item<int>::decode(data, next_idx))
-	{
-		return false;
-	}
-	while(next_idx < data.size())
-	{
-		const auto& one_item = data[next_idx];
-		if(one_item.first >= index_end_for_EquipItem)
-		{
-			return true;
-		}
-		if(one_item.first < index_begin_for_EquipItem)
-		{
-			return false;
-		}
-		switch(one_item.first)
-		{
-			case index_for_enhance:
-			{
-				if(!spiritsaway::serialize::decode(one_item.second, m_enhance))
-				{
-					return false;
-				}
-				break;
-			}
-			case index_for_name:
-			{
-				if(!spiritsaway::serialize::decode(one_item.second, m_name))
-				{
-					return false;
-				}
-				break;
-			}
-			default:
-				return false;
-		}
-		next_idx++;
-	}
-	return true;
+    if (!spiritsaway::property::property_slot_item<int>::decode(data, next_idx)) {
+        return false;
+    }
+    while (next_idx < data.size()) {
+        const auto& one_item = data[next_idx];
+        if (one_item.first >= index_end_for_EquipItem) {
+            return true;
+        }
+        if (one_item.first < index_begin_for_EquipItem) {
+            return false;
+        }
+        switch (one_item.first) {
+            case index_for_enhance: {
+                if (!spiritsaway::serialize::decode(one_item.second, m_enhance)) {
+                    return false;
+                }
+                break;
+            }
+            case index_for_name: {
+                if (!spiritsaway::serialize::decode(one_item.second, m_name)) {
+                    return false;
+                }
+                break;
+            }
+            default:
+                return false;
+        }
+        next_idx++;
+    }
+    return true;
 }
 
 bool EquipItem::decode(const json::object_t& data)
 {
-	if(!spiritsaway::property::property_slot_item<int>::decode(data))
-	{
-		return false;
-	}
-	decltype(data.end()) iter;
-	iter = data.find("enhance");
-	if(iter != data.end())
-	{
-		if(!spiritsaway::serialize::decode(iter->second, m_enhance))
-		{
-			return false;
-		}
-	}
-	
-	iter = data.find("name");
-	if(iter != data.end())
-	{
-		if(!spiritsaway::serialize::decode(iter->second, m_name))
-		{
-			return false;
-		}
-	}
-	
-	return true;
+    if (!spiritsaway::property::property_slot_item<int>::decode(data)) {
+        return false;
+    }
+    decltype(data.end()) iter;
+    iter = data.find("enhance");
+    if (iter != data.end()) {
+        if (!spiritsaway::serialize::decode(iter->second, m_enhance)) {
+            return false;
+        }
+    }
+
+    iter = data.find("name");
+    if (iter != data.end()) {
+        if (!spiritsaway::serialize::decode(iter->second, m_name)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool EquipItem::decode(const json& data)
 {
-	if(data.is_object())
-	{
-		json::object_t obj_data = data.get<json::object_t>();
-		return decode(obj_data);
-	}
-	else if(data.is_array())
-	{
-		std::vector<std::pair<std::uint8_t, json>> array_data;
-		if(!spiritsaway::serialize::decode(data, array_data))
-		{
-			return false;
-		}
-		std::uint32_t next_idx = 0;
-		if(!decode(array_data, next_idx))
-		{
-			return false;
-		}
-		if(next_idx != array_data.size())
-		{
-			return false;
-		}
-		return true;
-	}
-	return false;
-	
+    if (data.is_object()) {
+        json::object_t obj_data = data.get<json::object_t>();
+        return decode(obj_data);
+    }
+    else if (data.is_array()) {
+        std::vector<std::pair<std::uint8_t, json>> array_data;
+        if (!spiritsaway::serialize::decode(data, array_data)) {
+            return false;
+        }
+        std::uint32_t next_idx = 0;
+        if (!decode(array_data, next_idx)) {
+            return false;
+        }
+        if (next_idx != array_data.size()) {
+            return false;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool EquipItem::has_default_value() const
 {
-	if(!spiritsaway::property::property_slot_item<int>::has_default_value())
-	{
-		return false;
-	}
-	if(!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance))
-	{
-		return false;
-	}
-	if(!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name))
-	{
-		return false;
-	}
-	return true;
+    if (!spiritsaway::property::property_slot_item<int>::has_default_value()) {
+        return false;
+    }
+    if (!spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+        return false;
+    }
+    if (!spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+        return false;
+    }
+    return true;
 }
 void EquipItem::update_fields(const EquipItem& other, const json& other_json, std::vector<std::uint8_t>& field_indexes)
 {
-	spiritsaway::property::property_slot_item<int>::update_fields(other, other_json, field_indexes);
-	auto temp_iter_for_enhance = other_json.find("enhance");
-	if(temp_iter_for_enhance != other_json.end())
-	{
-		m_enhance = other.m_enhance;
-		field_indexes.push_back(index_for_enhance);
-	}
-	auto temp_iter_for_name = other_json.find("name");
-	if(temp_iter_for_name != other_json.end())
-	{
-		m_name = other.m_name;
-		field_indexes.push_back(index_for_name);
-	}
+    spiritsaway::property::property_slot_item<int>::update_fields(other, other_json, field_indexes);
+    auto temp_iter_for_enhance = other_json.find("enhance");
+    if (temp_iter_for_enhance != other_json.end()) {
+        m_enhance = other.m_enhance;
+        field_indexes.push_back(index_for_enhance);
+    }
+    auto temp_iter_for_name = other_json.find("name");
+    if (temp_iter_for_name != other_json.end()) {
+        m_name = other.m_name;
+        field_indexes.push_back(index_for_name);
+    }
 }
 
 void EquipItem::clear_fields(const std::vector<std::uint8_t>& related_indexes)
 {
-	spiritsaway::property::property_slot_item<int>::clear_fields(related_indexes);
-	for(auto one_idx: related_indexes)
-	{
-		switch(one_idx)
-		{
-		case index_for_enhance:
-		{
-			m_enhance = {};
-			break;
-		}
-		case index_for_name:
-		{
-			m_name = {};
-			break;
-		}
-		default:
-			break;
-		}
-	}
+    spiritsaway::property::property_slot_item<int>::clear_fields(related_indexes);
+    for (auto one_idx : related_indexes) {
+        switch (one_idx) {
+            case index_for_enhance: {
+                m_enhance = {};
+                break;
+            }
+            case index_for_name: {
+                m_name = {};
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }
 
 bool EquipItem::set_fields(const std::vector<std::pair<std::uint8_t, json>>& field_values)
 {
-	if(!spiritsaway::property::property_slot_item<int>::set_fields(field_values))
-	{
-		return false;
-	}
-	for(auto one_idx_pair: field_values)
-	{
-		switch(one_idx_pair.first)
-		{
-		case index_for_enhance:
-		{
-			if(!serialize::decode(one_idx_pair.second, m_enhance))
-			{
-				return false;
-			}
-			break;
-		}
-		case index_for_name:
-		{
-			if(!serialize::decode(one_idx_pair.second, m_name))
-			{
-				return false;
-			}
-			break;
-		}
-		default:
-			break;
-		}
-	}
-	return true;
-	
+    if (!spiritsaway::property::property_slot_item<int>::set_fields(field_values)) {
+        return false;
+    }
+    for (auto one_idx_pair : field_values) {
+        switch (one_idx_pair.first) {
+            case index_for_enhance: {
+                if (!serialize::decode(one_idx_pair.second, m_enhance)) {
+                    return false;
+                }
+                break;
+            }
+            case index_for_name: {
+                if (!serialize::decode(one_idx_pair.second, m_name)) {
+                    return false;
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    return true;
 }
 
+} // namespace spiritsaway::rpg_example
+
+#if PROPERTY_SYNC_WITH_PROTOBUF
+#include "EquipItem.pb.h"
+#include <algorithm>
+#include <memory>
+
+namespace spiritsaway::rpg_example
+{
+void EquipItem::to_pb(spiritsaway::property::property_flags flag, bool ignore_default, std::uint32_t schema_version, property_sync::generated::EquipItemSnapshot& dst) const
+{
+    dst.Clear();
+    dst.set_schema_version(schema_version);
+    dst.set_id(m_id);
+    dst.set_slot(m_slot);
+    if ((flag_for_enhance & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_enhance)>()(m_enhance)) {
+            dst.set_enhance(static_cast<std::int64_t>(m_enhance));
+        }
+    }
+    if ((flag_for_name & flag.value) == flag.value) {
+        if (!ignore_default || !spiritsaway::property::has_default_value<decltype(m_name)>()(m_name)) {
+            dst.set_name(m_name);
+        }
+    }
 }
+
+bool EquipItem::from_pb(const property_sync::generated::EquipItemSnapshot& src)
+{
+    *this = EquipItem{};
+    m_id = static_cast<decltype(m_id)>(src.id());
+    m_slot = src.slot();
+    m_enhance = static_cast<decltype(m_enhance)>(src.enhance());
+    m_name = src.name();
+    return true;
+}
+
+void EquipItem::to_pb_slots(const spiritsaway::property::property_slots<EquipItem>& src, spiritsaway::property::property_flags flag, bool ignore_default, std::uint32_t schema_version, property_sync::generated::EquipItemSlotsSnapshot& dst)
+{
+    dst.Clear();
+    dst.set_sz(src.capacity());
+    for (std::uint32_t i = 0; i < src.capacity(); ++i) {
+        const auto* item = src.get_slot(i);
+        if (!item) continue;
+        item->to_pb(flag, ignore_default, schema_version, *dst.add_data());
+    }
+}
+
+bool EquipItem::from_pb_slots(const property_sync::generated::EquipItemSlotsSnapshot& src, spiritsaway::property::property_slots<EquipItem>& dst)
+{
+    dst.clear();
+    dst.resize_slots(src.sz());
+    for (const auto& one : src.data()) {
+        EquipItem item;
+        if (!item.from_pb(one)) return false;
+        if (!dst.insert_item(std::make_unique<EquipItem>(std::move(item)))) return false;
+    }
+    return true;
+}
+} // namespace spiritsaway::rpg_example
+#endif // PROPERTY_SYNC_WITH_PROTOBUF

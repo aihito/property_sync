@@ -221,6 +221,12 @@ public:
         m_data.clear();
     }
 
+    /// Append item (used by generated Protobuf from_pb).
+    void emplace_back(std::unique_ptr<Item> item)
+    {
+        m_data.push_back(std::move(item));
+    }
+
     bool has_default_value() const
     {
         return m_data.empty();

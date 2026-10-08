@@ -213,6 +213,16 @@ public:
         return std::uint32_t(m_data.size());
     }
 
+    /// Public resize/insert for generated Protobuf from_pb.
+    void resize_slots(std::uint32_t new_sz)
+    {
+        resize(new_sz);
+    }
+    bool insert_item(std::unique_ptr<Item> temp_item)
+    {
+        return insert(std::move(temp_item));
+    }
+
     json encode(bool ignore_default = true) const
     {
         json::array_t data_arr;

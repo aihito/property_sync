@@ -4,8 +4,8 @@
 
 | 通道 | need_flags | 形态 |
 |------|------------|------|
-| Client | `sync_clients` | mutate JSON + 视图；Lua/C++ Replay |
-| DB | `save_db` | **PlayerSnapshot PB**（[lua-protobuf](https://github.com/starwing/lua-protobuf)） |
+| Client | `sync_clients` | `codec_kind::json` + mutate 队列；Lua/C++ Replay |
+| DB | `save_db` | `Player::to_pb` / `from_pb` 成员 → `.pb`；`codec both` 对拍；lua-protobuf 互通 |
 
 ## 依赖
 

@@ -132,6 +132,7 @@ func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[str
 	hdr := headerContext(cls, ctx)
 	hdr["class_body"] = body
 	hdr["proxy_body"] = proxy
+	hdr["pb_members"] = renderPbMemberDecls(cls)
 	fullH, err := renderTemplate(filepath.Join(md, "class_header_full.mustache"), hdr)
 	if err != nil {
 		return nil, fmt.Errorf("class_header_full.mustache: %w", err)
@@ -143,6 +144,7 @@ func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[str
 	if err != nil {
 		return nil, fmt.Errorf("class_cpp_full.mustache: %w", err)
 	}
+	fullCpp += renderPbMemberImpl(cls)
 	return map[string]string{
 		cls.Name + ".h":   fullH,
 		cls.Name + ".cpp": fullCpp,
@@ -213,11 +215,13 @@ func writeCpp(unit *ir.CompilationUnit, outDir string, md string, legacyWire, fl
 		if err != nil {
 			return nil, err
 		}
-		// Drop legacy Meta fragment names if present from older emits.
+		// Drop legacy fragment / free-function serde names if present.
 		for _, obsolete := range []string{
 			it.name + ".generated.inch",
 			it.name + ".proxy.inch",
 			it.name + ".generated.incpp",
+			it.name + ".pb_serde.h",
+			it.name + ".pb_serde.cpp",
 		} {
 			_ = os.Remove(filepath.Join(root, obsolete))
 		}

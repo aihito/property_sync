@@ -21,11 +21,24 @@ INCLUDE_DIRECTORIES(${any_container_include_dirs})
 
 option(WITH_TEST "with test" ON)
 option(WITH_EXAMPLES "with examples" ON)
+option(WITH_PROTOBUF "Enable Snapshot Protobuf codec (libprotobuf)" ON)
+
+set(PROPERTY_SYNC_HAVE_PROTOBUF 0)
+if(WITH_PROTOBUF)
+	find_package(Protobuf)
+	if(Protobuf_FOUND)
+		set(PROPERTY_SYNC_HAVE_PROTOBUF 1)
+		message(STATUS "property_sync: Protobuf ${Protobuf_VERSION} → PROPERTY_SYNC_WITH_PROTOBUF=1")
+	else()
+		message(WARNING "WITH_PROTOBUF=ON but Protobuf not found; Snapshot codec is JSON-only")
+	endif()
+endif()
 
 add_library(${PROJECT_NAME} INTERFACE)
 target_include_directories(${PROJECT_NAME} INTERFACE $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(${PROJECT_NAME} INTERFACE any_container)
+# Protobuf is opt-in per target (see channel_matrix); do not force-link INTERFACE consumers.
 
 target_precompile_headers(${PROJECT_NAME} INTERFACE [["property_sync/property.h"]])
 

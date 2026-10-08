@@ -67,6 +67,7 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/meta/mustache/class_header_full.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/class_cpp_full.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/flags_h.mustache
+		${CMAKE_SOURCE_DIR}/tools/psync/internal/emit/pb_serde.go
 		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_runtime.lua
 		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_record.lua
 	COMMENT "channel_matrix: Go psync emit → ${CM_GEN}/{cpp,schema,lua,proto}"
@@ -94,7 +95,42 @@ if(PROTOC_EXECUTABLE)
 	add_custom_target(channel_matrix_proto DEPENDS ${CM_PROTO_DESC})
 endif()
 
-# --- C++ M1 binary (generated *.cpp linked) ---
+# --- C++ protobuf Snapshot messages (optional) ---
+set(CM_PB_GEN ${CMAKE_CURRENT_BINARY_DIR}/pb_gen)
+file(MAKE_DIRECTORY ${CM_PB_GEN})
+set(CM_PB_SRCS)
+set(CM_PB_HDRS)
+if(PROPERTY_SYNC_HAVE_PROTOBUF AND PROTOC_EXECUTABLE)
+	foreach(_pb Item Buff EquipItem LoginRecord Player)
+		list(APPEND CM_PB_SRCS ${CM_PB_GEN}/${_pb}.pb.cc)
+		list(APPEND CM_PB_HDRS ${CM_PB_GEN}/${_pb}.pb.h)
+	endforeach()
+	add_custom_command(
+		OUTPUT ${CM_PB_SRCS} ${CM_PB_HDRS}
+		COMMAND ${PROTOC_EXECUTABLE}
+			--cpp_out=${CM_PB_GEN}
+			-I${CM_GEN}/proto
+			${CM_GEN}/proto/Item.proto
+			${CM_GEN}/proto/Buff.proto
+			${CM_GEN}/proto/EquipItem.proto
+			${CM_GEN}/proto/LoginRecord.proto
+			${CM_GEN}/proto/Player.proto
+		DEPENDS channel_matrix_generate
+		COMMENT "channel_matrix: protoc --cpp_out → ${CM_PB_GEN}"
+		VERBATIM
+	)
+	add_library(channel_matrix_pb STATIC ${CM_PB_SRCS})
+	target_include_directories(channel_matrix_pb PUBLIC ${CM_PB_GEN} ${Protobuf_INCLUDE_DIRS})
+	if(TARGET protobuf::libprotobuf)
+		target_link_libraries(channel_matrix_pb PUBLIC protobuf::libprotobuf)
+	else()
+		target_link_libraries(channel_matrix_pb PUBLIC ${Protobuf_LIBRARIES})
+	endif()
+	set_source_files_properties(${CM_PB_SRCS} PROPERTIES GENERATED TRUE)
+	add_dependencies(channel_matrix_pb channel_matrix_generate)
+endif()
+
+# --- C++ M1 binary (generated *.cpp linked; to_pb/from_pb inside Class.cpp) ---
 add_executable(channel_matrix_cpp cpp/main_dual_channel.cpp ${CM_CPP_IMPL})
 add_dependencies(channel_matrix_cpp channel_matrix_generate)
 set_source_files_properties(${CM_CPP_IMPL} PROPERTIES GENERATED TRUE)
@@ -104,6 +140,11 @@ target_include_directories(channel_matrix_cpp PRIVATE
 )
 target_link_libraries(channel_matrix_cpp PRIVATE any_container)
 target_compile_features(channel_matrix_cpp PRIVATE cxx_std_17)
+if(TARGET channel_matrix_pb)
+	target_compile_definitions(channel_matrix_cpp PRIVATE PROPERTY_SYNC_WITH_PROTOBUF=1)
+	target_link_libraries(channel_matrix_cpp PRIVATE channel_matrix_pb)
+	target_include_directories(channel_matrix_cpp PRIVATE ${CM_PB_GEN})
+endif()
 
 # --- C++ Replay helper (Lua ↔ C++ cross check) ---
 add_executable(channel_matrix_replay_json cpp/replay_from_json.cpp ${CM_CPP_IMPL})
@@ -116,20 +157,16 @@ target_include_directories(channel_matrix_replay_json PRIVATE
 target_link_libraries(channel_matrix_replay_json PRIVATE any_container)
 target_compile_features(channel_matrix_replay_json PRIVATE cxx_std_17)
 
-# M1 + lua-pb
+# M1 + C++ PB archive + lua-pb interop
 if(LUA_EXECUTABLE)
 	add_custom_target(channel_matrix_cpp_test
 		COMMAND $<TARGET_FILE:channel_matrix_cpp> ${CM_FIX}
+		# Load C++-written Snapshot PB with lua-protobuf (wire interop)
 		COMMAND ${CMAKE_COMMAND} -E env
 			"LUA_PATH=${CM_LUA_ENV_PATH}" "LUA_CPATH=${CM_LUA_ENV_CPATH}"
 			${LUA_EXECUTABLE} ${CM_ROOT}/lua/pb_archive_cli.lua
 			${CM_GEN}/proto ${CM_GEN}/lua
-			save ${CM_FIX}/db_view.json ${CM_FIX}/player_db.pb
-		COMMAND ${CMAKE_COMMAND} -E env
-			"LUA_PATH=${CM_LUA_ENV_PATH}" "LUA_CPATH=${CM_LUA_ENV_CPATH}"
-			${LUA_EXECUTABLE} ${CM_ROOT}/lua/pb_archive_cli.lua
-			${CM_GEN}/proto ${CM_GEN}/lua
-			load ${CM_FIX}/player_db.pb ${CM_FIX}/db_view_from_pb.json
+			load ${CM_FIX}/player_db.pb ${CM_FIX}/db_view_from_cpp_pb.json
 		COMMAND ${CMAKE_COMMAND} -E env
 			"LUA_PATH=${CM_LUA_ENV_PATH}" "LUA_CPATH=${CM_LUA_ENV_CPATH}"
 			${LUA_EXECUTABLE} ${CM_ROOT}/lua/pb_archive_cli.lua
@@ -137,7 +174,7 @@ if(LUA_EXECUTABLE)
 			roundtrip ${CM_FIX}/db_view.json
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		DEPENDS channel_matrix_cpp channel_matrix_proto
-		COMMENT "channel_matrix M1: C++ dual channel + lua-pb DB"
+		COMMENT "channel_matrix M1: C++ codec (json/pb) + lua-pb interop"
 		VERBATIM
 	)
 endif()

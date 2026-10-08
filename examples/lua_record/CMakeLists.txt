@@ -49,6 +49,7 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/meta/mustache/class_header_full.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/class_cpp_full.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/flags_h.mustache
+		${CMAKE_SOURCE_DIR}/tools/psync/internal/emit/pb_serde.go
 	COMMENT "lua_record: Go psync emit → ${LR_GEN}"
 	VERBATIM
 )

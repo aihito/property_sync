@@ -297,6 +297,16 @@ public:
         m_data.clear();
     }
 
+    /// Public insert for generated Protobuf from_pb.
+    std::pair<std::uint32_t, bool> insert_item(value_type&& temp_item)
+    {
+        return insert(std::move(temp_item));
+    }
+    std::pair<std::uint32_t, bool> insert_item(std::unique_ptr<value_type> temp_item_ptr)
+    {
+        return insert(std::move(temp_item_ptr));
+    }
+
     std::uint64_t size() const
     {
         return m_index.size();
