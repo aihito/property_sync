@@ -103,6 +103,15 @@ cmake -S . -B build \
 | `property_test` | 仓库单元测试（需先手动/半手动生成 inch） |
 | `rpg_player_example` | RPG 示例（CMake 会自动跑生成器） |
 | `rpg_player_generate` | 仅生成 RPG 示例的 inch 文件 |
+| `rpg_player_generate_from_dsl` | DSL→IR→schema/lua/proto（`generated/from_dsl`） |
+| `rpg_player_dsl_check` | DSL golden + emit≡Meta 语义对拍 |
+| `rpg_player_lua_replay` | C++/Lua batch+snapshot+mixed 对拍 |
+| `rpg_player_lua_record` | 纯 Lua Record（S5/S6） |
+| `rpg_player_replay_json` | C++ Replay mutate JSON（S7） |
+| `rpg_player_cross_matrix` | Record×Replay 交叉矩阵 |
+| `rpg_player_proto_check` | protoc 编译检查生成 proto |
+
+DSL 专项步骤见 **[dsl-test.md](./dsl-test.md)**。
 
 ```bash
 # 只编生成器
@@ -182,7 +191,7 @@ cmake --build build --target property_test -j
 判定：
 
 - 输出中 **不应** 出现 `fail to relay`
-- `main.cpp` 末尾固定 `return 1`，因此进程退出码常为 `1`，**不能**单靠退出码判断成败
+- 成功时退出码应为 `0`；日志中不应出现 `fail to relay`
 
 生成时 cwd 下可能出现体积很大的 `meta.log` / `type_info.json`，可删：
 

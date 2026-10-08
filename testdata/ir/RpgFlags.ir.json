@@ -1,0 +1,30 @@
+{
+  "name": "RpgFlags",
+  "bits": [
+    {
+      "name": "save_db",
+      "bit": 0
+    },
+    {
+      "name": "sync_self",
+      "bit": 1
+    },
+    {
+      "name": "sync_ghost",
+      "bit": 2
+    },
+    {
+      "name": "sync_other",
+      "bit": 3
+    }
+  ],
+  "aliases": [
+    {
+      "name": "sync_clients",
+      "expr": [
+        "sync_self",
+        "sync_other"
+      ]
+    }
+  ]
+}

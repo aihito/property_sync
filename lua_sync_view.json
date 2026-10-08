@@ -1,0 +1,57 @@
+{
+  "attrs": {
+    "atk": 120
+  },
+  "buffs": [
+    {
+      "expire_ts": 9999.0,
+      "id": 200,
+      "level": 3
+    }
+  ],
+  "equipment": {
+    "data": [
+      {
+        "enhance": 3,
+        "id": 501,
+        "name": "Iron Sword",
+        "slot": 3
+      }
+    ],
+    "sz": 6
+  },
+  "hp": 80,
+  "inventory": [
+    {
+      "count": 5,
+      "id": 1001
+    },
+    {
+      "count": 2,
+      "id": 3001
+    }
+  ],
+  "level": 5,
+  "login_history": [
+    {
+      "login_ts": 250.0,
+      "logout_ts": 280.0
+    },
+    {
+      "login_ts": 300.0,
+      "logout_ts": 400.0
+    }
+  ],
+  "nickname": "Alice",
+  "pos": [
+    10.0,
+    3.5,
+    20.0
+  ],
+  "schema_version": 1,
+  "tags": [
+    "warrior",
+    "pvp",
+    "guild"
+  ]
+}

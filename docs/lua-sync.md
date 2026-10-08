@@ -9,18 +9,18 @@
 | `generated/lua/property_cmd.lua` | 与 C++ `property_cmd` 数值一致 |
 | `generated/lua/property_runtime.lua` | **手写** Replay 引擎（可扩展；生成器原样拷贝） |
 | `generated/lua/json.lua` | 轻量 JSON（对拍 / 宿主可选） |
-| `generated/lua/<Class>_sync.lua` | 薄元数据：`fields` / `INDEX` / `apply_mutate` 委托 runtime |
+| `generated/lua/<Class>_meta.lua` | 属性类元数据：`fields` / `INDEX`；Replay 委托 `property_runtime` |
 
 ## 架构（扩展点）
 
 ```text
-*_sync.lua (生成)          property_runtime.lua (手写)
+*_meta.lua (生成)          property_runtime.lua (手写)
   SCHEMA / fields / flags ──► apply_mutate / encode_sync_view
-  item_meta = Item_sync.META     bag / slots / vec / STL
+  item_meta = Item_meta.META     bag / slots / vec / STL
 ```
 
 - 新增容器语义：只改 `meta/lua_runtime/property_runtime.lua`，勿在 mustache 里堆逻辑。
-- 新增属性类：重新跑 Meta；生成模块自动 `require` 子 item 的 `*_sync`。
+- 新增属性类：重新跑生成；模块自动 `require` 子 item 的 `*_meta`。
 - **无热更**：`SCHEMA_VERSION` 与客户端包锁定；版本不一致应直接拒绝。
 
 ## 字段元数据
@@ -60,17 +60,17 @@ lua ../../../examples/rpg_player/lua_replay.lua ./generated/lua --mixed \
 ## 使用示意
 
 ```lua
-local PlayerSync = require("Player_sync")
+local PlayerMeta = require("Player_meta")
 local CMD = require("property_cmd")
 
-local player = PlayerSync.new_default()
-PlayerSync.apply_mutate(player, {
-  offset = PlayerSync.INDEX.hp, -- replay offset；根字段单层时等于 index
+local player = PlayerMeta.new_default()
+PlayerMeta.apply_mutate(player, {
+  offset = PlayerMeta.INDEX.hp, -- replay offset；根字段单层时等于 index
   cmd = CMD.set,
   flag = 0,
   data = 80,
 })
-local view = PlayerSync.encode_sync_view(player) -- 对齐 C++ sync_clients
+local view = PlayerMeta.encode_sync_view(player) -- 对齐 C++ sync_clients
 ```
 
 ## 兼容

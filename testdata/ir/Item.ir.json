@@ -1,0 +1,42 @@
+{
+  "name": "Item",
+  "kind": "bag_item",
+  "namespace": "spiritsaway.rpg_example",
+  "schema_version": 1,
+  "key_type": "int",
+  "flags_ref": "RpgFlags",
+  "fields": [
+    {
+      "index": 1,
+      "name": "count",
+      "type": {
+        "kind": "scalar",
+        "name": "int"
+      },
+      "wire_kind": "number",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "default": 0,
+      "item_class": ""
+    },
+    {
+      "index": 2,
+      "name": "name",
+      "type": {
+        "kind": "scalar",
+        "name": "string"
+      },
+      "wire_kind": "string",
+      "flags": [
+        "save_db"
+      ],
+      "deprecated": false,
+      "default": "",
+      "item_class": ""
+    }
+  ],
+  "reserved": [],
+  "source_file": "dsl/items.psync"
+}

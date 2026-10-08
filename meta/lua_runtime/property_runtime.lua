@@ -1,6 +1,6 @@
 -- property_runtime.lua
 -- Hand-maintained pure Lua replay engine (extensible).
--- Generated *_sync.lua modules supply SCHEMA / field metadata only.
+-- Generated *_meta.lua modules supply SCHEMA / field metadata only.
 -- See docs/lua-sync.md
 
 local Runtime = {}
@@ -77,14 +77,23 @@ function Runtime.resolve_path(msg)
   return Runtime.replay_offset_to_path(msg.offset)
 end
 
+-- Wire aliases: DSL uses list/dict; Meta path historically emitted vector/map.
+local function is_seq_kind(kind)
+  return kind == "vector" or kind == "list" or kind == "array"
+end
+
+local function is_dict_kind(kind)
+  return kind == "map" or kind == "dict"
+end
+
 local function default_for_kind(kind)
   if kind == "bag" then
     return { items = {}, id_to_idx = {} }
   elseif kind == "slots" then
     return { size = 0, by_slot = {}, by_id = {} }
-  elseif kind == "vec" or kind == "vector" or kind == "array" then
+  elseif kind == "vec" or is_seq_kind(kind) then
     return {}
-  elseif kind == "map" then
+  elseif is_dict_kind(kind) then
     return {}
   elseif kind == "string" then
     return ""
@@ -427,9 +436,9 @@ function Runtime.apply_mutate(obj, msg, meta)
       obj[field.name] = default_for_kind(kind)
       return true
     end
-  elseif kind == "vector" or kind == "array" then
+  elseif is_seq_kind(kind) then
     return vector_apply(slot, cmd, data)
-  elseif kind == "map" then
+  elseif is_dict_kind(kind) then
     return map_apply(slot, cmd, data)
   elseif kind == "bag" then
     if cmd == CMD.set then
@@ -578,9 +587,9 @@ function Runtime.load_snapshot(obj, snap, meta)
           vec_push_item(vec, row, f.item_meta)
         end
         obj[f.name] = vec
-      elseif kind == "map" then
+      elseif is_dict_kind(kind) then
         obj[f.name] = copy_map(raw)
-      elseif kind == "vector" or kind == "array" then
+      elseif is_seq_kind(kind) then
         obj[f.name] = copy_array(raw)
       else
         obj[f.name] = raw
@@ -664,13 +673,13 @@ local function encode_field_value(value, field, ignore_default)
       arr[#arr + 1] = encode_item_object(it, field.item_meta, ignore_default)
     end
     return arr
-  elseif kind == "map" then
+  elseif is_dict_kind(kind) then
     local out = {}
     for k, v in pairs(value) do
       out[k] = v
     end
     return out
-  elseif kind == "vector" or kind == "array" then
+  elseif is_seq_kind(kind) then
     local arr = {}
     for i, v in ipairs(value) do
       arr[i] = v
@@ -698,9 +707,9 @@ function Runtime.encode_sync_view(obj, meta, opts)
         if ignore_default then
           if f.wire_kind == "number" or f.wire_kind == "string" or f.wire_kind == "bool" then
             skip = is_default_scalar(encoded)
-          elseif f.wire_kind == "map" then
+          elseif is_dict_kind(f.wire_kind) then
             skip = next(encoded) == nil
-          elseif f.wire_kind == "vector" or f.wire_kind == "array" or f.wire_kind == "vec" or f.wire_kind == "bag" then
+          elseif is_seq_kind(f.wire_kind) or f.wire_kind == "vec" or f.wire_kind == "bag" then
             skip = #encoded == 0
           end
         end
@@ -711,6 +720,47 @@ function Runtime.encode_sync_view(obj, meta, opts)
     end
   end
   return out
+end
+
+--- Finish a generated *_meta.lua module: by_index / META / INDEX / helpers.
+function Runtime.attach_meta(M)
+  assert(M and M.fields, "attach_meta: fields required")
+  M.by_index = {}
+  M.INDEX = M.INDEX or {}
+  for _, f in ipairs(M.fields) do
+    M.by_index[f.index] = f
+    if M.INDEX[f.name] == nil then
+      M.INDEX[f.name] = f.index
+    end
+  end
+  M.META = {
+    fields = M.fields,
+    has_slot = M.has_slot,
+    has_bag_id = M.has_bag_id,
+    SCHEMA_VERSION = M.SCHEMA_VERSION,
+  }
+  function M.new_default()
+    return Runtime.new_default(M)
+  end
+  function M.apply_mutate(obj, msg)
+    return Runtime.apply_mutate(obj, msg, M)
+  end
+  function M.load_snapshot(obj, snap)
+    return Runtime.load_snapshot(obj, snap, M)
+  end
+  function M.encode_sync_view(obj, opts)
+    return Runtime.encode_sync_view(obj, M, opts)
+  end
+  function M.apply_batch(obj, batch)
+    for i, msg in ipairs(batch) do
+      local ok, err = M.apply_mutate(obj, msg)
+      if not ok then
+        return false, err, msg, i
+      end
+    end
+    return true
+  end
+  return M
 end
 
 return Runtime

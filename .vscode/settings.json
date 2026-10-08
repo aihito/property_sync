@@ -19,5 +19,8 @@
     "C_Cpp.intelliSenseEngine": "disabled",
     "files.associations": {
         "*.ipp": "cpp"
+    },
+    "[lua]": {
+        "editor.defaultFormatter": "tangzx.emmylua"
     }
 }

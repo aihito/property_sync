@@ -250,36 +250,35 @@ property_slot_item  （再多了 slot）
 
 ---
 
-## 8. Meta 代码生成：唯一真相源
+## 8. 真相源与代码生成（双轨）
 
-Record/Replay、字段索引、encode/decode、Proxy 特化手写极易漏。流程：
+Record/Replay、字段索引、encode/decode、Proxy 特化手写极易漏。探索主线已把 **合同真相源** 收到 `.psync` DSL（见 [dsl-design.md](./dsl-design.md)）；C++ inch 仍可由 Meta 路径生成，schema/lua/proto 可走 DSL。
 
 ```text
-头文件 Meta(property) 标注
-        │
-        ▼
-generate_property_sync（libclang + mustache）
-        │
-        ├─ *.generated.inch / *.proxy.inch / *.incpp   ← C++ Record/Replay
-        ├─ generated/schema/*.schema.json             ← 兼容合同
-        ├─ generated/proto/*.proto                    ← Snapshot / Mutate IDL
-        └─ generated/lua/*_sync.lua + property_runtime.lua  ← 纯 Lua Replay
+路径 B（合同主路径）          路径 A（C++ inch，现行）
+dsl/*.psync                   头文件 Meta(property)
+     │                              │
+     ▼                              ▼
+tools/psync → IR JSON          generate_property_sync（libclang）
+     │                              │
+     ├─ schema / proto / lua        ├─ *.generated.inch / *.proxy.inch
+     └─ *_record.lua（纯 Lua 写）   └─（亦可旁路产出 schema/lua/proto）
 ```
 
-硬性约定：
+CI 用 `rpg_player_dsl_check` 保证路径 B ≡ 路径 A 的 schema/lua/proto 语义。交叉矩阵（C++/Lua Record×Replay）见 [dsl-test.md](./dsl-test.md)。
+
+**Meta 路径硬性约定（写 C++ 头时仍适用）：**
 
 | 规则 | 说明 |
 |------|------|
 | 成员必须以 `m_` 开头 | 对外 API 去前缀：`m_hp` → `hp()` |
-| 类要有 `Meta(property)` | 才会进入生成 |
+| 类要有 `Meta(property)` | 才会进入 libclang 生成 |
 | flag 名与 `flag_class` 静态成员一致 | 如 `sync_clients` |
 | 生成文件名 = 类名 | `Player.proxy.inch` |
 
-解析时必须给对 Clang **`-resource-dir`**，且 include 能找到 `any_container` 等；否则基类解析失败，背包 item 会生成错误 Proxy（示例 CMake 已处理）。
+解析时必须给对 Clang **`-resource-dir`**。生成器结构：classify → ClassModel → mustache（`meta/generate_property_sync.cpp`）。
 
-生成器内部已拆成 **字段分类（classify）→ ClassModel → 多产物 mustache**，扩展新 wire 类型优先改 classifier，而不是复制粘贴多处 if/else。见 `meta/generate_property_sync.cpp`。
-
-命令与依赖：[build-and-test.md](./build-and-test.md)。
+命令与依赖：[build-and-test.md](./build-and-test.md)、[dsl-test.md](./dsl-test.md)。
 
 ---
 
@@ -290,7 +289,8 @@ generate_property_sync（libclang + mustache）
 | 产物 | 作用 |
 |------|------|
 | schema.json + `diff_schema.py` | 拦破坏性字段变更 |
-| `*_sync.lua` + `property_runtime.lua` | 纯 Lua `apply_mutate` / `load_snapshot` |
+| `*_meta.lua` + `property_runtime.lua` | 属性元数据 + 纯 Lua Replay |
+| `*_record.lua` + `property_record.lua` | 纯 Lua Record：改本地 + 入队（与 C++ 队列对拍） |
 | `.proto` | Snapshot / Mutate IDL（`protoc` 可编译；C++ PB 编解码属后续阶段） |
 
 验收入口：
@@ -353,6 +353,6 @@ Proxy 相对「每字段生成一整套 setter」的好处：容器逻辑集中�
 2. 每条变更 = offset + cmd + flag + data
 3. 细粒度靠 item_change，不要整包刷
 4. Flag 决定「谁能看见」；encode / 队列共用同一套
-5. Meta 生成 C++/schema/proto/lua；版本整包走，不热更 sync
+5. 合同源优先 `.psync`→IR；C++ inch 可仍走 Meta；版本整包走，不热更 sync
 6. 本库是账本；网络与 AOI 在宿主
 ```

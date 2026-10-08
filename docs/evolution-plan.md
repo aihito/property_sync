@@ -376,8 +376,21 @@ schema diff vs 上一发布标签 ──失败则阻断
 
 **当前进度：** P0–P4 已落地（含 `rpg_player_proto_check` 的 `protoc` 验收，以及 Lua batch / snapshot / mixed 对拍）。P5 C++ PB 存档与 P6 typed mutate / 服务端 Lua 绑定仍待做。
 
+### 10.1 探索主线修正（DSL 多运行时）
+
+原默认「权威 Record 仅 C++、Lua 只 Replay」仍然是**生产主服**建议。探索上已验证另一条对称路径（详见 [dsl-multi-runtime.md](./dsl-multi-runtime.md)、[dsl-implementation-plan.md](./dsl-implementation-plan.md)）：
+
+| 能力 | 状态 |
+|------|------|
+| `.psync` → IR → schema/lua/proto | S0–S3 已落地（与 Meta 产物语义对拍） |
+| Lua runtime 认 `list`/`dict` | S4 |
+| 纯 Lua Record（含 bag/slots/vec） | S5–S6；与 C++ 队列 deep_equal |
+| Record×Replay 交叉矩阵 | S7（`rpg_player_cross_matrix`） |
+
+**含义：** 工具链 / 脚本服 / 对拍沙盒可用纯 Lua Record；主服若继续 C++ 权威，仍走 Proxy，DSL 作合同源即可。P6b（Lua→C++ 绑定）与纯 Lua Record **并存可选**，不是互斥替代。
+
 ---
 
 ## 11. 一句话总结
 
-以 **Meta 为唯一真相源**，构建期同时产出 **C++ Proxy、schema 合同、Protobuf IDL、纯 Lua Replay**；用 **schema_version + 整包发版** 替代热更；权威 Record 留在 C++，Lua 负责同版本镜像同步与可读存档消费。
+以 **`.psync` DSL / IR 为合同真相源**（C++ inch 可暂留 Meta 双轨），构建期产出 **C++ Proxy、schema、Protobuf IDL、纯 Lua Replay/Record**；用 **schema_version + 整包发版** 替代热更；主服权威可仍在 C++，Lua 可做同版本镜像或对称 Record（经交叉矩阵锁语义）。

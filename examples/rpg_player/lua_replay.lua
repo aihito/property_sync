@@ -12,7 +12,7 @@ local lua_dir = assert(arg[1], "usage: lua_replay.lua <lua_dir> (--batch|--snaps
 package.path = lua_dir .. "/?.lua;" .. package.path
 
 local JSON = require("json")
-local PlayerSync = require("Player_sync")
+local PlayerMeta = require("Player_meta")
 
 local function read_file(path)
   local f = assert(io.open(path, "rb"))
@@ -106,25 +106,25 @@ end
 if mode == "--batch" then
   local mutates = JSON.decode(read_file(assert(a3)))
   local expect = JSON.decode(read_file(assert(a4)))
-  local player = PlayerSync.new_default()
-  fail_apply(PlayerSync.apply_batch(player, mutates))
-  check_view(PlayerSync.encode_sync_view(player, { ignore_default = true }), expect, "batch")
+  local player = PlayerMeta.new_default()
+  fail_apply(PlayerMeta.apply_batch(player, mutates))
+  check_view(PlayerMeta.encode_sync_view(player, { ignore_default = true }), expect, "batch")
   print(string.format("[PASS] Lua batch replay %d mutates; sync_clients view matches C++", #mutates))
 elseif mode == "--snapshot" then
   local snap = JSON.decode(read_file(assert(a3)))
   local expect = JSON.decode(read_file(assert(a4)))
-  local player = PlayerSync.new_default()
-  PlayerSync.load_snapshot(player, snap)
-  check_view(PlayerSync.encode_sync_view(player, { ignore_default = true }), expect, "snapshot")
+  local player = PlayerMeta.new_default()
+  PlayerMeta.load_snapshot(player, snap)
+  check_view(PlayerMeta.encode_sync_view(player, { ignore_default = true }), expect, "snapshot")
   print("[PASS] Lua load_snapshot; sync_clients view matches C++")
 elseif mode == "--mixed" then
   local snap = JSON.decode(read_file(assert(a3)))
   local delta = JSON.decode(read_file(assert(a4)))
   local expect = JSON.decode(read_file(assert(a5)))
-  local player = PlayerSync.new_default()
-  PlayerSync.load_snapshot(player, snap)
-  fail_apply(PlayerSync.apply_batch(player, delta))
-  check_view(PlayerSync.encode_sync_view(player, { ignore_default = true }), expect, "mixed")
+  local player = PlayerMeta.new_default()
+  PlayerMeta.load_snapshot(player, snap)
+  fail_apply(PlayerMeta.apply_batch(player, delta))
+  check_view(PlayerMeta.encode_sync_view(player, { ignore_default = true }), expect, "mixed")
   print(string.format(
     "[PASS] Lua mixed: snapshot + %d delta mutates; sync_clients view matches C++",
     #delta))

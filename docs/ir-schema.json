@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://property-sync.local/ir-schema.json",
+  "title": "property_sync IR",
+  "description": "Language-neutral IR produced by tools/psync from .psync DSL. See docs/dsl-design.md and docs/dsl-types.md.",
+  "$defs": {
+    "wire_kind": {
+      "type": "string",
+      "enum": [
+        "bool",
+        "number",
+        "string",
+        "array",
+        "list",
+        "dict",
+        "bag",
+        "slots",
+        "vec",
+        "object",
+        "other"
+      ]
+    },
+    "class_kind": {
+      "type": "string",
+      "enum": ["entity", "bag_item", "slot_item", "vec_item", "object"]
+    },
+    "type_ref": {
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": ["scalar", "array", "list", "dict", "bag", "slots", "vec", "object"]
+        },
+        "name": { "type": "string", "description": "scalar type name" },
+        "elem": { "type": "string" },
+        "size": { "type": "integer", "minimum": 1 },
+        "key": { "type": "string" },
+        "value": { "type": "string" },
+        "item": { "type": "string", "description": "item class for bag/slots/vec/object" }
+      },
+      "additionalProperties": false
+    },
+    "field": {
+      "type": "object",
+      "required": ["index", "name", "type", "wire_kind", "flags", "deprecated", "item_class"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0, "maximum": 254 },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "$ref": "#/$defs/type_ref" },
+        "wire_kind": { "$ref": "#/$defs/wire_kind" },
+        "flags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "default": true,
+        "deprecated": { "type": "boolean" },
+        "deprecated_reason": { "type": "string" },
+        "item_class": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "flags_def": {
+      "type": "object",
+      "required": ["name", "bits", "aliases"],
+      "properties": {
+        "name": { "type": "string" },
+        "bits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "bit"],
+            "properties": {
+              "name": { "type": "string" },
+              "bit": { "type": "integer", "minimum": 0, "maximum": 63 }
+            },
+            "additionalProperties": false
+          }
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "expr"],
+            "properties": {
+              "name": { "type": "string" },
+              "expr": {
+                "type": "array",
+                "items": { "type": "string" },
+                "minItems": 1
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "class_def": {
+      "type": "object",
+      "required": [
+        "name",
+        "kind",
+        "namespace",
+        "schema_version",
+        "fields",
+        "reserved",
+        "source_file"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "kind": { "$ref": "#/$defs/class_kind" },
+        "namespace": { "type": "string" },
+        "schema_version": { "type": "integer", "minimum": 1 },
+        "key_type": { "type": ["string", "null"] },
+        "flags_ref": { "type": ["string", "null"] },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/field" }
+        },
+        "reserved": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0, "maximum": 254 }
+        },
+        "source_file": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "bundle": {
+      "type": "object",
+      "required": ["entry", "flags", "classes"],
+      "properties": {
+        "entry": { "type": "string" },
+        "flags": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/flags_def" }
+        },
+        "classes": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/class_def" }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/bundle" },
+    { "$ref": "#/$defs/class_def" },
+    { "$ref": "#/$defs/flags_def" }
+  ]
+}

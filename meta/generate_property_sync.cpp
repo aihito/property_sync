@@ -430,8 +430,8 @@ ClassModel parse_class_model(const class_node* one_class, const std::string& fla
 		if (!field.classify.item_class.empty() && is_container_item_wire(field.classify.wire_kind))
 		{
 			const auto short_item = short_type_name(field.classify.item_class);
-			field.item_sync_module = short_item + "_sync";
-			field.item_sync_local = short_item + "Sync";
+			field.item_sync_module = short_item + "_meta";
+			field.item_sync_local = short_item + "Meta";
 		}
 
 		// Proto imports from container items / nested property objects
@@ -520,9 +520,9 @@ mustache::data field_to_mustache(const FieldModel& field, bool first_field)
 	d.set("proto_type", field.classify.proto_type);
 	set_wire_kind_flags(d, field.classify.wire_kind);
 
-	d.set("has_item_sync", !field.item_sync_module.empty());
-	d.set("item_sync_module", field.item_sync_module);
-	d.set("item_sync_local", field.item_sync_local);
+	d.set("has_item_meta", !field.item_sync_module.empty());
+	d.set("item_meta_module", field.item_sync_module);
+	d.set("item_meta_local", field.item_sync_local);
 	d.set("field_flags", field.field_flags);
 
 	mustache::data flag_name_list{mustache::data::type::list};
@@ -613,7 +613,7 @@ std::unordered_map<std::string, std::string> generate_property(
 	auto property_cpp_mustache = load_mustache(mustache_folder, "property_cpp.mustache");
 	auto property_schema_mustache = load_mustache(mustache_folder, "property_schema.mustache");
 	auto property_proto_mustache = load_mustache(mustache_folder, "property_proto.mustache");
-	auto property_lua_mustache = load_mustache(mustache_folder, "property_lua_sync.mustache");
+	auto property_lua_mustache = load_mustache(mustache_folder, "property_lua_meta.mustache");
 	auto property_mutate_proto_mustache = load_mustache(mustache_folder, "property_mutate_proto.mustache");
 	auto property_cmd_lua_mustache = load_mustache(mustache_folder, "property_cmd_lua.mustache");
 
@@ -630,7 +630,7 @@ std::unordered_map<std::string, std::string> generate_property(
 
 	{
 		const auto runtime_dir = std::filesystem::path(mustache_folder).parent_path() / "lua_runtime";
-		for (const char* name : {"property_runtime.lua", "json.lua"})
+		for (const char* name : {"property_runtime.lua", "property_record.lua", "json.lua"})
 		{
 			const auto runtime_src = runtime_dir / name;
 			const auto content = read_file_text(runtime_src);
@@ -665,7 +665,7 @@ std::unordered_map<std::string, std::string> generate_property(
 		generator::append_output_to_stream(
 			result, (gen_root / "proto" / (stem + ".proto")).string(), property_proto_mustache.render(render_args));
 		generator::append_output_to_stream(
-			result, (gen_root / "lua" / (stem + "_sync.lua")).string(), property_lua_mustache.render(render_args));
+			result, (gen_root / "lua" / (stem + "_meta.lua")).string(), property_lua_mustache.render(render_args));
 	}
 	return result;
 }

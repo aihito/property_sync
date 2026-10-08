@@ -1,0 +1,176 @@
+{
+  "name": "Player",
+  "kind": "entity",
+  "namespace": "spiritsaway.rpg_example",
+  "schema_version": 1,
+  "key_type": null,
+  "flags_ref": "RpgFlags",
+  "fields": [
+    {
+      "index": 0,
+      "name": "nickname",
+      "type": {
+        "kind": "scalar",
+        "name": "string"
+      },
+      "wire_kind": "string",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "default": "",
+      "item_class": ""
+    },
+    {
+      "index": 1,
+      "name": "hp",
+      "type": {
+        "kind": "scalar",
+        "name": "int"
+      },
+      "wire_kind": "number",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "default": 100,
+      "item_class": ""
+    },
+    {
+      "index": 2,
+      "name": "level",
+      "type": {
+        "kind": "scalar",
+        "name": "int"
+      },
+      "wire_kind": "number",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "default": 1,
+      "item_class": ""
+    },
+    {
+      "index": 3,
+      "name": "gold",
+      "type": {
+        "kind": "scalar",
+        "name": "int"
+      },
+      "wire_kind": "number",
+      "flags": [
+        "save_db"
+      ],
+      "deprecated": false,
+      "default": 0,
+      "item_class": ""
+    },
+    {
+      "index": 4,
+      "name": "pos",
+      "type": {
+        "kind": "array",
+        "elem": "float",
+        "size": 3
+      },
+      "wire_kind": "array",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "item_class": ""
+    },
+    {
+      "index": 5,
+      "name": "tags",
+      "type": {
+        "kind": "list",
+        "elem": "string"
+      },
+      "wire_kind": "list",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "item_class": ""
+    },
+    {
+      "index": 6,
+      "name": "attrs",
+      "type": {
+        "kind": "dict",
+        "key": "string",
+        "value": "int"
+      },
+      "wire_kind": "dict",
+      "flags": [
+        "sync_clients"
+      ],
+      "deprecated": false,
+      "item_class": ""
+    },
+    {
+      "index": 7,
+      "name": "inventory",
+      "type": {
+        "kind": "bag",
+        "item": "Item"
+      },
+      "wire_kind": "bag",
+      "flags": [
+        "sync_clients",
+        "save_db"
+      ],
+      "deprecated": false,
+      "item_class": "Item"
+    },
+    {
+      "index": 8,
+      "name": "buffs",
+      "type": {
+        "kind": "bag",
+        "item": "Buff"
+      },
+      "wire_kind": "bag",
+      "flags": [
+        "sync_clients",
+        "save_db"
+      ],
+      "deprecated": false,
+      "item_class": "Buff"
+    },
+    {
+      "index": 9,
+      "name": "equipment",
+      "type": {
+        "kind": "slots",
+        "item": "EquipItem"
+      },
+      "wire_kind": "slots",
+      "flags": [
+        "sync_clients",
+        "save_db"
+      ],
+      "deprecated": false,
+      "item_class": "EquipItem"
+    },
+    {
+      "index": 10,
+      "name": "login_history",
+      "type": {
+        "kind": "vec",
+        "item": "LoginRecord"
+      },
+      "wire_kind": "vec",
+      "flags": [
+        "sync_clients",
+        "save_db"
+      ],
+      "deprecated": false,
+      "item_class": "LoginRecord"
+    }
+  ],
+  "reserved": [],
+  "source_file": "dsl/player.psync"
+}
