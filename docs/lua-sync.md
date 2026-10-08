@@ -44,18 +44,12 @@ slots 的第一项是 **格子号**；bag/vec 是稠密下标。`record_offset` 
 # 一次跑完 C++ 导出 + batch / snapshot / mixed 三种对拍
 cmake --build build --target rpg_player_lua_replay
 
-# 或手动：
-cd build/examples/rpg_player
-./rpg_player_example
-lua ../../../examples/rpg_player/lua_replay.lua ./generated/lua --batch \
-  ./lua_mutates.json ./lua_sync_view.json
-lua ../../../examples/rpg_player/lua_replay.lua ./generated/lua --snapshot \
-  ./lua_final_snapshot.json ./lua_sync_view.json
-lua ../../../examples/rpg_player/lua_replay.lua ./generated/lua --mixed \
-  ./lua_checkpoint_snapshot.json ./lua_mutates_after_checkpoint.json ./lua_sync_view.json
+# 或手动（产物写到 examples/*/fixtures/）：
+cmake --build build --target rpg_player_example_run
+# → examples/rpg_player/fixtures/lua_mutates.json 等
 ```
 
-导出文件：`lua_mutates.json`、`lua_sync_view.json`、`lua_checkpoint_snapshot.json`、`lua_mutates_after_checkpoint.json`、`lua_final_snapshot.json`。
+导出目录：`examples/<example>/fixtures/`（如 `lua_mutates.json`、`lua_sync_view.json`、checkpoint/final snapshot）。
 
 ## 使用示意
 

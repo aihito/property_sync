@@ -25,6 +25,7 @@ generated/
   cpp/               # PropFlags.h / *.h / *.cpp
   schema/ lua/ proto/
 lua/                 # ChannelHub + lua-pb
+fixtures/            # 测试产物（json / .pb），跑 channel_matrix_all 后生成
 ```
 
 与 `examples/rpg_player` **无编译依赖**。生成器：仓库根目录 `tools/psync`（Go 单二进制）。
@@ -33,4 +34,5 @@ lua/                 # ChannelHub + lua-pb
 
 ```bash
 cmake --build build --target channel_matrix_all -j
+# 产物在 examples/channel_matrix/fixtures/
 ```

@@ -160,10 +160,10 @@ cmake --build build --target rpg_player_proto_check -j
 ```bash
 # 手动
 PYTHONPATH=tools python3 -m psync emit dsl/player.psync -o /tmp/from-dsl --root .
-# 先跑 example 生成 lua_mutates.json（若无）
-./build/examples/rpg_player/rpg_player_example
-lua examples/rpg_player/lua_record_test.lua /tmp/from-dsl/lua \
-  build/examples/rpg_player/lua_mutates.json
+# 先跑 example 生成 fixtures/lua_mutates.json（若无）
+cmake --build build --target rpg_player_example_run
+lua examples/lua_record/lua/lua_record_test.lua /tmp/from-dsl/lua \
+  examples/rpg_player/fixtures/lua_mutates.json
 
 # 或 CMake
 cmake --build build --target rpg_player_lua_record -j

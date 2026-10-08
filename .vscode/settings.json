@@ -22,5 +22,8 @@
     },
     "[lua]": {
         "editor.defaultFormatter": "tangzx.emmylua"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
     }
 }

@@ -121,11 +121,13 @@ if(TARGET property_test)
 	add_dependencies(check_all property_test_run)
 endif()
 if(TARGET rpg_player_example)
+	set(RPG_FIX ${CMAKE_SOURCE_DIR}/examples/rpg_player/fixtures)
+	file(MAKE_DIRECTORY ${RPG_FIX})
 	add_custom_target(rpg_player_example_run
 		COMMAND $<TARGET_FILE:rpg_player_example>
 		DEPENDS rpg_player_example
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/examples/rpg_player
-		COMMENT "Run rpg_player_example"
+		WORKING_DIRECTORY ${RPG_FIX}
+		COMMENT "Run rpg_player_example → examples/rpg_player/fixtures"
 		VERBATIM
 	)
 	add_dependencies(check_all rpg_player_example_run)

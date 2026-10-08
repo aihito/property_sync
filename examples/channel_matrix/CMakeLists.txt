@@ -7,7 +7,7 @@
 set(CM_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(CM_GEN ${CM_ROOT}/generated)
 set(CM_CPP ${CM_GEN}/cpp)
-set(CM_FIX ${CMAKE_CURRENT_BINARY_DIR}/fixtures)
+set(CM_FIX ${CM_ROOT}/fixtures)
 file(MAKE_DIRECTORY ${CM_GEN} ${CM_CPP} ${CM_FIX})
 
 find_program(LUA_EXECUTABLE NAMES lua lua5.4 lua5.3)

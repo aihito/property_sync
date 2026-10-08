@@ -6,7 +6,7 @@
 set(LR_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(LR_GEN ${LR_ROOT}/generated)
 set(LR_CPP ${LR_GEN}/cpp)
-set(LR_FIX ${CMAKE_CURRENT_BINARY_DIR}/fixtures)
+set(LR_FIX ${LR_ROOT}/fixtures)
 file(MAKE_DIRECTORY ${LR_GEN} ${LR_CPP} ${LR_FIX})
 
 find_program(LUA_EXECUTABLE NAMES lua lua5.4 lua5.3)
@@ -77,8 +77,8 @@ if(LUA_EXECUTABLE)
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_record_test.lua
 			${LR_GEN}/lua
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			${LR_FIX}/lua_mutates.json
+		WORKING_DIRECTORY ${LR_FIX}
 		DEPENDS lua_record_cpp lua_record_generate
 		COMMENT "lua_record: API matrix + S5/S6 vs C++ mutates"
 		VERBATIM
@@ -89,20 +89,20 @@ if(LUA_EXECUTABLE)
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --batch
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+			${LR_FIX}/lua_mutates.json
+			${LR_FIX}/lua_sync_view.json
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --snapshot
-			${CMAKE_CURRENT_BINARY_DIR}/lua_final_snapshot.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+			${LR_FIX}/lua_final_snapshot.json
+			${LR_FIX}/lua_sync_view.json
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --mixed
-			${CMAKE_CURRENT_BINARY_DIR}/lua_checkpoint_snapshot.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates_after_checkpoint.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+			${LR_FIX}/lua_checkpoint_snapshot.json
+			${LR_FIX}/lua_mutates_after_checkpoint.json
+			${LR_FIX}/lua_sync_view.json
+		WORKING_DIRECTORY ${LR_FIX}
 		DEPENDS lua_record_cpp
 		COMMENT "lua_record: CppRec→LuaRep batch/snapshot/mixed"
 		VERBATIM
@@ -113,14 +113,14 @@ if(LUA_EXECUTABLE)
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --batch
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+			${LR_FIX}/lua_mutates.json
+			${LR_FIX}/lua_sync_view.json
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_cross_matrix.lua
 			${LR_GEN}/lua
-			${CMAKE_CURRENT_BINARY_DIR}
+			${LR_FIX}
 			--cpp-replay $<TARGET_FILE:lua_record_replay_json>
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		WORKING_DIRECTORY ${LR_FIX}
 		DEPENDS lua_record_cpp lua_record_replay_json
 		COMMENT "lua_record: S7 cross matrix"
 		VERBATIM
