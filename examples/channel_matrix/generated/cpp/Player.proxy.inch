@@ -1,0 +1,237 @@
+
+#ifndef __meta_parse__
+
+
+template <>
+class prop_record_proxy<spiritsaway::rpg_example::Player>
+{
+	spiritsaway::rpg_example::Player& m_Player_data;
+	msg_queue_base& m_queue;
+public:
+	const property_record_offset m_offset;
+	const property_flags m_flag;
+public:
+	prop_record_proxy(spiritsaway::rpg_example::Player& data, msg_queue_base& msg_queue,
+		const property_record_offset& offset, const property_flags& flag)
+		: m_Player_data(data)
+		, m_queue(msg_queue)
+		, m_offset(offset)
+		, m_flag(flag)
+	{
+
+	}
+	const spiritsaway::rpg_example::Player&  get_Player() const
+	{
+		return m_Player_data;
+	}
+
+	const spiritsaway::rpg_example::Player& data() const
+	{
+		return m_Player_data;
+	}
+
+	prop_record_proxy<decltype(m_Player_data.m_nickname)> nickname()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_nickname)>(m_Player_data.m_nickname, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_nickname), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_nickname}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_nickname)> replay_nickname()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_nickname)>(m_Player_data.m_nickname);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_hp)> hp()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_hp)>(m_Player_data.m_hp, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_hp), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_hp}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_hp)> replay_hp()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_hp)>(m_Player_data.m_hp);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_level)> level()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_level)>(m_Player_data.m_level, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_level), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_level}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_level)> replay_level()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_level)>(m_Player_data.m_level);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_gold)> gold()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_gold)>(m_Player_data.m_gold, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_gold), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_gold}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_gold)> replay_gold()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_gold)>(m_Player_data.m_gold);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_pos)> pos()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_pos)>(m_Player_data.m_pos, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_pos), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_pos}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_pos)> replay_pos()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_pos)>(m_Player_data.m_pos);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_tags)> tags()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_tags)>(m_Player_data.m_tags, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_tags), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_tags}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_tags)> replay_tags()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_tags)>(m_Player_data.m_tags);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_attrs)> attrs()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_attrs)>(m_Player_data.m_attrs, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_attrs), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_attrs}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_attrs)> replay_attrs()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_attrs)>(m_Player_data.m_attrs);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_inventory)> inventory()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_inventory)>(m_Player_data.m_inventory, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_inventory), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_inventory}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_inventory)> replay_inventory()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_inventory)>(m_Player_data.m_inventory);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_buffs)> buffs()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_buffs)>(m_Player_data.m_buffs, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_buffs), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_buffs}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_buffs)> replay_buffs()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_buffs)>(m_Player_data.m_buffs);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_equipment)> equipment()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_equipment)>(m_Player_data.m_equipment, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_equipment), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_equipment}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_equipment)> replay_equipment()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_equipment)>(m_Player_data.m_equipment);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_login_history)> login_history()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_login_history)>(m_Player_data.m_login_history, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_login_history), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_login_history}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_login_history)> replay_login_history()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_login_history)>(m_Player_data.m_login_history);
+	}
+
+	void clear()
+	{
+		m_Player_data.clear();
+		if (m_queue.is_flag_need(m_flag))
+		{
+			m_queue.add(m_offset.merge(spiritsaway::rpg_example::Player::index_end_for_Player), property_cmd::clear, m_flag, json());
+		}
+	}
+	void set(const json& other_json)
+	{
+		spiritsaway::rpg_example::Player new_Player_data;
+		if(!serialize::decode(other_json, new_Player_data))
+		{
+			return;
+		}
+		using std::swap;
+		swap(m_Player_data, new_Player_data);
+		for (auto one_need_flag : m_queue.m_need_flags)
+		{
+			if (one_need_flag.include_by(m_flag))
+			{
+				auto one_encode_result = m_Player_data.encode_with_flag(one_need_flag, m_queue.m_encode_ignore_default, m_queue.m_encode_with_array);
+
+				m_queue.add_for_flag(m_offset.merge(spiritsaway::rpg_example::Player::index_end_for_Player), property_cmd::set, one_need_flag, m_flag, one_encode_result);
+			}
+		}
+	}
+
+
+	bool replay(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
+	{
+		using std::swap;
+		auto split_result = offset.split();
+		auto field_index = split_result.second;
+		auto remain_offset = split_result.first;
+		switch(field_index)
+		{
+			case spiritsaway::rpg_example::Player::index_for_nickname:
+			{
+				auto temp_proxy = nickname();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_hp:
+			{
+				auto temp_proxy = hp();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_level:
+			{
+				auto temp_proxy = level();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_gold:
+			{
+				auto temp_proxy = gold();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_pos:
+			{
+				auto temp_proxy = pos();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_tags:
+			{
+				auto temp_proxy = tags();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_attrs:
+			{
+				auto temp_proxy = attrs();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_inventory:
+			{
+				auto temp_proxy = inventory();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_buffs:
+			{
+				auto temp_proxy = buffs();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_equipment:
+			{
+				auto temp_proxy = equipment();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_login_history:
+			{
+				auto temp_proxy = login_history();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_end_for_Player:
+			{
+				if(cmd == spiritsaway::property::property_cmd::clear)
+				{
+					clear();
+					return true;
+				}
+				else if(cmd == spiritsaway::property::property_cmd::set)
+				{
+					
+					set(data);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			default:
+				return false;
+		}
+	}
+};
+#endif

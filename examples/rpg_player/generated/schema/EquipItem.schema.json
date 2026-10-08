@@ -1,0 +1,26 @@
+{
+  "class": "EquipItem",
+  "qualified_name": "spiritsaway::rpg_example::EquipItem",
+  "namespace": "spiritsaway::rpg_example",
+  "schema_version": 1,
+  "fields": [
+    
+    {
+      "index": 2,
+      "name": "enhance",
+      "cpp_type": "int",
+      "wire_kind": "number",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 3,
+      "name": "name",
+      "cpp_type": "std::__cxx11::basic_string<char>",
+      "wire_kind": "string",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+  ]
+}

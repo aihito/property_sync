@@ -1,0 +1,28 @@
+{
+  "class": "EquipItem",
+  "fields": [
+    {
+      "cpp_type": "int",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 2,
+      "item_class": "",
+      "name": "enhance",
+      "wire_kind": "number"
+    },
+    {
+      "cpp_type": "std::string",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 3,
+      "item_class": "",
+      "name": "name",
+      "wire_kind": "string"
+    }
+  ],
+  "namespace": "spiritsaway::rpg_example",
+  "qualified_name": "spiritsaway::rpg_example::EquipItem",
+  "schema_version": 1
+}

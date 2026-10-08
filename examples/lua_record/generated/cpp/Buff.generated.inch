@@ -1,0 +1,85 @@
+
+#ifndef __meta_parse__
+public:
+friend class spiritsaway::property::prop_record_proxy<Buff>;
+friend class spiritsaway::property::prop_replay_proxy<Buff>;
+using base_class = spiritsaway::property::property_bag_item<int>;
+using base_class::base_class;
+
+
+const decltype(m_level)& level() const
+{
+	return m_level;
+}
+
+const decltype(m_expire_ts)& expire_ts() const
+{
+	return m_expire_ts;
+}
+
+
+public:
+
+bool replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data);
+
+bool operator==(const Buff& other) const;
+bool operator!=(const Buff& other) const;
+
+json encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const;
+
+std::vector<std::uint8_t> get_fields_with_flag(const spiritsaway::property::property_flags flag) const;
+
+std::vector<std::uint8_t> get_fields_without_flag(const spiritsaway::property::property_flags flag) const;
+
+json encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const;
+
+friend void swap(Buff& a, Buff& b)
+{
+	using std::swap;
+	swap((spiritsaway::property::property_bag_item<int>&)a, (spiritsaway::property::property_bag_item<int>&)b);
+
+	swap(a.m_level, b.m_level);
+	swap(a.m_expire_ts, b.m_expire_ts);
+}
+
+void update_fields(const Buff& other, const json& other_json, std::vector<std::uint8_t>& field_indexes);
+bool set_fields(const std::vector<std::pair<std::uint8_t, json>>& field_values);
+void clear_fields(const std::vector<std::uint8_t>& related_indexes);
+
+
+void clear()
+{
+	using std::swap;
+	Buff temp_empty_instance;
+	swap(*this, temp_empty_instance);
+}
+
+json encode(bool ignore_default = true) const;
+
+bool decode(const json& data);
+bool decode(const json::object_t& data);
+bool decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx);
+
+bool has_default_value() const;
+
+public:
+constexpr static std::uint8_t index_for_level = 1;
+constexpr static std::uint64_t flag_for_level = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_expire_ts = 2;
+constexpr static std::uint64_t flag_for_expire_ts = spiritsaway::property::rpg_property_flags::sync_clients;
+
+
+constexpr static std::uint8_t index_begin_for_Buff = 1;
+constexpr static std::uint8_t index_end_for_Buff = 3;
+private:
+
+#endif
+
+

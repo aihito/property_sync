@@ -29,8 +29,9 @@ target_link_libraries(${PROJECT_NAME} INTERFACE any_container)
 
 target_precompile_headers(${PROJECT_NAME} INTERFACE [["property_sync/property.h"]])
 
-# Codegen tool — must be available before examples that depend on it
+# Codegen tools — must be available before examples that depend on them
 add_subdirectory(meta)
+add_subdirectory(tools/psync)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(IS_TOPLEVEL_PROJECT TRUE)
@@ -77,5 +78,50 @@ endif(WITH_TEST)
 if(WITH_EXAMPLES)
 add_subdirectory(examples)
 endif(WITH_EXAMPLES)
+
+# One-shot: DSL unit tests + core/example acceptance targets
+find_program(GO_EXECUTABLE NAMES go)
+if(GO_EXECUTABLE AND EXISTS "${CMAKE_SOURCE_DIR}/tools/psync/go.mod")
+	add_custom_target(psync_check
+		COMMAND ${CMAKE_COMMAND} -E env "GOPROXY=https://goproxy.cn,direct"
+			${GO_EXECUTABLE} test ./... -count=1
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tools/psync
+		COMMENT "Go psync unit tests (IR golden + emit)"
+		VERBATIM
+	)
+endif()
+
+add_custom_target(check_all
+	COMMENT "Run all property_sync checks (psync + examples)"
+)
+if(TARGET psync_check)
+	add_dependencies(check_all psync_check)
+endif()
+if(TARGET property_test)
+	add_custom_target(property_test_run
+		COMMAND $<TARGET_FILE:property_test>
+		DEPENDS property_test
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		COMMENT "Run property_test"
+		VERBATIM
+	)
+	add_dependencies(check_all property_test_run)
+endif()
+if(TARGET rpg_player_example)
+	add_custom_target(rpg_player_example_run
+		COMMAND $<TARGET_FILE:rpg_player_example>
+		DEPENDS rpg_player_example
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/examples/rpg_player
+		COMMENT "Run rpg_player_example"
+		VERBATIM
+	)
+	add_dependencies(check_all rpg_player_example_run)
+endif()
+if(TARGET channel_matrix_all)
+	add_dependencies(check_all channel_matrix_all)
+endif()
+if(TARGET lua_record_all)
+	add_dependencies(check_all lua_record_all)
+endif()
 
 endif(IS_TOPLEVEL_PROJECT)

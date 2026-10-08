@@ -1,0 +1,107 @@
+{
+  "class": "Player",
+  "qualified_name": "spiritsaway::rpg_example::Player",
+  "namespace": "spiritsaway::rpg_example",
+  "schema_version": 1,
+  "fields": [
+    
+    {
+      "index": 0,
+      "name": "nickname",
+      "cpp_type": "std::__cxx11::basic_string<char>",
+      "wire_kind": "string",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 1,
+      "name": "hp",
+      "cpp_type": "int",
+      "wire_kind": "number",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 2,
+      "name": "level",
+      "cpp_type": "int",
+      "wire_kind": "number",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 3,
+      "name": "gold",
+      "cpp_type": "int",
+      "wire_kind": "number",
+      "item_class": "",
+      "flags": ["save_db"]
+    }
+    ,
+    {
+      "index": 4,
+      "name": "pos",
+      "cpp_type": "std::array<float,>",
+      "wire_kind": "array",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 5,
+      "name": "tags",
+      "cpp_type": "std::vector<std::__cxx11::basic_string<char>>",
+      "wire_kind": "vector",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 6,
+      "name": "attrs",
+      "cpp_type": "std::unordered_map<std::__cxx11::basic_string<char>,int>",
+      "wire_kind": "map",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 7,
+      "name": "inventory",
+      "cpp_type": "spiritsaway::property::property_bag<spiritsaway::rpg_example::Item>",
+      "wire_kind": "bag",
+      "item_class": "spiritsaway::rpg_example::Item",
+      "flags": ["sync_clients", "save_db"]
+    }
+    ,
+    {
+      "index": 8,
+      "name": "buffs",
+      "cpp_type": "spiritsaway::property::property_bag<spiritsaway::rpg_example::Buff>",
+      "wire_kind": "bag",
+      "item_class": "spiritsaway::rpg_example::Buff",
+      "flags": ["sync_clients", "save_db"]
+    }
+    ,
+    {
+      "index": 9,
+      "name": "equipment",
+      "cpp_type": "spiritsaway::property::property_slots<spiritsaway::rpg_example::EquipItem>",
+      "wire_kind": "slots",
+      "item_class": "spiritsaway::rpg_example::EquipItem",
+      "flags": ["sync_clients", "save_db"]
+    }
+    ,
+    {
+      "index": 10,
+      "name": "login_history",
+      "cpp_type": "spiritsaway::property::property_vec<spiritsaway::rpg_example::LoginRecord>",
+      "wire_kind": "vec",
+      "item_class": "spiritsaway::rpg_example::LoginRecord",
+      "flags": ["sync_clients", "save_db"]
+    }
+  ]
+}

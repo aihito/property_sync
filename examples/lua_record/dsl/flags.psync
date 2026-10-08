@@ -1,0 +1,11 @@
+# Shared visibility bits for rpg_player DSL sample.
+# Spec: docs/dsl-design.md
+
+flags RpgFlags {
+  bit save_db    = 0
+  bit sync_self  = 1
+  bit sync_ghost = 2
+  bit sync_other = 3
+
+  alias sync_clients = sync_self | sync_other
+}

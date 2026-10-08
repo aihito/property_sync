@@ -1,0 +1,38 @@
+{
+  "class": "LoginRecord",
+  "fields": [
+    {
+      "cpp_type": "float",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 0,
+      "item_class": "",
+      "name": "login_ts",
+      "wire_kind": "number"
+    },
+    {
+      "cpp_type": "float",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 1,
+      "item_class": "",
+      "name": "logout_ts",
+      "wire_kind": "number"
+    },
+    {
+      "cpp_type": "std::string",
+      "flags": [
+        "save_db"
+      ],
+      "index": 2,
+      "item_class": "",
+      "name": "ip",
+      "wire_kind": "string"
+    }
+  ],
+  "namespace": "spiritsaway::rpg_example",
+  "qualified_name": "spiritsaway::rpg_example::LoginRecord",
+  "schema_version": 1
+}

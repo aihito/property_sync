@@ -1,0 +1,37 @@
+# Item / Buff / Equip / LoginRecord — mirrors examples/rpg_player/rpg_items.h
+# Spec: docs/dsl-design.md
+
+import "flags.psync"
+
+namespace spiritsaway.rpg_example
+using flags RpgFlags
+
+bag_item Item {
+  version 1
+  key int
+  # id @0 (implicit)
+  1: count int = 0 [sync_clients]
+  2: name  string = "" [save_db]
+}
+
+bag_item Buff {
+  version 1
+  key int
+  1: level     int   = 0 [sync_clients]
+  2: expire_ts float = 0 [sync_clients]
+}
+
+slot_item EquipItem {
+  version 1
+  key int
+  # id @0, slot @1 (implicit)
+  2: enhance int = 0 [sync_clients]
+  3: name    string = "" [sync_clients]
+}
+
+vec_item LoginRecord {
+  version 1
+  0: login_ts  float = 0 [sync_clients]
+  1: logout_ts float = 0 [sync_clients]
+  2: ip        string = "" [save_db]
+}

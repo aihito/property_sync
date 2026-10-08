@@ -9,22 +9,29 @@
 
 | 层级 | 验证什么 | 命令 / 目标 | 依赖 |
 |------|----------|-------------|------|
-| **T1 词法语法** | `dsl/*.psync` 可解析 | `psync check` | Python3 |
-| **T2 IR golden** | 编译 IR ≡ `testdata/ir` | `unittest …test_golden` | 无 build |
-| **T3 Emit 语义** | DSL emit ≡ Meta 产物 | `unittest …test_emit_vs_meta` | 需先 Meta 生成 |
-| **T4 Native wire** | `--native-wire` 出 `list`/`dict` | `unittest …test_native_wire` | 无 build |
+| **T1 词法语法** | `dsl/*.psync` 可解析 | `psync check` | Go |
+| **T2 IR golden** | 编译 IR ≡ `tools/psync/testdata/ir` | `go test ./internal/compile` | Go |
+| **T3 Emit 语义** | DSL emit ≡ Meta/generated inch | `go test ./internal/emit` | Go + 已有 inch |
+| **T4 Native wire** | `--native-wire` 出 `list`/`dict` | `psync emit --native-wire` | Go |
 | **T5 C++ 示例** | Record 观察者一致 | `rpg_player_example` | CMake + Meta |
-| **T6 Lua 对拍** | batch / snapshot / mixed | `rpg_player_lua_replay` | Lua + T5 |
+| **T6 Lua 对拍** | batch / snapshot / mixed | `lua_record_replay` | Lua + DSL |
 | **T7 Proto** | protoc 可编译生成物 | `rpg_player_proto_check` | protoc |
 | **T8 单元测试** | 核心属性库 | `property_test` | 见 build-and-test |
-| **T9 Lua Record** | 纯 Lua 写属性入队（S5+S6） | `rpg_player_lua_record` | Lua + DSL emit + C++ mutates |
-| **T10 交叉矩阵** | Record×Replay 四格 | `rpg_player_cross_matrix` | Lua + C++ replay_json |
+| **T9 Lua Record** | 纯 Lua 写属性入队 | `lua_record_test` | Lua + DSL emit |
+| **T10 交叉矩阵** | Record×Replay 四格 | `lua_record_cross` | `examples/lua_record` |
 
 一键 DSL 层（T1–T4）：
 
 ```bash
 chmod +x tools/run_dsl_tests.sh   # 首次
 ./tools/run_dsl_tests.sh
+# 或：cmake --build build --target psync_check -j
+```
+
+全仓验收（T1–T10 + 示例，含 C++）：
+
+```bash
+cmake --build build --target check_all -j"$(nproc)"
 ```
 
 ---
@@ -35,8 +42,8 @@ chmod +x tools/run_dsl_tests.sh   # 首次
 
 ```bash
 cd "$REPO"
-export PYTHONPATH="$REPO/tools"
-python3 -m psync --version   # 期望打印 psync 0.1.0
+go -C tools/psync build -o /tmp/psync ./cmd/psync
+/tmp/psync version   # 期望打印 psync 0.2.0
 ```
 
 ### 2.2 完整对拍（含 Meta / C++ / Lua）
@@ -107,15 +114,14 @@ cmake --build build --target rpg_player_dsl_check -j
 手动 emit：
 
 ```bash
-python3 -m psync emit dsl/player.psync -o /tmp/from-dsl --root .
+psync emit dsl/player.psync -o /tmp/from-dsl --root .
 # 默认：list→vector、dict→map（与现 Meta / 旧测例对齐）
 ```
 
 ### 3.4 T4 — Native wire（S4）
 
 ```bash
-python3 -m unittest psync.tests.test_native_wire -v
-python3 -m psync emit dsl/player.psync -o /tmp/native --root . --native-wire
+psync emit dsl/player.psync -o /tmp/native --root . --native-wire
 # Player.schema.json 中 tags.wire_kind == "list"，attrs == "dict"
 ```
 

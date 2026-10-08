@@ -4,6 +4,7 @@
 |------|------|
 | [core-principles.md](./core-principles.md) | **入门必读**：核心原理（面向技术人员：定位、Record/Replay、Proxy、选型、Meta、边界） |
 | [game-example.md](./game-example.md) | RPG 场景下的使用说明 |
+| [channel-matrix.md](./channel-matrix.md) | Client 同步 + DB PB 存档双通道示例 |
 | [build-and-test.md](./build-and-test.md) | 依赖安装、CMake 编译、代码生成与测试命令 |
 | [evolution-plan.md](./evolution-plan.md) | 演进完整方案：兼容 / Protobuf / 纯 Lua（无热更） |
 | [compatibility.md](./compatibility.md) | 字段兼容硬性规则与 CI 约定 |
@@ -18,6 +19,6 @@
 | [ir-schema.json](./ir-schema.json) | IR JSON Schema（`psync` 输出合同） |
 | [`../dsl/`](../dsl/) | DSL 样例源文件（`flags` / `items` / `player`） |
 | [`../tools/psync/`](../tools/psync/) | `.psync` → IR 编译器（S1） |
-| [`../testdata/ir/`](../testdata/ir/) | IR golden 对拍 |
+| [`../tools/psync/testdata/ir/`](../tools/psync/testdata/ir/) | IR golden 对拍 |
 
 可运行示例代码：[`examples/rpg_player/`](../examples/rpg_player/)

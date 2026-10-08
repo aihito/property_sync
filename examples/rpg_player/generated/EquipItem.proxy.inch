@@ -1,0 +1,111 @@
+
+#ifndef __meta_parse__
+
+template <> 
+class prop_record_proxy<spiritsaway::rpg_example::EquipItem>
+	
+{
+	spiritsaway::rpg_example::EquipItem& m_EquipItem_data;
+	item_msg_queue m_queue;
+	const property_flags m_flag;
+public:
+
+public:
+	prop_record_proxy(spiritsaway::rpg_example::EquipItem& data, msg_queue_base& msg_queue,
+		const property_record_offset& offset, const property_flags& flag, std::uint32_t data_idx)
+		: m_EquipItem_data(data)
+		, m_queue(msg_queue, offset, data_idx)
+		, m_flag(flag)
+	{
+
+	}
+	
+
+	
+
+
+
+
+	const spiritsaway::rpg_example::EquipItem& data() const
+	{
+		return m_EquipItem_data;
+	}
+
+	prop_record_proxy<decltype(m_EquipItem_data.m_enhance)> enhance()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_EquipItem_data.m_enhance)>(m_EquipItem_data.m_enhance, m_queue, empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_for_enhance), m_flag.merge(property_flags{ spiritsaway::rpg_example::EquipItem::flag_for_enhance}));
+	}
+	prop_record_proxy<decltype(m_EquipItem_data.m_name)> name()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_EquipItem_data.m_name)>(m_EquipItem_data.m_name, m_queue, empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_for_name), m_flag.merge(property_flags{ spiritsaway::rpg_example::EquipItem::flag_for_name}));
+	}
+
+
+
+	void update_fields(const json& other_json)
+	{
+		spiritsaway::rpg_example::EquipItem new_EquipItem_data;
+		if(!serialize::decode(other_json, new_EquipItem_data))
+		{
+			return;
+		}
+		std::vector<std::uint8_t> related_field_indexes;
+		related_field_indexes.reserve(8);
+		m_EquipItem_data.update_fields(new_EquipItem_data, other_json, related_field_indexes);
+		json::array_t temp_encode_array(2);
+		temp_encode_array[0] = related_field_indexes;
+		property_record_offset empty_offset;
+		for (auto one_need_flag : m_queue.m_need_flags)
+		{
+			if (one_need_flag.include_by(m_flag))
+			{
+				temp_encode_array[1] = new_EquipItem_data.encode_with_flag(one_need_flag, m_queue.m_encode_ignore_default, m_queue.m_encode_with_array);
+
+				m_queue.add_for_flag(empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_end_for_EquipItem), property_cmd::update_fields, one_need_flag, m_flag, json(temp_encode_array));
+			}
+		}
+	}
+
+	bool replay(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
+	{
+		using std::swap;
+		auto split_result = offset.split();
+		auto field_index = split_result.second;
+		auto remain_offset = split_result.first;
+		switch(field_index)
+		{
+			case spiritsaway::rpg_example::EquipItem::index_for_enhance:
+			{
+				auto temp_proxy = enhance();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::EquipItem::index_for_name:
+			{
+				auto temp_proxy = name();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			
+			case spiritsaway::rpg_example::EquipItem::index_end_for_EquipItem:
+			{
+				if(cmd == spiritsaway::property::property_cmd::update_fields)
+				{
+					update_fields(data);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			default:
+				return false;
+				
+
+				
+			
+		}
+	}
+};
+#endif

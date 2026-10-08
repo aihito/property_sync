@@ -42,6 +42,8 @@
 | **S6** ✅ | Lua Record（bag/slots/vec） | 补齐入队语义 | 与 C++ Record 队列 deep_equal（rpg 场景） | 3–5d |
 | **S7** ✅ | 交叉矩阵 | 测试 harness | LuaRec→CppRep、CppRec→LuaRep | 2d |
 | **S8** ✅ | 收尾 | 文档、Meta 路径保留作 inch | 探索结论 | 1d |
+| **S9** ✅ | DSL → C++ | `emit_ctx` + `emit_cpp` 复用 Meta mustache；`channel_matrix` DSL-only | inch≡Meta；`channel_matrix_all` 绿 | — |
+| **S10** ✅ | Go psync | `tools/psync` Go 单二进制替换 Python；工具链默认 Go | `go test` + `channel_matrix_all` | — |
 
 并行可选：S2 期间整理 **wire×cmd 语义表**（从 C++ 测例抽取），供 S5/S6 对照。
 
@@ -60,7 +62,7 @@
 
 - [x] `docs/ir-schema.json`：IR 字段必填项、`wire_kind` / `kind` 枚举  
 - [x] 本文作为实施看板；`dsl-design.md` §14 已指向本文  
-- [x] `testdata/ir/*.ir.json` golden（由 `psync compile` 生成并对拍）  
+- [x] `tools/psync/testdata/ir/*.ir.json` golden（由 `psync compile` 生成并对拍）  
 
 **验收：** IR schema 能描述 Player/Item 全字段；与 `dsl-types` 首版类型集一致。
 
@@ -83,12 +85,13 @@ tools/psync/
 
 ```bash
 cd <repo>
-PYTHONPATH=tools python -m psync check dsl/player.psync --root .
-PYTHONPATH=tools python -m psync compile dsl/player.psync -o /tmp/ir --root .
-PYTHONPATH=tools python -m unittest psync.tests.test_golden
+go -C tools/psync build -o /tmp/psync ./cmd/psync
+/tmp/psync check dsl/player.psync --root .
+/tmp/psync compile dsl/player.psync -o /tmp/ir --root .
+go -C tools/psync test ./...
 ```
 
-**输出示例：** `Player.ir.json`、`Item.ir.json`、…、`RpgFlags.ir.json`（golden 在 `testdata/ir/`）
+**输出示例：** `Player.ir.json`、`Item.ir.json`、…、`RpgFlags.ir.json`（golden 在 `tools/psync/testdata/ir/`）
 
 **IR 字段：**  
 `name, kind, namespace, schema_version, fields[{index,name,type,wire_kind,flags,default,deprecated,item_class}], reserved[], key_type?, flags_ref, source_file`
@@ -111,14 +114,14 @@ PYTHONPATH=tools python -m unittest psync.tests.test_golden
 | 项 | 做法 |
 |----|------|
 | `tools/psync/emit.py` | IR→schema/lua/proto；`list`→`vector`、`dict`→`map`（过渡，对齐现 runtime） |
-| CLI | `python -m psync emit dsl/player.psync -o <out> --root .` |
+| CLI | `psync emit dsl/player.psync -o <out> --root .`（Go：`tools/psync`） |
 | 对拍 | `psync.tests.test_emit_vs_meta` vs `build/examples/rpg_player/generated` |
 
 **用法：**
 
 ```bash
-PYTHONPATH=tools python -m psync emit dsl/player.psync -o /tmp/from-dsl --root .
-PYTHONPATH=tools python -m unittest psync.tests.test_emit_vs_meta
+psync emit dsl/player.psync -o /tmp/from-dsl --root .
+go -C tools/psync test ./internal/emit/
 ```
 
 **验收：** 路径 B 与路径 A **语义等价**（schema 字段合同、lua 结构、proto 消息）— 已绿。
@@ -253,8 +256,14 @@ cmake --build build --target rpg_player_cross_matrix -j
 
 ---
 
-## 7. 建议的立即下一步
+## 7. 工具链约定（默认 Go）
 
-1. ~~S0–S8~~ **已完成**（见 [dsl-test.md](./dsl-test.md)）。  
-2. 可选后续：C++ `ClassModel::from_ir` / inch 由 DSL 生成，去掉头文件双源。  
+- 仓库工具放在 [`tools/<name>/`](../tools/)：Go module + `cmd/<name>`，CMake `add_subdirectory` 产出二进制。
+- 当前：[`tools/psync`](../tools/psync/) — `.psync` → IR / schema / lua / proto / C++（mustache）。
+- 新工具优先 Go；不引入新的 Python 代码生成器。
+
+## 8. 建议的立即下一步
+
+1. ~~S0–S10~~ **已完成**（见 [dsl-test.md](./dsl-test.md)）。  
+2. 可选后续：`rpg_player` inch 也切到 Go psync，去掉头文件 Meta 双源。  
 3. 生产向：P5 PB 存档、P6 Lua→C++ 绑定（与纯 Lua Record 可选并存）。

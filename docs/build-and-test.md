@@ -99,31 +99,29 @@ cmake -S . -B build \
 
 | 目标 | 说明 |
 |------|------|
+| **`check_all`** | **一键跑：psync 单测 + property_test + 三个示例** |
+| `psync_check` | Go `tools/psync` 单测 |
 | `generate_property_sync` | Meta 属性代码生成器 |
-| `property_test` | 仓库单元测试（需先手动/半手动生成 inch） |
-| `rpg_player_example` | RPG 示例（CMake 会自动跑生成器） |
-| `rpg_player_generate` | 仅生成 RPG 示例的 inch 文件 |
-| `rpg_player_generate_from_dsl` | DSL→IR→schema/lua/proto（`generated/from_dsl`） |
-| `rpg_player_dsl_check` | DSL golden + emit≡Meta 语义对拍 |
-| `rpg_player_lua_replay` | C++/Lua batch+snapshot+mixed 对拍 |
-| `rpg_player_lua_record` | 纯 Lua Record（S5/S6） |
-| `rpg_player_replay_json` | C++ Replay mutate JSON（S7） |
-| `rpg_player_cross_matrix` | Record×Replay 交叉矩阵 |
+| `property_test` | 仓库单元测试（需先生成 inch，见下节） |
+| `rpg_player_example` | RPG C++ Meta 示例 |
+| `rpg_player_generate` | 仅生成 RPG inch（写入 `examples/rpg_player/generated/`） |
+| `rpg_player_replay_json` | C++ Replay mutate JSON |
+| `lua_record_all` | Lua Record/Replay（`examples/lua_record`） |
+| `channel_matrix_all` | Client/DB 双通道（`examples/channel_matrix`） |
 | `rpg_player_proto_check` | protoc 编译检查生成 proto |
 
 DSL 专项步骤见 **[dsl-test.md](./dsl-test.md)**。
 
 ```bash
+# 推荐：一键验收
+cmake --build build --target check_all -j"$(nproc)"
+
 # 只编生成器
 cmake --build build --target generate_property_sync -j
 
-# 编并跑 RPG 示例（推荐先验证环境）
+# 编并跑 RPG 示例
 cmake --build build --target rpg_player_example -j
 ./build/examples/rpg_player/rpg_player_example
-
-# 编单元测试（见下一节：需先生成代码）
-cmake --build build --target property_test -j
-./build/test/property_test
 ```
 
 ## 4. 单元测试：`property_test`
@@ -248,14 +246,8 @@ libclang 解析不完整（缺 `-resource-dir`），`has_base_class` / item 特�
 
 ## 7. 最短验证清单
 
-环境就绪后，用这两条确认「能生成 + 能同步」：
+环境就绪后一条命令验收（psync + property_test + 三个示例）：
 
 ```bash
-cmake --build build --target rpg_player_example -j && \
-  ./build/examples/rpg_player/rpg_player_example
-
-# 以及（配置好 test/config.json 并生成后）
-cmake --build build --target property_test -j && \
-  ./build/test/property_test 2>&1 | grep -c 'fail to relay' || true
-# 期望输出 0（或 grep 无匹配）
+cmake --build build --target check_all -j"$(nproc)"
 ```

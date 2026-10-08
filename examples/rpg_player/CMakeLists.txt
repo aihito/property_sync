@@ -1,9 +1,10 @@
-# RPG player example — property sync demo
+# RPG player example — C++ Meta property sync demo (no Lua tests here)
+# Generated files land under examples/rpg_player/generated/
 
-set(RPG_EXAMPLE_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated)
+set(RPG_EXAMPLE_GEN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/generated)
 file(MAKE_DIRECTORY ${RPG_EXAMPLE_GEN_DIR})
 
-# mustache_folder must be relative and start with '.' (generator requirement)
+# Paths relative to config.json's directory (binary dir); must start with '.'
 file(RELATIVE_PATH RPG_MUSTACHE_FOLDER_REL
 	${CMAKE_CURRENT_BINARY_DIR}
 	${CMAKE_SOURCE_DIR}/meta/mustache
@@ -12,7 +13,15 @@ if(NOT RPG_MUSTACHE_FOLDER_REL MATCHES "^\\.")
 	set(RPG_MUSTACHE_FOLDER_REL "./${RPG_MUSTACHE_FOLDER_REL}")
 endif()
 
-# Clang resource-dir for libclang (needed so base classes parse correctly)
+file(RELATIVE_PATH RPG_GEN_FOLDER_REL
+	${CMAKE_CURRENT_BINARY_DIR}
+	${RPG_EXAMPLE_GEN_DIR}
+)
+if(NOT RPG_GEN_FOLDER_REL MATCHES "^\\.")
+	set(RPG_GEN_FOLDER_REL "./${RPG_GEN_FOLDER_REL}")
+endif()
+
+# Clang resource-dir for libclang
 set(RPG_CLANG_RESOURCE_DIR "")
 if(DEFINED ENV{CLANG_RESOURCE_DIR})
 	set(RPG_CLANG_RESOURCE_DIR $ENV{CLANG_RESOURCE_DIR})
@@ -49,18 +58,15 @@ set(RPG_INCLUDE_DIRS_JSON
 	"\"${RPG_EXAMPLE_GEN_DIR}\""
 )
 if(RPG_CLANG_RESOURCE_DIR)
-	# normalize e.g. /usr/bin/../lib/clang/21 → absolute path
 	get_filename_component(RPG_CLANG_RESOURCE_DIR "${RPG_CLANG_RESOURCE_DIR}" REALPATH)
 	list(APPEND RPG_INCLUDE_DIRS_JSON "\"${RPG_CLANG_RESOURCE_DIR}/include\"")
 endif()
 
-# any_container / nlohmann headers — required for libclang to parse bag base classes & STL maps
 foreach(_tgt any_container nlohmann_json::nlohmann_json)
 	if(TARGET ${_tgt})
 		get_target_property(_rpg_tgt_incs ${_tgt} INTERFACE_INCLUDE_DIRECTORIES)
 		if(_rpg_tgt_incs)
 			foreach(_inc IN LISTS _rpg_tgt_incs)
-				# strip generator expressions like $<BUILD_INTERFACE:...>
 				string(REGEX REPLACE "^\\$<BUILD_INTERFACE:(.*)>$" "\\1" _inc "${_inc}")
 				string(REGEX REPLACE "^\\$<INSTALL_INTERFACE:(.*)>$" "" _inc "${_inc}")
 				if(_inc AND EXISTS "${_inc}")
@@ -71,7 +77,6 @@ foreach(_tgt any_container nlohmann_json::nlohmann_json)
 	endif()
 endforeach()
 
-# CMAKE_PREFIX_PATH / DEPS fallbacks
 foreach(_prefix IN LISTS CMAKE_PREFIX_PATH)
 	if(EXISTS "${_prefix}/include")
 		list(APPEND RPG_INCLUDE_DIRS_JSON "\"${_prefix}/include\"")
@@ -80,7 +85,6 @@ endforeach()
 if(DEFINED ENV{DEPS} AND EXISTS "$ENV{DEPS}/include")
 	list(APPEND RPG_INCLUDE_DIRS_JSON "\"$ENV{DEPS}/include\"")
 endif()
-# common local install used in this workspace
 if(EXISTS "/home/game/open-source/game-server/_deps/install/include")
 	list(APPEND RPG_INCLUDE_DIRS_JSON "\"/home/game/open-source/game-server/_deps/install/include\"")
 endif()
@@ -138,13 +142,10 @@ add_custom_command(
 		${CMAKE_CURRENT_SOURCE_DIR}/rpg_items.h
 		${CMAKE_CURRENT_SOURCE_DIR}/prop_flags.h
 		${CMAKE_CURRENT_SOURCE_DIR}/macro.h
-		${CMAKE_SOURCE_DIR}/meta/mustache/property_lua_meta.mustache
-		${CMAKE_SOURCE_DIR}/meta/mustache/property_proto.mustache
-		${CMAKE_SOURCE_DIR}/meta/mustache/property_mutate_proto.mustache
-		${CMAKE_SOURCE_DIR}/meta/mustache/property_schema.mustache
-		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_runtime.lua
-		${CMAKE_SOURCE_DIR}/meta/lua_runtime/json.lua
-	COMMENT "Generating RPG player property sync code"
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_h.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_proxy_h.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_cpp.mustache
+	COMMENT "Meta → ${RPG_EXAMPLE_GEN_DIR}/*.{inch,incpp}"
 	VERBATIM
 )
 
@@ -154,20 +155,15 @@ add_executable(rpg_player_example
 	main.cpp
 	${RPG_GENERATED_FILES}
 )
-
 add_dependencies(rpg_player_example rpg_player_generate)
-
 target_include_directories(rpg_player_example PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${RPG_EXAMPLE_GEN_DIR}
 	${CMAKE_SOURCE_DIR}/include
 )
-
 target_link_libraries(rpg_player_example PRIVATE any_container)
-
 target_compile_features(rpg_player_example PRIVATE cxx_std_17)
 
-# S7: C++ Replay from mutate JSON (LuaRec→CppRep)
 add_executable(rpg_player_replay_json
 	replay_from_json.cpp
 	${RPG_GENERATED_FILES}
@@ -181,7 +177,7 @@ target_include_directories(rpg_player_replay_json PRIVATE
 target_link_libraries(rpg_player_replay_json PRIVATE any_container)
 target_compile_features(rpg_player_replay_json PRIVATE cxx_std_17)
 
-# P2: protoc compile-check generated Snapshot / Mutate protos
+# Optional: Meta also emits proto under generated/proto
 find_program(PROTOC_EXECUTABLE NAMES protoc)
 if(PROTOC_EXECUTABLE)
 	set(RPG_PROTO_DIR ${RPG_EXAMPLE_GEN_DIR}/proto)
@@ -198,132 +194,8 @@ if(PROTOC_EXECUTABLE)
 			${RPG_PROTO_DIR}/LoginRecord.proto
 			${RPG_PROTO_DIR}/Player.proto
 		DEPENDS rpg_player_generate
-			${CMAKE_SOURCE_DIR}/meta/mustache/property_proto.mustache
-			${CMAKE_SOURCE_DIR}/meta/mustache/property_mutate_proto.mustache
 		COMMENT "protoc compile-check rpg_player protos"
 		VERBATIM
 	)
 	add_custom_target(rpg_player_proto_check DEPENDS ${RPG_PROTO_DESC})
-endif()
-
-# P3/P4: Pure-Lua 对拍 — batch / snapshot / mixed
-find_program(LUA_EXECUTABLE NAMES lua lua5.4 lua5.3)
-if(LUA_EXECUTABLE)
-	add_custom_target(rpg_player_lua_replay
-		COMMAND $<TARGET_FILE:rpg_player_example>
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
-			${RPG_EXAMPLE_GEN_DIR}/lua
-			--batch
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
-			${RPG_EXAMPLE_GEN_DIR}/lua
-			--snapshot
-			${CMAKE_CURRENT_BINARY_DIR}/lua_final_snapshot.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
-			${RPG_EXAMPLE_GEN_DIR}/lua
-			--mixed
-			${CMAKE_CURRENT_BINARY_DIR}/lua_checkpoint_snapshot.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates_after_checkpoint.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		DEPENDS rpg_player_example
-		COMMENT "C++/Lua batch+snapshot+mixed 对拍"
-		VERBATIM
-	)
-endif()
-
-# S2/S3: DSL → IR → schema/lua/proto（旁路；inch 仍走 Meta）
-find_package(Python3 COMPONENTS Interpreter)
-if(Python3_Interpreter_FOUND)
-	set(RPG_DSL_OUT ${RPG_EXAMPLE_GEN_DIR}/from_dsl)
-	set(RPG_DSL_MARKER ${RPG_DSL_OUT}/schema/Player.schema.json)
-	set(RPG_DSL_SOURCES
-		${CMAKE_SOURCE_DIR}/dsl/player.psync
-		${CMAKE_SOURCE_DIR}/dsl/items.psync
-		${CMAKE_SOURCE_DIR}/dsl/flags.psync
-		${CMAKE_SOURCE_DIR}/tools/psync/emit.py
-		${CMAKE_SOURCE_DIR}/tools/psync/compile.py
-		${CMAKE_SOURCE_DIR}/tools/psync/parser.py
-		${CMAKE_SOURCE_DIR}/tools/psync/lexer.py
-		${CMAKE_SOURCE_DIR}/tools/psync/models.py
-		${CMAKE_SOURCE_DIR}/tools/psync/validate.py
-		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_runtime.lua
-		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_record.lua
-	)
-	add_custom_command(
-		OUTPUT ${RPG_DSL_MARKER}
-		COMMAND ${CMAKE_COMMAND} -E env
-			"PYTHONPATH=${CMAKE_SOURCE_DIR}/tools"
-			${Python3_EXECUTABLE} -m psync emit
-				${CMAKE_SOURCE_DIR}/dsl/player.psync
-				-o ${RPG_DSL_OUT}
-				--root ${CMAKE_SOURCE_DIR}
-		DEPENDS ${RPG_DSL_SOURCES}
-		COMMENT "psync emit DSL → ${RPG_DSL_OUT}"
-		VERBATIM
-	)
-	add_custom_target(rpg_player_generate_from_dsl DEPENDS ${RPG_DSL_MARKER})
-
-	# 语义对拍：DSL emit ≡ Meta 产物（需先 rpg_player_generate）
-	add_custom_target(rpg_player_dsl_check
-		COMMAND ${CMAKE_COMMAND} -E env
-			"PYTHONPATH=${CMAKE_SOURCE_DIR}/tools"
-			${Python3_EXECUTABLE} -m unittest psync.tests.test_emit_vs_meta psync.tests.test_golden
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-		DEPENDS rpg_player_generate rpg_player_generate_from_dsl
-		COMMENT "DSL IR/emit vs Meta semantic check"
-		VERBATIM
-	)
-endif()
-
-# S5/S6: Pure-Lua Record
-if(LUA_EXECUTABLE AND Python3_Interpreter_FOUND)
-	add_custom_target(rpg_player_lua_record
-		COMMAND ${CMAKE_COMMAND} -E env
-			"PYTHONPATH=${CMAKE_SOURCE_DIR}/tools"
-			${Python3_EXECUTABLE} -m psync emit
-				${CMAKE_SOURCE_DIR}/dsl/player.psync
-				-o ${RPG_DSL_OUT}
-				--root ${CMAKE_SOURCE_DIR}
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_record_test.lua
-			${RPG_DSL_OUT}/lua
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		DEPENDS rpg_player_generate_from_dsl rpg_player_example
-		COMMENT "Lua Record API matrix + S5/S6 (+ C++ mutate deep_equal)"
-		VERBATIM
-	)
-
-	# S7: Cross matrix (LuaRec→CppRep + summary; CppRec→LuaRep via lua_replay)
-	add_custom_target(rpg_player_cross_matrix
-		COMMAND ${CMAKE_COMMAND} -E env
-			"PYTHONPATH=${CMAKE_SOURCE_DIR}/tools"
-			${Python3_EXECUTABLE} -m psync emit
-				${CMAKE_SOURCE_DIR}/dsl/player.psync
-				-o ${RPG_DSL_OUT}
-				--root ${CMAKE_SOURCE_DIR}
-		COMMAND $<TARGET_FILE:rpg_player_example>
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
-			${RPG_EXAMPLE_GEN_DIR}/lua
-			--batch
-			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
-			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
-		COMMAND ${LUA_EXECUTABLE}
-			${CMAKE_CURRENT_SOURCE_DIR}/lua_cross_matrix.lua
-			${RPG_DSL_OUT}/lua
-			${CMAKE_CURRENT_BINARY_DIR}
-			--cpp-replay
-			$<TARGET_FILE:rpg_player_replay_json>
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		DEPENDS rpg_player_generate_from_dsl rpg_player_example rpg_player_replay_json
-		COMMENT "S7 cross matrix: CppRec↔LuaRep + LuaRec↔CppRep"
-		VERBATIM
-	)
 endif()

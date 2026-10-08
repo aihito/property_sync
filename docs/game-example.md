@@ -89,3 +89,4 @@ cmake --build build --target rpg_player_example -j
 | 逐步命令与 data | `examples/rpg_player/main.cpp` 各 `section` |
 | 原理 | [core-principles.md](./core-principles.md) |
 | 编译命令 | [build-and-test.md](./build-and-test.md) |
+| Client + DB PB 双通道 | [channel-matrix.md](./channel-matrix.md) / `examples/channel_matrix/` |

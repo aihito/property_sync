@@ -1,0 +1,26 @@
+{
+  "class": "Item",
+  "qualified_name": "spiritsaway::rpg_example::Item",
+  "namespace": "spiritsaway::rpg_example",
+  "schema_version": 1,
+  "fields": [
+    
+    {
+      "index": 1,
+      "name": "count",
+      "cpp_type": "int",
+      "wire_kind": "number",
+      "item_class": "",
+      "flags": ["sync_clients"]
+    }
+    ,
+    {
+      "index": 2,
+      "name": "name",
+      "cpp_type": "std::__cxx11::basic_string<char>",
+      "wire_kind": "string",
+      "item_class": "",
+      "flags": ["save_db"]
+    }
+  ]
+}

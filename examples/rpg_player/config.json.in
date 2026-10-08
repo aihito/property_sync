@@ -7,7 +7,7 @@
 		@RPG_DEFINITIONS_JSON@
 	],
 	"mustache_folder": "@RPG_MUSTACHE_FOLDER_REL@",
-	"generated_folder": "./generated",
+	"generated_folder": "@RPG_GEN_FOLDER_REL@",
 	"namespace": "spiritsaway::rpg_example",
 	"flag_class": "spiritsaway::property::rpg_property_flags"
 }

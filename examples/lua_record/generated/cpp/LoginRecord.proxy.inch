@@ -1,0 +1,113 @@
+
+#ifndef __meta_parse__
+
+template <> 
+class prop_record_proxy<spiritsaway::rpg_example::LoginRecord>
+
+{
+	spiritsaway::rpg_example::LoginRecord& m_LoginRecord_data;
+	item_msg_queue m_queue;
+	const property_flags m_flag;
+public:
+
+public:
+	prop_record_proxy(spiritsaway::rpg_example::LoginRecord& data, msg_queue_base& msg_queue,
+		const property_record_offset& offset, const property_flags& flag, std::uint32_t data_idx)
+		: m_LoginRecord_data(data)
+		, m_queue(msg_queue, offset, data_idx)
+		, m_flag(flag)
+	{
+
+	}
+
+
+
+
+	const spiritsaway::rpg_example::LoginRecord& data() const
+	{
+		return m_LoginRecord_data;
+	}
+
+	prop_record_proxy<decltype(m_LoginRecord_data.m_login_ts)> login_ts()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_LoginRecord_data.m_login_ts)>(m_LoginRecord_data.m_login_ts, m_queue, empty_offset.merge(spiritsaway::rpg_example::LoginRecord::index_for_login_ts), m_flag.merge(property_flags{ spiritsaway::rpg_example::LoginRecord::flag_for_login_ts}));
+	}
+	prop_record_proxy<decltype(m_LoginRecord_data.m_logout_ts)> logout_ts()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_LoginRecord_data.m_logout_ts)>(m_LoginRecord_data.m_logout_ts, m_queue, empty_offset.merge(spiritsaway::rpg_example::LoginRecord::index_for_logout_ts), m_flag.merge(property_flags{ spiritsaway::rpg_example::LoginRecord::flag_for_logout_ts}));
+	}
+	prop_record_proxy<decltype(m_LoginRecord_data.m_ip)> ip()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_LoginRecord_data.m_ip)>(m_LoginRecord_data.m_ip, m_queue, empty_offset.merge(spiritsaway::rpg_example::LoginRecord::index_for_ip), m_flag.merge(property_flags{ spiritsaway::rpg_example::LoginRecord::flag_for_ip}));
+	}
+
+
+	void update_fields(const json& other_json)
+	{
+		spiritsaway::rpg_example::LoginRecord new_LoginRecord_data;
+		if(!serialize::decode(other_json, new_LoginRecord_data))
+		{
+			return;
+		}
+		std::vector<std::uint8_t> related_field_indexes;
+		related_field_indexes.reserve(8);
+		m_LoginRecord_data.update_fields(new_LoginRecord_data, other_json, related_field_indexes);
+		json::array_t temp_encode_array(2);
+		temp_encode_array[0] = related_field_indexes;
+		property_record_offset empty_offset;
+		for (auto one_need_flag : m_queue.m_need_flags)
+		{
+			if (one_need_flag.include_by(m_flag))
+			{
+				temp_encode_array[1] = new_LoginRecord_data.encode_with_flag(one_need_flag, m_queue.m_encode_ignore_default, m_queue.m_encode_with_array);
+
+				m_queue.add_for_flag(empty_offset.merge(spiritsaway::rpg_example::LoginRecord::index_end_for_LoginRecord), property_cmd::update_fields, one_need_flag, m_flag, json(temp_encode_array));
+			}
+		}
+	}
+
+	bool replay(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
+	{
+		using std::swap;
+		auto split_result = offset.split();
+		auto field_index = split_result.second;
+		auto remain_offset = split_result.first;
+		switch(field_index)
+		{
+			case spiritsaway::rpg_example::LoginRecord::index_for_login_ts:
+			{
+				auto temp_proxy = login_ts();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::LoginRecord::index_for_logout_ts:
+			{
+				auto temp_proxy = logout_ts();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::LoginRecord::index_for_ip:
+			{
+				auto temp_proxy = ip();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::LoginRecord::index_end_for_LoginRecord:
+			{
+				if(cmd == spiritsaway::property::property_cmd::update_fields)
+				{
+					update_fields(data);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			default:
+				return false;
+
+		}
+	}
+};
+#endif

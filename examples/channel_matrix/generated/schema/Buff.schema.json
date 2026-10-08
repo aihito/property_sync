@@ -1,0 +1,28 @@
+{
+  "class": "Buff",
+  "fields": [
+    {
+      "cpp_type": "int",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 1,
+      "item_class": "",
+      "name": "level",
+      "wire_kind": "number"
+    },
+    {
+      "cpp_type": "float",
+      "flags": [
+        "sync_clients"
+      ],
+      "index": 2,
+      "item_class": "",
+      "name": "expire_ts",
+      "wire_kind": "number"
+    }
+  ],
+  "namespace": "spiritsaway::rpg_example",
+  "qualified_name": "spiritsaway::rpg_example::Buff",
+  "schema_version": 1
+}

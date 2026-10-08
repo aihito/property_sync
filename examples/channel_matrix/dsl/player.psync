@@ -1,0 +1,26 @@
+# Player root entity — mirrors examples/rpg_player/rpg_player.h
+# Spec: docs/dsl-design.md
+# Simple containers use wire-neutral array/list/dict (not C-array / STL map).
+
+import "items.psync"
+
+namespace spiritsaway.rpg_example
+using flags RpgFlags
+
+entity Player {
+  version 1
+
+  0: nickname string = "" [sync_clients]
+  1: hp       int    = 100 [sync_clients]
+  2: level    int    = 1 [sync_clients]
+  3: gold     int    = 0 [save_db]
+
+  4: pos   array<float, 3>   [sync_clients]
+  5: tags  list<string>      [sync_clients]
+  6: attrs dict<string, int> [sync_clients]
+
+  7: inventory      bag<Item>         [sync_clients, save_db]
+  8: buffs          bag<Buff>         [sync_clients, save_db]
+  9: equipment      slots<EquipItem>  [sync_clients, save_db]
+  10: login_history vec<LoginRecord>  [sync_clients, save_db]
+}
