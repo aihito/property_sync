@@ -1,0 +1,31 @@
+syntax = "proto3";
+// Shared mutate wire format — auto-generated stub (cmd values match property_cmd).
+package property_sync.generated;
+
+enum PropertyCmd {
+  CMD_CLEAR = 0;
+  CMD_SET = 1;
+  CMD_ADD = 2;
+  CMD_ERASE = 3;
+  CMD_PUSH = 4;
+  CMD_POP = 5;
+  CMD_POP_ERASE = 6;
+  CMD_ITEM_CHANGE = 7;
+  CMD_SLOT_SWAP = 8;
+  CMD_SLOT_RESIZE = 9;
+  CMD_SLOT_MOVE = 10;
+  CMD_UPDATE_FIELDS = 11;
+}
+
+message MutateMsg {
+  uint64 offset = 1;
+  PropertyCmd cmd = 2;
+  uint64 flag = 3;
+  // v1: UTF-8 JSON payload compatible with existing any_container encode
+  bytes data = 4;
+}
+
+message MutateBatch {
+  uint32 schema_version = 1;
+  repeated MutateMsg msgs = 2;
+}

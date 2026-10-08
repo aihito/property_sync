@@ -138,6 +138,12 @@ add_custom_command(
 		${CMAKE_CURRENT_SOURCE_DIR}/rpg_items.h
 		${CMAKE_CURRENT_SOURCE_DIR}/prop_flags.h
 		${CMAKE_CURRENT_SOURCE_DIR}/macro.h
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_lua_sync.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_proto.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_mutate_proto.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/property_schema.mustache
+		${CMAKE_SOURCE_DIR}/meta/lua_runtime/property_runtime.lua
+		${CMAKE_SOURCE_DIR}/meta/lua_runtime/json.lua
 	COMMENT "Generating RPG player property sync code"
 	VERBATIM
 )
@@ -160,3 +166,59 @@ target_include_directories(rpg_player_example PRIVATE
 target_link_libraries(rpg_player_example PRIVATE any_container)
 
 target_compile_features(rpg_player_example PRIVATE cxx_std_17)
+
+# P2: protoc compile-check generated Snapshot / Mutate protos
+find_program(PROTOC_EXECUTABLE NAMES protoc)
+if(PROTOC_EXECUTABLE)
+	set(RPG_PROTO_DIR ${RPG_EXAMPLE_GEN_DIR}/proto)
+	set(RPG_PROTO_DESC ${CMAKE_CURRENT_BINARY_DIR}/rpg_player_protos.pb)
+	add_custom_command(
+		OUTPUT ${RPG_PROTO_DESC}
+		COMMAND ${PROTOC_EXECUTABLE}
+			--descriptor_set_out=${RPG_PROTO_DESC}
+			-I${RPG_PROTO_DIR}
+			${RPG_PROTO_DIR}/property_mutate.proto
+			${RPG_PROTO_DIR}/Item.proto
+			${RPG_PROTO_DIR}/Buff.proto
+			${RPG_PROTO_DIR}/EquipItem.proto
+			${RPG_PROTO_DIR}/LoginRecord.proto
+			${RPG_PROTO_DIR}/Player.proto
+		DEPENDS rpg_player_generate
+			${CMAKE_SOURCE_DIR}/meta/mustache/property_proto.mustache
+			${CMAKE_SOURCE_DIR}/meta/mustache/property_mutate_proto.mustache
+		COMMENT "protoc compile-check rpg_player protos"
+		VERBATIM
+	)
+	add_custom_target(rpg_player_proto_check DEPENDS ${RPG_PROTO_DESC})
+endif()
+
+# P3/P4: Pure-Lua 对拍 — batch / snapshot / mixed
+find_program(LUA_EXECUTABLE NAMES lua lua5.4 lua5.3)
+if(LUA_EXECUTABLE)
+	add_custom_target(rpg_player_lua_replay
+		COMMAND $<TARGET_FILE:rpg_player_example>
+		COMMAND ${LUA_EXECUTABLE}
+			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
+			${RPG_EXAMPLE_GEN_DIR}/lua
+			--batch
+			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates.json
+			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+		COMMAND ${LUA_EXECUTABLE}
+			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
+			${RPG_EXAMPLE_GEN_DIR}/lua
+			--snapshot
+			${CMAKE_CURRENT_BINARY_DIR}/lua_final_snapshot.json
+			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+		COMMAND ${LUA_EXECUTABLE}
+			${CMAKE_CURRENT_SOURCE_DIR}/lua_replay.lua
+			${RPG_EXAMPLE_GEN_DIR}/lua
+			--mixed
+			${CMAKE_CURRENT_BINARY_DIR}/lua_checkpoint_snapshot.json
+			${CMAKE_CURRENT_BINARY_DIR}/lua_mutates_after_checkpoint.json
+			${CMAKE_CURRENT_BINARY_DIR}/lua_sync_view.json
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		DEPENDS rpg_player_example
+		COMMENT "C++/Lua batch+snapshot+mixed 对拍"
+		VERBATIM
+	)
+endif()

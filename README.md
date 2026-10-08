@@ -9,6 +9,10 @@
 | [docs/core-principles.md](docs/core-principles.md) | 核心原理（Proxy / 消息 / 路径 / 背包选型 / Flag） |
 | [docs/game-example.md](docs/game-example.md) | RPG 场景使用说明 |
 | [docs/build-and-test.md](docs/build-and-test.md) | 依赖、CMake 编译与测试命令 |
+| [docs/evolution-plan.md](docs/evolution-plan.md) | 演进方案：兼容 / Protobuf / 纯 Lua（无热更） |
+| [docs/compatibility.md](docs/compatibility.md) | 字段兼容规则 |
+| [docs/protobuf.md](docs/protobuf.md) | Protobuf 约定 |
+| [docs/lua-sync.md](docs/lua-sync.md) | 纯 Lua Replay |
 | [examples/rpg_player/](examples/rpg_player/) | 可对照的玩家属性同步示例代码 |
 | [test/](test/) | 完整 Record/Replay 单元测试 |
 

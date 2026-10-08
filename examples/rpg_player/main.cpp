@@ -12,8 +12,10 @@
  * Server record → mutate_msg 队列 → Client replay（内存模拟网络）
  */
 
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include "rpg_player.h"
 
@@ -65,6 +67,12 @@ void note(const char* text)
 
 int g_fail = 0;
 
+/// Collected mutate batch for pure-Lua 对拍 (offset = replay offset value).
+std::vector<json> g_mutate_batch;
+/// Index into g_mutate_batch after STL sections — start of bag/slots/vec delta.
+std::size_t g_checkpoint_mutate_index = 0;
+json g_checkpoint_snapshot;
+
 void drain_and_replay(top_msg_queue& queue, prop_replay_proxy<Player>& client, bool quiet = false)
 {
     while (!queue.empty()) {
@@ -75,6 +83,14 @@ void drain_and_replay(top_msg_queue& queue, prop_replay_proxy<Player>& client, b
                       << " flag=" << msg.flag.value
                       << " data=" << msg.data.dump() << "\n";
         }
+        json exported;
+        exported["offset"] = msg.offset.to_replay_offset().value();
+        exported["offset_is_record"] = false;
+        exported["cmd"] = static_cast<std::uint8_t>(msg.cmd);
+        exported["flag"] = msg.flag.value;
+        exported["data"] = msg.data;
+        g_mutate_batch.push_back(std::move(exported));
+
         if (!client.replay(msg.offset.to_replay_offset(), msg.cmd, msg.data)) {
             std::cout << "  [error] replay failed\n";
             ++g_fail;
@@ -187,6 +203,16 @@ int main()
         drain_and_replay(sync_queue, cp);
     }
     check_synced(server, client, "map attrs");
+
+    // P4 checkpoint: full sync snapshot + subsequent mutates = mixed 对拍
+    {
+        const auto sync_flag = property_flags{rpg_property_flags::sync_clients};
+        g_checkpoint_snapshot = server.encode_with_flag(sync_flag, true, false);
+        g_checkpoint_snapshot["schema_version"] = 1;
+        g_checkpoint_mutate_index = g_mutate_batch.size();
+        std::cout << "  [checkpoint] snapshot after STL; mutate_index="
+                  << g_checkpoint_mutate_index << "\n";
+    }
 
     // ------------------------------------------------------------------
     section("5) property_bag：道具背包 inventory（按 id）");
@@ -373,6 +399,50 @@ int main()
     if (!same_visible(server, client)) {
         std::cout << "[FAIL] 最终可见字段不一致\n";
         ++g_fail;
+    }
+
+    // ------------------------------------------------------------------
+    section("11) 导出 Lua 对拍产物");
+    {
+        const auto sync_flag = property_flags{rpg_property_flags::sync_clients};
+        json sync_view = server.encode_with_flag(sync_flag, true, false);
+        sync_view["schema_version"] = 1;
+
+        json delta = json::array();
+        for (std::size_t i = g_checkpoint_mutate_index; i < g_mutate_batch.size(); ++i) {
+            delta.push_back(g_mutate_batch[i]);
+        }
+
+        const char* mutate_path = "lua_mutates.json";
+        const char* view_path = "lua_sync_view.json";
+        const char* snap_path = "lua_checkpoint_snapshot.json";
+        const char* delta_path = "lua_mutates_after_checkpoint.json";
+        const char* full_snap_path = "lua_final_snapshot.json";
+        {
+            std::ofstream ofs(mutate_path);
+            ofs << json(g_mutate_batch).dump(2) << "\n";
+        }
+        {
+            std::ofstream ofs(view_path);
+            ofs << sync_view.dump(2) << "\n";
+        }
+        {
+            std::ofstream ofs(snap_path);
+            ofs << g_checkpoint_snapshot.dump(2) << "\n";
+        }
+        {
+            std::ofstream ofs(delta_path);
+            ofs << delta.dump(2) << "\n";
+        }
+        {
+            std::ofstream ofs(full_snap_path);
+            ofs << sync_view.dump(2) << "\n";
+        }
+        std::cout << "  wrote " << mutate_path << " (" << g_mutate_batch.size() << " msgs)\n";
+        std::cout << "  wrote " << view_path << "\n";
+        std::cout << "  wrote " << snap_path << " + " << delta_path
+                  << " (" << delta.size() << " delta msgs)\n";
+        std::cout << "  wrote " << full_snap_path << "\n";
     }
 
     if (g_fail == 0) {

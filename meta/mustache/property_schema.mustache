@@ -1,0 +1,19 @@
+{
+  "class": "{{class_name}}",
+  "qualified_name": "{{class_full_name}}",
+  "namespace": "{{class_namespace}}",
+  "schema_version": {{schema_version}},
+  "fields": [
+{{#property_fields}}
+    {{^first_field}},{{/first_field}}
+    {
+      "index": {{field_index}},
+      "name": "{{field_name}}",
+      "cpp_type": "{{{field_cpp_type}}}",
+      "wire_kind": "{{wire_kind}}",
+      "item_class": "{{{item_class}}}",
+      "flags": [{{#flag_names}}{{^first}}, {{/first}}"{{flag_name}}"{{/flag_names}}]
+    }
+{{/property_fields}}
+  ]
+}

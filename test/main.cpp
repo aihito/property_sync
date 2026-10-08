@@ -619,5 +619,5 @@ int main()
     need_flags.push_back(property_flags{test_property_flags::save_db});
     need_flags.push_back(property_flags{test_property_flags::sync_clients});
     test_flags(cur_top_queue, test_a_record_proxy, test_b_replay_proxy);
-    return 1;
+    return 0;
 }
