@@ -78,9 +78,3 @@ int main(int argc, char** argv)
 	write_json(argv[2], view);
 	return 0;
 }
-
-#include "Player.generated.incpp"
-#include "Item.generated.incpp"
-#include "Buff.generated.incpp"
-#include "EquipItem.generated.incpp"
-#include "LoginRecord.generated.incpp"

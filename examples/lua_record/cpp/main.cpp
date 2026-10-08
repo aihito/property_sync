@@ -452,9 +452,3 @@ int main()
     std::cout << "[FAIL] 失败计数=" << g_fail << "\n";
     return 1;
 }
-
-#include "Player.generated.incpp"
-#include "Item.generated.incpp"
-#include "Buff.generated.incpp"
-#include "EquipItem.generated.incpp"
-#include "LoginRecord.generated.incpp"

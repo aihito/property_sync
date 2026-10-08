@@ -117,22 +117,54 @@ func headerContext(cls *ir.ClassDef, ctx map[string]any) map[string]any {
 
 func renderClassArtifacts(cls *ir.ClassDef, md string, legacyWire bool) (map[string]string, error) {
 	ctx := emitctx.ClassToMustache(cls, legacyWire, "")
+	body, err := renderTemplate(filepath.Join(md, "property_h.mustache"), ctx)
+	if err != nil {
+		return nil, fmt.Errorf("property_h.mustache: %w", err)
+	}
+	proxy, err := renderTemplate(filepath.Join(md, "property_proxy_h.mustache"), ctx)
+	if err != nil {
+		return nil, fmt.Errorf("property_proxy_h.mustache: %w", err)
+	}
+	impl, err := renderTemplate(filepath.Join(md, "property_cpp.mustache"), ctx)
+	if err != nil {
+		return nil, fmt.Errorf("property_cpp.mustache: %w", err)
+	}
 	hdr := headerContext(cls, ctx)
-	out := map[string]string{}
-	pairs := []struct{ file, tmpl string; c map[string]any }{
-		{cls.Name + ".generated.inch", "property_h.mustache", ctx},
-		{cls.Name + ".proxy.inch", "property_proxy_h.mustache", ctx},
-		{cls.Name + ".generated.incpp", "property_cpp.mustache", ctx},
-		{cls.Name + ".h", "class_header.mustache", hdr},
+	hdr["class_body"] = body
+	hdr["proxy_body"] = proxy
+	fullH, err := renderTemplate(filepath.Join(md, "class_header_full.mustache"), hdr)
+	if err != nil {
+		return nil, fmt.Errorf("class_header_full.mustache: %w", err)
 	}
-	for _, p := range pairs {
-		text, err := renderTemplate(filepath.Join(md, p.tmpl), p.c)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", p.tmpl, err)
-		}
-		out[p.file] = text
+	fullCpp, err := renderTemplate(filepath.Join(md, "class_cpp_full.mustache"), map[string]any{
+		"class_name": cls.Name,
+		"class_impl": impl,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("class_cpp_full.mustache: %w", err)
 	}
-	return out, nil
+	return map[string]string{
+		cls.Name + ".h":   fullH,
+		cls.Name + ".cpp": fullCpp,
+	}, nil
+}
+
+// RenderClassFragments renders Meta-style inch/incpp bodies (for golden tests).
+func RenderClassFragments(cls *ir.ClassDef, md string, legacyWire bool) (inch, proxy, incpp string, err error) {
+	ctx := emitctx.ClassToMustache(cls, legacyWire, "")
+	inch, err = renderTemplate(filepath.Join(md, "property_h.mustache"), ctx)
+	if err != nil {
+		return "", "", "", err
+	}
+	proxy, err = renderTemplate(filepath.Join(md, "property_proxy_h.mustache"), ctx)
+	if err != nil {
+		return "", "", "", err
+	}
+	incpp, err = renderTemplate(filepath.Join(md, "property_cpp.mustache"), ctx)
+	if err != nil {
+		return "", "", "", err
+	}
+	return inch, proxy, incpp, nil
 }
 
 func writeCpp(unit *ir.CompilationUnit, outDir string, md string, legacyWire, flat bool) ([]string, error) {
@@ -180,6 +212,14 @@ func writeCpp(unit *ir.CompilationUnit, outDir string, md string, legacyWire, fl
 		arts, err := renderClassArtifacts(it.cls, md, legacyWire)
 		if err != nil {
 			return nil, err
+		}
+		// Drop legacy Meta fragment names if present from older emits.
+		for _, obsolete := range []string{
+			it.name + ".generated.inch",
+			it.name + ".proxy.inch",
+			it.name + ".generated.incpp",
+		} {
+			_ = os.Remove(filepath.Join(root, obsolete))
 		}
 		names := make([]string, 0, len(arts))
 		for n := range arts {

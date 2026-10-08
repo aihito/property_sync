@@ -12,11 +12,198 @@ public:
     int m_enhance = 0;
     std::string m_name = "";
 
-#include "EquipItem.generated.inch"
+
+#ifndef __meta_parse__
+public:
+friend class spiritsaway::property::prop_record_proxy<EquipItem>;
+friend class spiritsaway::property::prop_replay_proxy<EquipItem>;
+using base_class = spiritsaway::property::property_slot_item<int>;
+using base_class::base_class;
+
+
+const decltype(m_enhance)& enhance() const
+{
+	return m_enhance;
+}
+
+const decltype(m_name)& name() const
+{
+	return m_name;
+}
+
+
+public:
+
+bool replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data);
+
+bool operator==(const EquipItem& other) const;
+bool operator!=(const EquipItem& other) const;
+
+json encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const;
+
+std::vector<std::uint8_t> get_fields_with_flag(const spiritsaway::property::property_flags flag) const;
+
+std::vector<std::uint8_t> get_fields_without_flag(const spiritsaway::property::property_flags flag) const;
+
+json encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const;
+
+friend void swap(EquipItem& a, EquipItem& b)
+{
+	using std::swap;
+	swap((spiritsaway::property::property_slot_item<int>&)a, (spiritsaway::property::property_slot_item<int>&)b);
+
+	swap(a.m_enhance, b.m_enhance);
+	swap(a.m_name, b.m_name);
+}
+
+void update_fields(const EquipItem& other, const json& other_json, std::vector<std::uint8_t>& field_indexes);
+bool set_fields(const std::vector<std::pair<std::uint8_t, json>>& field_values);
+void clear_fields(const std::vector<std::uint8_t>& related_indexes);
+
+
+void clear()
+{
+	using std::swap;
+	EquipItem temp_empty_instance;
+	swap(*this, temp_empty_instance);
+}
+
+json encode(bool ignore_default = true) const;
+
+bool decode(const json& data);
+bool decode(const json::object_t& data);
+bool decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx);
+
+bool has_default_value() const;
+
+public:
+constexpr static std::uint8_t index_for_enhance = 2;
+constexpr static std::uint64_t flag_for_enhance = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_name = 3;
+constexpr static std::uint64_t flag_for_name = spiritsaway::property::rpg_property_flags::sync_clients;
+
+
+constexpr static std::uint8_t index_begin_for_EquipItem = 2;
+constexpr static std::uint8_t index_end_for_EquipItem = 4;
+private:
+
+#endif
+
+
+
 };
 } // namespace spiritsaway::rpg_example
 
 namespace spiritsaway::property
 {
-#include "EquipItem.proxy.inch"
+
+#ifndef __meta_parse__
+
+template <> 
+class prop_record_proxy<spiritsaway::rpg_example::EquipItem>
+
+{
+	spiritsaway::rpg_example::EquipItem& m_EquipItem_data;
+	item_msg_queue m_queue;
+	const property_flags m_flag;
+public:
+
+public:
+	prop_record_proxy(spiritsaway::rpg_example::EquipItem& data, msg_queue_base& msg_queue,
+		const property_record_offset& offset, const property_flags& flag, std::uint32_t data_idx)
+		: m_EquipItem_data(data)
+		, m_queue(msg_queue, offset, data_idx)
+		, m_flag(flag)
+	{
+
+	}
+
+
+
+
+	const spiritsaway::rpg_example::EquipItem& data() const
+	{
+		return m_EquipItem_data;
+	}
+
+	prop_record_proxy<decltype(m_EquipItem_data.m_enhance)> enhance()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_EquipItem_data.m_enhance)>(m_EquipItem_data.m_enhance, m_queue, empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_for_enhance), m_flag.merge(property_flags{ spiritsaway::rpg_example::EquipItem::flag_for_enhance}));
+	}
+	prop_record_proxy<decltype(m_EquipItem_data.m_name)> name()
+	{
+		property_record_offset empty_offset;
+		return prop_record_proxy<decltype(m_EquipItem_data.m_name)>(m_EquipItem_data.m_name, m_queue, empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_for_name), m_flag.merge(property_flags{ spiritsaway::rpg_example::EquipItem::flag_for_name}));
+	}
+
+
+	void update_fields(const json& other_json)
+	{
+		spiritsaway::rpg_example::EquipItem new_EquipItem_data;
+		if(!serialize::decode(other_json, new_EquipItem_data))
+		{
+			return;
+		}
+		std::vector<std::uint8_t> related_field_indexes;
+		related_field_indexes.reserve(8);
+		m_EquipItem_data.update_fields(new_EquipItem_data, other_json, related_field_indexes);
+		json::array_t temp_encode_array(2);
+		temp_encode_array[0] = related_field_indexes;
+		property_record_offset empty_offset;
+		for (auto one_need_flag : m_queue.m_need_flags)
+		{
+			if (one_need_flag.include_by(m_flag))
+			{
+				temp_encode_array[1] = new_EquipItem_data.encode_with_flag(one_need_flag, m_queue.m_encode_ignore_default, m_queue.m_encode_with_array);
+
+				m_queue.add_for_flag(empty_offset.merge(spiritsaway::rpg_example::EquipItem::index_end_for_EquipItem), property_cmd::update_fields, one_need_flag, m_flag, json(temp_encode_array));
+			}
+		}
+	}
+
+	bool replay(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
+	{
+		using std::swap;
+		auto split_result = offset.split();
+		auto field_index = split_result.second;
+		auto remain_offset = split_result.first;
+		switch(field_index)
+		{
+			case spiritsaway::rpg_example::EquipItem::index_for_enhance:
+			{
+				auto temp_proxy = enhance();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::EquipItem::index_for_name:
+			{
+				auto temp_proxy = name();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::EquipItem::index_end_for_EquipItem:
+			{
+				if(cmd == spiritsaway::property::property_cmd::update_fields)
+				{
+					update_fields(data);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			default:
+				return false;
+
+		}
+	}
+};
+#endif
 } // namespace spiritsaway::property

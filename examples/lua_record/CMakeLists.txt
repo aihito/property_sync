@@ -14,6 +14,13 @@ if(NOT TARGET psync_tool)
 	message(FATAL_ERROR "lua_record requires Go psync_tool")
 endif()
 
+set(LR_CPP_IMPL
+	${LR_CPP}/Item.cpp
+	${LR_CPP}/Buff.cpp
+	${LR_CPP}/EquipItem.cpp
+	${LR_CPP}/LoginRecord.cpp
+	${LR_CPP}/Player.cpp
+)
 set(LR_CPP_GENERATED
 	${LR_CPP}/PropFlags.h
 	${LR_CPP}/Item.h
@@ -21,21 +28,7 @@ set(LR_CPP_GENERATED
 	${LR_CPP}/EquipItem.h
 	${LR_CPP}/LoginRecord.h
 	${LR_CPP}/Player.h
-	${LR_CPP}/Item.generated.inch
-	${LR_CPP}/Item.generated.incpp
-	${LR_CPP}/Item.proxy.inch
-	${LR_CPP}/Buff.generated.inch
-	${LR_CPP}/Buff.generated.incpp
-	${LR_CPP}/Buff.proxy.inch
-	${LR_CPP}/EquipItem.generated.inch
-	${LR_CPP}/EquipItem.generated.incpp
-	${LR_CPP}/EquipItem.proxy.inch
-	${LR_CPP}/LoginRecord.generated.inch
-	${LR_CPP}/LoginRecord.generated.incpp
-	${LR_CPP}/LoginRecord.proxy.inch
-	${LR_CPP}/Player.generated.inch
-	${LR_CPP}/Player.generated.incpp
-	${LR_CPP}/Player.proxy.inch
+	${LR_CPP_IMPL}
 )
 set(LR_EMIT_MARKER ${LR_GEN}/schema/Player.schema.json)
 
@@ -53,21 +46,24 @@ add_custom_command(
 		${CMAKE_SOURCE_DIR}/meta/mustache/property_h.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/property_proxy_h.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/property_cpp.mustache
-		${CMAKE_SOURCE_DIR}/meta/mustache/class_header.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/class_header_full.mustache
+		${CMAKE_SOURCE_DIR}/meta/mustache/class_cpp_full.mustache
 		${CMAKE_SOURCE_DIR}/meta/mustache/flags_h.mustache
 	COMMENT "lua_record: Go psync emit → ${LR_GEN}"
 	VERBATIM
 )
 add_custom_target(lua_record_generate DEPENDS ${LR_CPP_GENERATED} ${LR_EMIT_MARKER})
 
-add_executable(lua_record_cpp cpp/main.cpp)
+add_executable(lua_record_cpp cpp/main.cpp ${LR_CPP_IMPL})
 add_dependencies(lua_record_cpp lua_record_generate)
+set_source_files_properties(${LR_CPP_IMPL} PROPERTIES GENERATED TRUE)
 target_include_directories(lua_record_cpp PRIVATE ${LR_CPP} ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(lua_record_cpp PRIVATE any_container)
 target_compile_features(lua_record_cpp PRIVATE cxx_std_17)
 
-add_executable(lua_record_replay_json cpp/replay_from_json.cpp)
+add_executable(lua_record_replay_json cpp/replay_from_json.cpp ${LR_CPP_IMPL})
 add_dependencies(lua_record_replay_json lua_record_generate)
+set_source_files_properties(${LR_CPP_IMPL} PROPERTIES GENERATED TRUE)
 target_include_directories(lua_record_replay_json PRIVATE ${LR_CPP} ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(lua_record_replay_json PRIVATE any_container)
 target_compile_features(lua_record_replay_json PRIVATE cxx_std_17)

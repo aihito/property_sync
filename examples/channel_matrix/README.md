@@ -22,7 +22,7 @@ cpp/
   main_dual_channel.cpp
   replay_from_json.cpp
 generated/
-  cpp/               # PropFlags.h / *.h / *.inch / *.incpp
+  cpp/               # PropFlags.h / *.h / *.cpp
   schema/ lua/ proto/
 lua/                 # ChannelHub + lua-pb
 ```

@@ -32,8 +32,7 @@ Record (C++ / Lua ChannelHub)
 
 | 路径 | 内容 |
 |------|------|
-| `cpp/PropFlags.h` / `cpp/*.h` | 数据类头 + flags |
-| `cpp/*.{inch,incpp}` | 复用 `meta/mustache` 的 C++ Rec/Rep |
+| `cpp/PropFlags.h` / `cpp/*.h` / `cpp/*.cpp` | 完整 C++ 类（组装 Meta mustache 片段） |
 | `schema/` / `lua/` / `proto/` | 跨语言合同 / Record / Snapshot IDL |
 
 Meta（`generate_property_sync`）仅为仓库遗留对照（如 `rpg_player`）；本示例不跑 libclang。

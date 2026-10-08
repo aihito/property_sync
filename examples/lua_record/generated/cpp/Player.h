@@ -28,11 +28,407 @@ protected:
     spiritsaway::property::property_slots<spiritsaway::rpg_example::EquipItem> m_equipment;
     spiritsaway::property::property_vec<spiritsaway::rpg_example::LoginRecord> m_login_history;
 
-#include "Player.generated.inch"
+
+#ifndef __meta_parse__
+public:
+friend class spiritsaway::property::prop_record_proxy<Player>;
+friend class spiritsaway::property::prop_replay_proxy<Player>;
+Player();
+
+
+const decltype(m_nickname)& nickname() const
+{
+	return m_nickname;
+}
+
+const decltype(m_hp)& hp() const
+{
+	return m_hp;
+}
+
+const decltype(m_level)& level() const
+{
+	return m_level;
+}
+
+const decltype(m_gold)& gold() const
+{
+	return m_gold;
+}
+
+const decltype(m_pos)& pos() const
+{
+	return m_pos;
+}
+
+const decltype(m_tags)& tags() const
+{
+	return m_tags;
+}
+
+const decltype(m_attrs)& attrs() const
+{
+	return m_attrs;
+}
+
+const decltype(m_inventory)& inventory() const
+{
+	return m_inventory;
+}
+
+const decltype(m_buffs)& buffs() const
+{
+	return m_buffs;
+}
+
+const decltype(m_equipment)& equipment() const
+{
+	return m_equipment;
+}
+
+const decltype(m_login_history)& login_history() const
+{
+	return m_login_history;
+}
+
+
+public:
+
+bool replay_mutate_msg(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data);
+
+bool operator==(const Player& other) const;
+bool operator!=(const Player& other) const;
+
+json encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, bool replace_key_by_index) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::array_t& result) const;
+void encode_with_flag(const spiritsaway::property::property_flags flag, bool ignore_default, json::object_t& result) const;
+
+std::vector<std::uint8_t> get_fields_with_flag(const spiritsaway::property::property_flags flag) const;
+
+std::vector<std::uint8_t> get_fields_without_flag(const spiritsaway::property::property_flags flag) const;
+
+json encode_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_except_fields(const std::vector<std::uint8_t>& offsets, bool ignore_default = true) const;
+
+json encode_fields_with_flag(const std::vector<std::uint8_t>& offsets, const spiritsaway::property::property_flags flag, bool ignore_default) const;
+
+friend void swap(Player& a, Player& b)
+{
+	using std::swap;
+
+	swap(a.m_nickname, b.m_nickname);
+	swap(a.m_hp, b.m_hp);
+	swap(a.m_level, b.m_level);
+	swap(a.m_gold, b.m_gold);
+	swap(a.m_pos, b.m_pos);
+	swap(a.m_tags, b.m_tags);
+	swap(a.m_attrs, b.m_attrs);
+	swap(a.m_inventory, b.m_inventory);
+	swap(a.m_buffs, b.m_buffs);
+	swap(a.m_equipment, b.m_equipment);
+	swap(a.m_login_history, b.m_login_history);
+}
+
+
+void clear()
+{
+	using std::swap;
+	Player temp_empty_instance;
+	swap(*this, temp_empty_instance);
+}
+
+json encode(bool ignore_default = true) const;
+
+bool decode(const json& data);
+bool decode(const json::object_t& data);
+bool decode(const std::vector<std::pair<std::uint8_t, json>>& data, std::uint32_t& next_idx);
+
+bool has_default_value() const;
+
+public:
+constexpr static std::uint8_t index_for_nickname = 0;
+constexpr static std::uint64_t flag_for_nickname = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_hp = 1;
+constexpr static std::uint64_t flag_for_hp = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_level = 2;
+constexpr static std::uint64_t flag_for_level = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_gold = 3;
+constexpr static std::uint64_t flag_for_gold = spiritsaway::property::rpg_property_flags::save_db;
+
+constexpr static std::uint8_t index_for_pos = 4;
+constexpr static std::uint64_t flag_for_pos = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_tags = 5;
+constexpr static std::uint64_t flag_for_tags = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_attrs = 6;
+constexpr static std::uint64_t flag_for_attrs = spiritsaway::property::rpg_property_flags::sync_clients;
+
+constexpr static std::uint8_t index_for_inventory = 7;
+constexpr static std::uint64_t flag_for_inventory = spiritsaway::property::rpg_property_flags::sync_clients|spiritsaway::property::rpg_property_flags::save_db;
+
+constexpr static std::uint8_t index_for_buffs = 8;
+constexpr static std::uint64_t flag_for_buffs = spiritsaway::property::rpg_property_flags::sync_clients|spiritsaway::property::rpg_property_flags::save_db;
+
+constexpr static std::uint8_t index_for_equipment = 9;
+constexpr static std::uint64_t flag_for_equipment = spiritsaway::property::rpg_property_flags::sync_clients|spiritsaway::property::rpg_property_flags::save_db;
+
+constexpr static std::uint8_t index_for_login_history = 10;
+constexpr static std::uint64_t flag_for_login_history = spiritsaway::property::rpg_property_flags::sync_clients|spiritsaway::property::rpg_property_flags::save_db;
+
+
+constexpr static std::uint8_t index_begin_for_Player = 0;
+constexpr static std::uint8_t index_end_for_Player = 11;
+private:
+
+#endif
+
+
+
 };
 } // namespace spiritsaway::rpg_example
 
 namespace spiritsaway::property
 {
-#include "Player.proxy.inch"
+
+#ifndef __meta_parse__
+
+
+template <>
+class prop_record_proxy<spiritsaway::rpg_example::Player>
+{
+	spiritsaway::rpg_example::Player& m_Player_data;
+	msg_queue_base& m_queue;
+public:
+	const property_record_offset m_offset;
+	const property_flags m_flag;
+public:
+	prop_record_proxy(spiritsaway::rpg_example::Player& data, msg_queue_base& msg_queue,
+		const property_record_offset& offset, const property_flags& flag)
+		: m_Player_data(data)
+		, m_queue(msg_queue)
+		, m_offset(offset)
+		, m_flag(flag)
+	{
+
+	}
+	const spiritsaway::rpg_example::Player&  get_Player() const
+	{
+		return m_Player_data;
+	}
+
+	const spiritsaway::rpg_example::Player& data() const
+	{
+		return m_Player_data;
+	}
+
+	prop_record_proxy<decltype(m_Player_data.m_nickname)> nickname()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_nickname)>(m_Player_data.m_nickname, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_nickname), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_nickname}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_nickname)> replay_nickname()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_nickname)>(m_Player_data.m_nickname);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_hp)> hp()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_hp)>(m_Player_data.m_hp, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_hp), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_hp}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_hp)> replay_hp()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_hp)>(m_Player_data.m_hp);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_level)> level()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_level)>(m_Player_data.m_level, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_level), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_level}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_level)> replay_level()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_level)>(m_Player_data.m_level);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_gold)> gold()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_gold)>(m_Player_data.m_gold, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_gold), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_gold}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_gold)> replay_gold()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_gold)>(m_Player_data.m_gold);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_pos)> pos()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_pos)>(m_Player_data.m_pos, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_pos), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_pos}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_pos)> replay_pos()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_pos)>(m_Player_data.m_pos);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_tags)> tags()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_tags)>(m_Player_data.m_tags, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_tags), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_tags}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_tags)> replay_tags()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_tags)>(m_Player_data.m_tags);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_attrs)> attrs()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_attrs)>(m_Player_data.m_attrs, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_attrs), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_attrs}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_attrs)> replay_attrs()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_attrs)>(m_Player_data.m_attrs);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_inventory)> inventory()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_inventory)>(m_Player_data.m_inventory, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_inventory), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_inventory}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_inventory)> replay_inventory()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_inventory)>(m_Player_data.m_inventory);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_buffs)> buffs()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_buffs)>(m_Player_data.m_buffs, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_buffs), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_buffs}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_buffs)> replay_buffs()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_buffs)>(m_Player_data.m_buffs);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_equipment)> equipment()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_equipment)>(m_Player_data.m_equipment, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_equipment), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_equipment}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_equipment)> replay_equipment()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_equipment)>(m_Player_data.m_equipment);
+	}
+	prop_record_proxy<decltype(m_Player_data.m_login_history)> login_history()
+	{
+		return prop_record_proxy<decltype(m_Player_data.m_login_history)>(m_Player_data.m_login_history, m_queue, m_offset.merge(spiritsaway::rpg_example::Player::index_for_login_history), m_flag.merge(property_flags{ spiritsaway::rpg_example::Player::flag_for_login_history}));
+	}
+	prop_replay_proxy<decltype(m_Player_data.m_login_history)> replay_login_history()
+	{
+		return prop_replay_proxy<decltype(m_Player_data.m_login_history)>(m_Player_data.m_login_history);
+	}
+
+	void clear()
+	{
+		m_Player_data.clear();
+		if (m_queue.is_flag_need(m_flag))
+		{
+			m_queue.add(m_offset.merge(spiritsaway::rpg_example::Player::index_end_for_Player), property_cmd::clear, m_flag, json());
+		}
+	}
+	void set(const json& other_json)
+	{
+		spiritsaway::rpg_example::Player new_Player_data;
+		if(!serialize::decode(other_json, new_Player_data))
+		{
+			return;
+		}
+		using std::swap;
+		swap(m_Player_data, new_Player_data);
+		for (auto one_need_flag : m_queue.m_need_flags)
+		{
+			if (one_need_flag.include_by(m_flag))
+			{
+				auto one_encode_result = m_Player_data.encode_with_flag(one_need_flag, m_queue.m_encode_ignore_default, m_queue.m_encode_with_array);
+
+				m_queue.add_for_flag(m_offset.merge(spiritsaway::rpg_example::Player::index_end_for_Player), property_cmd::set, one_need_flag, m_flag, one_encode_result);
+			}
+		}
+	}
+
+
+	bool replay(spiritsaway::property::property_replay_offset offset, spiritsaway::property::property_cmd cmd, const json& data)
+	{
+		using std::swap;
+		auto split_result = offset.split();
+		auto field_index = split_result.second;
+		auto remain_offset = split_result.first;
+		switch(field_index)
+		{
+			case spiritsaway::rpg_example::Player::index_for_nickname:
+			{
+				auto temp_proxy = nickname();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_hp:
+			{
+				auto temp_proxy = hp();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_level:
+			{
+				auto temp_proxy = level();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_gold:
+			{
+				auto temp_proxy = gold();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_pos:
+			{
+				auto temp_proxy = pos();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_tags:
+			{
+				auto temp_proxy = tags();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_attrs:
+			{
+				auto temp_proxy = attrs();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_inventory:
+			{
+				auto temp_proxy = inventory();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_buffs:
+			{
+				auto temp_proxy = buffs();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_equipment:
+			{
+				auto temp_proxy = equipment();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_for_login_history:
+			{
+				auto temp_proxy = login_history();
+				return temp_proxy.replay(remain_offset, cmd, data);
+			}
+			case spiritsaway::rpg_example::Player::index_end_for_Player:
+			{
+				if(cmd == spiritsaway::property::property_cmd::clear)
+				{
+					clear();
+					return true;
+				}
+				else if(cmd == spiritsaway::property::property_cmd::set)
+				{
+					
+					set(data);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			default:
+				return false;
+		}
+	}
+};
+#endif
 } // namespace spiritsaway::property
