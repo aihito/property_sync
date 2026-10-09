@@ -285,7 +285,7 @@ generated/
 
 | 阶段 | 交付 | 验收 |
 |------|------|------|
-| **D0** | DSL 设计 + `dsl/*.psync` | ✅ 已完成（见 dsl-design / dsl-types） |
+| **D0** | DSL 设计 + `tools/psync/testdata/dsl/*.psync` | ✅ 已完成（见 dsl-design / dsl-types） |
 | **D1+** | 实施 | 见 **[dsl-implementation-plan.md](./dsl-implementation-plan.md)**（S0–S8） |
 
 不把「替换现网主服 Record」放进探索成功标准；成功标准是：**对称生成 + 交叉对拍成立**。

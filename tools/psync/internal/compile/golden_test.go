@@ -25,8 +25,9 @@ func repoRoot(t *testing.T) string {
 
 func TestCompileMatchesGolden(t *testing.T) {
 	root := repoRoot(t)
-	entry := filepath.Join(root, "dsl", "player.psync")
-	unit, diags, err := compile.CompileFile(entry, true, root)
+	td := filepath.Join(root, "tools", "psync", "testdata")
+	entry := filepath.Join(td, "dsl", "player.psync")
+	unit, diags, err := compile.CompileFile(entry, true, td)
 	if err != nil {
 		t.Fatalf("compile: %v diags=%v", err, diags)
 	}
@@ -73,8 +74,9 @@ func TestCompileMatchesGolden(t *testing.T) {
 
 func TestCheckPlayer(t *testing.T) {
 	root := repoRoot(t)
-	entry := filepath.Join(root, "dsl", "player.psync")
-	_, diags, err := compile.CompileFile(entry, true, root)
+	td := filepath.Join(root, "tools", "psync", "testdata")
+	entry := filepath.Join(td, "dsl", "player.psync")
+	_, diags, err := compile.CompileFile(entry, true, td)
 	if err != nil {
 		t.Fatal(err)
 	}

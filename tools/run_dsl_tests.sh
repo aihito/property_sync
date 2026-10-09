@@ -12,14 +12,18 @@ BIN="${TMPDIR:-/tmp}/psync-ci"
 echo "==> [1/4] Go psync unit tests (IR golden + cpp semantic)"
 (cd "$PSYNC" && go test ./... -count=1)
 
+TD="$PSYNC/testdata"
+ENTRY="$TD/dsl/player.psync"
+
 echo "==> [2/4] psync check / compile smoke"
 (cd "$PSYNC" && go build -o "$BIN" ./cmd/psync)
-"$BIN" check dsl/player.psync --root .
-"$BIN" compile dsl/player.psync -o /tmp/psync-ir-ci --root . --no-bundle >/dev/null
+"$BIN" check "$ENTRY" --root "$TD"
+"$BIN" compile "$ENTRY" -o /tmp/psync-ir-ci --root "$TD" --no-bundle >/dev/null
 
 echo "==> [3/4] psync emit smoke"
-"$BIN" emit dsl/player.psync -o /tmp/psync-emit-ci --root . >/dev/null
-"$BIN" emit dsl/player.psync -o /tmp/psync-emit-native --root . --native-wire >/dev/null
+# emit --root must be the repo (meta/mustache); check/compile use testdata root for IR source_file
+"$BIN" emit "$ENTRY" -o /tmp/psync-emit-ci --root "$ROOT" >/dev/null
+"$BIN" emit "$ENTRY" -o /tmp/psync-emit-native --root "$ROOT" --native-wire >/dev/null
 
 META_INCH="$ROOT/examples/rpg_player/generated/Player.generated.inch"
 if [[ -f "$META_INCH" ]]; then

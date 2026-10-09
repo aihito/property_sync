@@ -1,6 +1,6 @@
 # DSL 方案实施计划
 
-> **前提：** DSL 设计已认可（[dsl-design.md](./dsl-design.md)、[dsl-types.md](./dsl-types.md)、`dsl/*.psync`）。  
+> **前提：** DSL 设计已认可（[dsl-design.md](./dsl-design.md)、[dsl-types.md](./dsl-types.md)、`tools/psync/testdata/dsl/*.psync`）。  
 > **目标：** 把真相源从「C++ Meta 注解」迁到「`.psync` → IR → 多语言 emitter」，并具备 C++/Lua Record·Replay 对称能力。  
 > **原则：** 小步可回滚；每阶段现有对拍不回退；先合同与管道，再 Lua Record。
 
@@ -18,7 +18,7 @@
 | 验收 | C++ 测 + Lua batch/snapshot/mixed | + DSL→IR golden；+ 交叉 Rec/Rep |
 
 ```text
-[已完成设计]  dsl/*.psync + 文档
+[已完成设计]  tools/psync/testdata/dsl/*.psync + 文档
       │
       ▼
   Parser → IR → Emitters（分阶段接）
@@ -34,7 +34,7 @@
 | 阶段 | 主题 | 主要改动面 | 验收 | 预估 |
 |------|------|------------|------|------|
 | **S0** ✅ | 冻结合同 | 文档状态；IR JSON Schema；样例冻结 | 评审打勾 | 0.5d |
-| **S1** ✅ | DSL → IR | 新工具 `tools/psync`（建议 Python） | `dsl/*.psync` → IR 与 golden 一致 | 2–3d |
+| **S1** ✅ | DSL → IR | 新工具 `tools/psync`（建议 Python） | `testdata/dsl/*.psync` → IR 与 golden 一致 | 2–3d |
 | **S2** ✅ | IR → 现有产物（旁路） | `psync emit`（IR→schema/lua/proto） | 与 Meta 产物语义对拍 | 2–3d |
 | **S3** ✅ | 切 rpg 生成源 | CMake 双轨 + dsl_check；inch 仍 Meta | `rpg_player_*` + dsl_check | 1–2d |
 | **S4** ✅ | Lua wire 对齐 | runtime 认 `list`/`dict`（兼容旧 `vector`/`map`） | 现有 lua_replay 仍 PASS | 0.5–1d |
@@ -56,7 +56,7 @@
 **已有：**
 
 - [x] `docs/dsl-design.md` / `dsl-types.md` / `dsl-multi-runtime.md`  
-- [x] `dsl/flags.psync` `items.psync` `player.psync`  
+- [x] `tools/psync/testdata/dsl/{flags,items,player}.psync`  
 
 **已完成：**
 
@@ -86,8 +86,8 @@ tools/psync/
 ```bash
 cd <repo>
 go -C tools/psync build -o /tmp/psync ./cmd/psync
-/tmp/psync check dsl/player.psync --root .
-/tmp/psync compile dsl/player.psync -o /tmp/ir --root .
+/tmp/psync check tools/psync/testdata/dsl/player.psync --root tools/psync/testdata
+/tmp/psync compile tools/psync/testdata/dsl/player.psync -o /tmp/ir --root tools/psync/testdata
 go -C tools/psync test ./...
 ```
 
@@ -114,13 +114,13 @@ go -C tools/psync test ./...
 | 项 | 做法 |
 |----|------|
 | `tools/psync/emit.py` | IR→schema/lua/proto；`list`→`vector`、`dict`→`map`（过渡，对齐现 runtime） |
-| CLI | `psync emit dsl/player.psync -o <out> --root .`（Go：`tools/psync`） |
+| CLI | `psync emit tools/psync/testdata/dsl/player.psync -o <out> --root tools/psync/testdata`（Go：`tools/psync`） |
 | 对拍 | `psync.tests.test_emit_vs_meta` vs `build/examples/rpg_player/generated` |
 
 **用法：**
 
 ```bash
-psync emit dsl/player.psync -o /tmp/from-dsl --root .
+psync emit tools/psync/testdata/dsl/player.psync -o /tmp/from-dsl --root tools/psync/testdata
 go -C tools/psync test ./internal/emit/
 ```
 
@@ -221,7 +221,7 @@ cmake --build build --target rpg_player_cross_matrix -j
 
 | 目录/文件 | S1 | S2 | S3 | S4 | S5–S6 | S7–S8 |
 |-----------|----|----|----|----|-------|-------|
-| `dsl/*.psync` | 冻结 | | 依赖 | | | |
+| `tools/psync/testdata/dsl/*.psync` | 冻结 | | 依赖 | | | |
 | `tools/psync/` 或 `scripts/psync/` | **新** | | | | | |
 | `docs/ir-schema.json` | **新** | | | | | |
 | `meta/generate_property_sync.cpp` | | IR 入口 | | | | 可选删 clang |

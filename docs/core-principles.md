@@ -256,7 +256,7 @@ Record/Replay、字段索引、encode/decode、Proxy 特化手写极易漏。探
 
 ```text
 路径 B（合同主路径）          路径 A（C++ inch，现行）
-dsl/*.psync                   头文件 Meta(property)
+tools/psync/testdata/dsl/*.psync（自测）/ examples/*/dsl/*.psync   头文件 Meta(property)
      │                              │
      ▼                              ▼
 tools/psync → IR JSON          generate_property_sync（libclang）

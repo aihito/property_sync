@@ -9,7 +9,7 @@
 
 | 层级 | 验证什么 | 命令 / 目标 | 依赖 |
 |------|----------|-------------|------|
-| **T1 词法语法** | `dsl/*.psync` 可解析 | `psync check` | Go |
+| **T1 词法语法** | `tools/psync/testdata/dsl/*.psync` 可解析 | `psync check` | Go |
 | **T2 IR golden** | 编译 IR ≡ `tools/psync/testdata/ir` | `go test ./internal/compile` | Go |
 | **T3 Emit 语义** | DSL emit ≡ Meta/generated inch | `go test ./internal/emit` | Go + 已有 inch |
 | **T4 Native wire** | `--native-wire` 出 `list`/`dict` | `psync emit --native-wire` | Go |
@@ -73,8 +73,8 @@ cmake --build build --target rpg_player_generate -j"$(nproc)"
 
 ```bash
 export PYTHONPATH="$REPO/tools"
-python3 -m psync check dsl/player.psync --root .
-# 期望：ok: dsl/player.psync
+psync check tools/psync/testdata/dsl/player.psync --root tools/psync/testdata
+# 期望：ok: …/dsl/player.psync
 ```
 
 失败时 stderr 打印 `ERROR [V*]`（见 `docs/dsl-design.md` 校验规则）。
@@ -89,7 +89,7 @@ python3 -m unittest psync.tests.test_golden -v
 刷新 golden（**仅在有意改 DSL/IR 合同后**）：
 
 ```bash
-python3 -m psync compile dsl/player.psync -o testdata/ir --root . --no-bundle
+psync compile tools/psync/testdata/dsl/player.psync -o tools/psync/testdata/ir --root tools/psync/testdata --no-bundle
 ```
 
 ### 3.3 T3 — DSL Emit ≡ Meta
@@ -114,14 +114,14 @@ cmake --build build --target rpg_player_dsl_check -j
 手动 emit：
 
 ```bash
-psync emit dsl/player.psync -o /tmp/from-dsl --root .
+psync emit tools/psync/testdata/dsl/player.psync -o /tmp/from-dsl --root .
 # 默认：list→vector、dict→map（与现 Meta / 旧测例对齐）
 ```
 
 ### 3.4 T4 — Native wire（S4）
 
 ```bash
-psync emit dsl/player.psync -o /tmp/native --root . --native-wire
+psync emit tools/psync/testdata/dsl/player.psync -o /tmp/native --root . --native-wire
 # Player.schema.json 中 tags.wire_kind == "list"，attrs == "dict"
 ```
 
@@ -159,7 +159,7 @@ cmake --build build --target rpg_player_proto_check -j
 
 ```bash
 # 手动
-PYTHONPATH=tools python3 -m psync emit dsl/player.psync -o /tmp/from-dsl --root .
+PYTHONPATH=tools python3 -m psync emit tools/psync/testdata/dsl/player.psync -o /tmp/from-dsl --root .
 # 先跑 example 生成 fixtures/lua_mutates.json（若无）
 cmake --build build --target rpg_player_example_run
 lua examples/lua_record/lua/lua_record_test.lua /tmp/from-dsl/lua \
@@ -227,7 +227,7 @@ cmake --build build --target rpg_player_proto_check -j   # 可选
 
 ```text
 路径 A：头文件 Meta ──► inch（C++ Record）+ schema/lua/proto
-路径 B：dsl/*.psync ──► IR ──► schema/lua/proto（from_dsl）
+路径 B：tools/psync/testdata/dsl/*.psync ──► IR ──► schema/lua/proto（from_dsl）
          CI：路径 B ≡ 路径 A（语义）
 ```
 

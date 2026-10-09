@@ -180,7 +180,7 @@ func RepoRoot() string {
 	}
 	dir := wd
 	for {
-		if _, err := os.Stat(filepath.Join(dir, "dsl", "player.psync")); err == nil {
+		if _, err := os.Stat(filepath.Join(dir, "tools", "psync", "testdata", "dsl", "player.psync")); err == nil {
 			return dir
 		}
 		if strings.HasSuffix(filepath.ToSlash(dir), "/tools/psync") {

@@ -30,10 +30,10 @@
 | 一个文件 | 可含多个 `flags` / `class`；用 `import "other.psync"` 拆分 |
 | 大小写 | 类型关键字小写；类名 / flag 名 Pascal 或 snake 均可，**生成后保持原样** |
 
-推荐目录：
+推荐目录（示例真相源放在各 example 下；psync 自测样例在 `tools/psync/testdata/dsl/`）：
 
 ```text
-dsl/
+tools/psync/testdata/dsl/   # 或 examples/<name>/dsl/
   flags.psync
   items.psync
   player.psync
@@ -245,7 +245,7 @@ entity Player {
 
 ## 8. 完整示例（覆盖 rpg_player）
 
-### `dsl/flags.psync`
+### `tools/psync/testdata/dsl/flags.psync`
 
 ```text
 flags RpgFlags {
@@ -258,7 +258,7 @@ flags RpgFlags {
 }
 ```
 
-### `dsl/items.psync`
+### `tools/psync/testdata/dsl/items.psync`
 
 ```text
 import "flags.psync"
@@ -297,7 +297,7 @@ vec_item LoginRecord {
 }
 ```
 
-### `dsl/player.psync`
+### `tools/psync/testdata/dsl/player.psync`
 
 ```text
 import "items.psync"
@@ -437,4 +437,4 @@ vec_item Rec   { version 1; 0: ts float [clients] }
 
 ## 14. 实施
 
-语法与样例已定稿（`dsl/*.psync`）。**实施阶段、改动面与验收**见 [dsl-implementation-plan.md](./dsl-implementation-plan.md)（S0→S8）。
+语法与样例已定稿（`tools/psync/testdata/dsl/*.psync`）。**实施阶段、改动面与验收**见 [dsl-implementation-plan.md](./dsl-implementation-plan.md)（S0→S8）。

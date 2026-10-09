@@ -17,7 +17,7 @@
 | [dsl-implementation-plan.md](./dsl-implementation-plan.md) | **实施看板**：S0–S8 阶段、改动面、验收、PR 粒度 |
 | [dsl-test.md](./dsl-test.md) | **DSL/IR/Emit 测试文档**：命令、判定、CMake 目标、排障 |
 | [ir-schema.json](./ir-schema.json) | IR JSON Schema（`psync` 输出合同） |
-| [`../dsl/`](../dsl/) | DSL 样例源文件（`flags` / `items` / `player`） |
+| [`../tools/psync/testdata/dsl/`](../tools/psync/testdata/dsl/) | psync 测试用 DSL 样例（`flags` / `items` / `player`） |
 | [`../tools/psync/`](../tools/psync/) | `.psync` → IR 编译器（S1） |
 | [`../tools/psync/testdata/ir/`](../tools/psync/testdata/ir/) | IR golden 对拍 |
 
