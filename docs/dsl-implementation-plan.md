@@ -14,7 +14,7 @@
 | 中间层 | `ClassModel`（生成器内隐式） | 显式 **IR JSON**（可落盘、可 diff） |
 | C++ Rec/Rep | Meta 生成 inch | IR → 同产物（可暂双轨） |
 | Lua Rep | Meta 生成 + runtime | IR → 生成（runtime 适配 `list`/`dict`） |
-| Lua Rec | 无 | IR → `*_record.lua` + record 引擎 |
+| Lua Rec | 无 | IR → `*_meta.lua` + `property_record.bind` |
 | 验收 | C++ 测 + Lua batch/snapshot/mixed | + DSL→IR golden；+ 交叉 Rec/Rep |
 
 ```text
@@ -167,12 +167,13 @@ CMake: rpg_player_lua_record
 **API：**
 
 ```lua
-local PlayerRecord = require("Player_record")
-local rec = PlayerRecord.new()  -- need_flag_names = { "sync_clients" }
-PlayerRecord.set_hp(rec, 80)
-PlayerRecord.pos_item_change(rec, 1, 3.5)
-PlayerRecord.tags_push(rec, "vip")
-PlayerRecord.attrs_insert(rec, "atk", 100)
+local Record = require("property_record")
+local Meta = require("Player_meta")
+local rec = Record.bind(Meta)  -- need_flag_names 默认 sync_clients；Meta.FLAGS
+rec.hp = 80
+rec.pos:item_change(1, 3.5)
+rec.tags:push("vip")
+rec.attrs.atk = 100
 local batch = rec:drain()  -- {offset,cmd,flag,data,offset_is_record=false}
 ```
 

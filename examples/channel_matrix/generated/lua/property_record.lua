@@ -6,9 +6,9 @@
 --   meta         = *_meta.lua (fields / wire_kind / flags / INDEX)
 --   Record facade = metatable over (obj, meta): assign + container proxies
 --
--- Preferred call style (源表 + meta + 元表门面):
---   local data = PlayerMeta.new_default()
---   local rec = Record.bind(PlayerMeta, { obj = data, flags = FLAGS })
+-- Preferred call style (no per-class *_record.lua):
+--   local Meta = require("Player_meta")   -- Meta.FLAGS from emit
+--   local rec = Record.bind(Meta)         -- or Record.open(Meta, existing_obj)
 --   rec.hp = 80
 --   rec.tags:push("vip")
 --   rec.attrs.atk = 100
@@ -30,25 +30,26 @@ local Record = {}
 -- NOTE: instances use custom __index / __newindex; do not set Record.__index.
 
 local CMD = Runtime.CMD
+local W = Runtime.WIRE
 
 -- STL 序列：整表 set / push·pop·erase（array 无 push，改用 item_change）
 local function is_seq_kind(kind)
-  return kind == "vector" or kind == "list" or kind == "array"
+  return kind == W.list or kind == W.array
 end
 
 -- STL 字典：整表 set / 子键赋值 / insert·erase
 local function is_dict_kind(kind)
-  return kind == "map" or kind == "dict"
+  return kind == W.dict
 end
 
 -- 标量：门面 __newindex 直接 commit(set)；__index 返回源表值（无代理）
 local function is_scalar_kind(kind)
-  return kind == "number" or kind == "string" or kind == "bool" or kind == "object" or kind == "other"
+  return kind == W.number or kind == W.string or kind == W.bool or kind == W.object or kind == W.other
 end
 
 -- 复杂容器：禁止整表赋值；经 FieldProxy / ItemProxy 操作
 local function is_complex_container(kind)
-  return kind == "bag" or kind == "slots" or kind == "vec"
+  return kind == W.bag or kind == W.slots or kind == W.vec
 end
 
 -- encode_item_pairs：跳过默认标量，减少 sync 载荷
@@ -74,55 +75,21 @@ local function item_field_record_offset(field_index)
   return field_index + 1
 end
 
---- Resolve alias/bit names → uint64 mask (1<<bit).
-local function resolve_mask(names, flags_def)
-  if not names or #names == 0 then
-    return 0
-  end
-  flags_def = flags_def or {}
-  local bits = flags_def.bits or {}
-  local aliases = flags_def.aliases or {}
-  local mask = 0
-  local function add_name(name)
-    if name == "*" then
-      -- all bits: approximate with max uint53 safe for Lua numbers
-      mask = 0x1fffffffffffff
-      return
-    end
-    if bits[name] ~= nil then
-      mask = mask | (1 << bits[name])
-      return
-    end
-    local alias = aliases[name]
-    if alias then
-      if alias[1] == "*" then
-        mask = 0x1fffffffffffff
-        return
-      end
-      for _, part in ipairs(alias) do
-        add_name(part)
-      end
-      return
-    end
-    error("unknown flag name: " .. tostring(name))
-  end
-  for _, n in ipairs(names) do
-    add_name(n)
-  end
-  return mask
+--- Resolve name list or numeric mask → uint mask (delegates to Runtime; Lua 5.4+).
+local function resolve_mask(names_or_mask, flags_def)
+  return Runtime.resolve_mask(names_or_mask, flags_def)
 end
 
--- C++ include_by: (need & data) == need
 local function include_by(need_mask, data_mask)
-  return (need_mask & data_mask) == need_mask
+  return Runtime.include_by(need_mask, data_mask)
 end
 
 local function check_scalar_value(kind, value, name)
-  if kind == "number" and type(value) ~= "number" then
+  if kind == W.number and type(value) ~= "number" then
     error("field " .. name .. " expects number, got " .. type(value))
-  elseif kind == "string" and type(value) ~= "string" then
+  elseif kind == W.string and type(value) ~= "string" then
     error("field " .. name .. " expects string, got " .. type(value))
-  elseif kind == "bool" and type(value) ~= "boolean" then
+  elseif kind == W.bool and type(value) ~= "boolean" then
     error("field " .. name .. " expects boolean, got " .. type(value))
   end
 end
@@ -134,19 +101,19 @@ local function resolve_raw_item(rec, name, kind, locator)
   if not container then
     return nil, nil
   end
-  if kind == "bag" then
+  if kind == W.bag then
     local lua_idx = container.id_to_idx[locator]
     if not lua_idx then
       return nil, nil
     end
     return container.items[lua_idx], lua_idx - 1
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     local it = container.by_slot[locator]
     if not it then
       return nil, nil
     end
     return it, locator
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     local it = container[locator + 1]
     if not it then
       return nil, nil
@@ -188,11 +155,11 @@ local function item_proxy_newindex(self, key, value)
   end
   check_scalar_value(item_field.wire_kind, value, key)
   local kind = self._kind
-  if kind == "bag" then
+  if kind == W.bag then
     return self._rec:bag_item_set(self._name, self._loc, key, value)
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     return self._rec:slots_item_set(self._name, self._loc, key, value)
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     return self._rec:vec_item_set(self._name, self._loc, key, value)
   end
   error("item assign unsupported for " .. tostring(kind))
@@ -226,7 +193,7 @@ local function field_proxy_index(self, key)
   if is_dict_kind(kind) then
     local m = self._rec.obj[self._name]
     return m and m[key] or nil
-  elseif kind == "bag" or kind == "slots" or kind == "vec" then
+  elseif kind == W.bag or kind == W.slots or kind == W.vec then
     return make_item_proxy(self._rec, self._name, kind, key)
   end
   return nil
@@ -255,7 +222,7 @@ function FieldProxy:get(locator)
     return self._rec.obj[self._name]
   end
   local kind = self._rec:field(self._name).wire_kind
-  if kind == "bag" or kind == "slots" or kind == "vec" then
+  if kind == W.bag or kind == W.slots or kind == W.vec then
     return make_item_proxy(self._rec, self._name, kind, locator)
   end
   error("get(locator): " .. self._name .. " is not bag/slots/vec")
@@ -282,7 +249,7 @@ end
 
 function FieldProxy:push(value)
   local kind = self._rec:field(self._name).wire_kind
-  if kind == "vec" then
+  if kind == W.vec then
     return self._rec:vec_push(self._name, value)
   end
   return self._rec:push(self._name, value)
@@ -290,7 +257,7 @@ end
 
 function FieldProxy:pop()
   local kind = self._rec:field(self._name).wire_kind
-  if kind == "vec" then
+  if kind == W.vec then
     return self._rec:vec_pop(self._name)
   end
   return self._rec:pop(self._name)
@@ -298,7 +265,7 @@ end
 
 function FieldProxy:add(idx, value)
   local kind = self._rec:field(self._name).wire_kind
-  if kind == "vec" then
+  if kind == W.vec then
     return self._rec:vec_insert(self._name, idx, value)
   end
   return self._rec:seq_add(self._name, idx, value)
@@ -308,13 +275,13 @@ function FieldProxy:erase(a, b)
   local kind = self._rec:field(self._name).wire_kind
   if is_dict_kind(kind) then
     return self._rec:erase_key(self._name, a)
-  elseif kind == "bag" then
+  elseif kind == W.bag then
     return self._rec:bag_erase(self._name, a)
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     return self._rec:slots_erase_slot(self._name, a)
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     return self._rec:vec_erase(self._name, a, b)
-  elseif kind == "vector" or kind == "list" then
+  elseif kind == W.list then
     return self._rec:seq_erase(self._name, a, b)
   end
   error("erase: unsupported for " .. tostring(kind))
@@ -324,11 +291,11 @@ function FieldProxy:insert(a, b)
   local kind = self._rec:field(self._name).wire_kind
   if is_dict_kind(kind) then
     return self._rec:insert(self._name, a, b)
-  elseif kind == "bag" then
+  elseif kind == W.bag then
     return self._rec:bag_insert(self._name, a)
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     return self._rec:slots_insert(self._name, a)
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     return self._rec:vec_insert(self._name, a, b)
   end
   error("insert: unsupported for " .. tostring(kind))
@@ -337,16 +304,16 @@ end
 --- Ensure bag item exists; returns ItemProxy (never raw table).
 function FieldProxy:get_insert(id)
   self._rec:bag_get_insert(self._name, id)
-  return make_item_proxy(self._rec, self._name, "bag", id)
+  return make_item_proxy(self._rec, self._name, W.bag, id)
 end
 
 function FieldProxy:item_set(locator, field_name, value)
   local kind = self._rec:field(self._name).wire_kind
-  if kind == "bag" then
+  if kind == W.bag then
     return self._rec:bag_item_set(self._name, locator, field_name, value)
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     return self._rec:slots_item_set(self._name, locator, field_name, value)
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     return self._rec:vec_item_set(self._name, locator, field_name, value)
   end
   error("item_set: unsupported for " .. tostring(kind))
@@ -479,7 +446,11 @@ function Record:field(name)
 end
 
 function Record:field_mask(field)
-  return resolve_mask(field.flags, self.flags_def)
+  local f = field.flags
+  if type(f) == "number" then
+    return f
+  end
+  return resolve_mask(f, self.flags_def)
 end
 
 function Record:is_flag_need(data_mask)
@@ -541,7 +512,7 @@ function Record:encode_item_pairs(item, item_meta)
   for _, f in ipairs(item_meta.fields or {}) do
     local v = item[f.name]
     if v ~= nil and not is_default_scalar(v) then
-      local mask = resolve_mask(f.flags, self.flags_def)
+      local mask = self:field_mask(f)
       if self:is_flag_need(mask) then
         pairs[#pairs + 1] = { f.index, v }
       end
@@ -553,7 +524,7 @@ end
 function Record:commit_item_change(container_field, locator, item_field, value)
   local record_off = item_field_record_offset(item_field.index)
   local data = { locator, record_off, CMD.set, value }
-  local data_mask = resolve_mask(item_field.flags, self.flags_def)
+  local data_mask = self:field_mask(item_field)
   self:commit(container_field, CMD.item_change, data, data_mask)
 end
 
@@ -586,7 +557,7 @@ function Record:clear(name)
   local f = self:field(name)
   local kind = f.wire_kind
   if is_scalar_kind(kind) or is_seq_kind(kind) or is_dict_kind(kind)
-      or kind == "bag" or kind == "slots" or kind == "vec" then
+      or kind == W.bag or kind == W.slots or kind == W.vec then
     self:commit(f, CMD.clear, nil)
     return
   end
@@ -605,7 +576,7 @@ end
 
 function Record:push(name, value)
   local f = self:field(name)
-  if f.wire_kind ~= "vector" and f.wire_kind ~= "list" then
+  if f.wire_kind ~= W.list then
     error("push: " .. name .. " must be list/vector")
   end
   self:commit(f, CMD.push, value)
@@ -613,7 +584,7 @@ end
 
 function Record:pop(name)
   local f = self:field(name)
-  if f.wire_kind ~= "vector" and f.wire_kind ~= "list" then
+  if f.wire_kind ~= W.list then
     error("pop: " .. name .. " must be list/vector")
   end
   self:commit(f, CMD.pop, nil)
@@ -629,7 +600,7 @@ end
 
 function Record:seq_add(name, idx, value)
   local f = self:field(name)
-  if f.wire_kind ~= "vector" and f.wire_kind ~= "list" then
+  if f.wire_kind ~= W.list then
     error("seq_add: " .. name .. " must be list/vector")
   end
   self:commit(f, CMD.add, { idx, value })
@@ -637,7 +608,7 @@ end
 
 function Record:seq_erase(name, idx, count)
   local f = self:field(name)
-  if f.wire_kind ~= "vector" and f.wire_kind ~= "list" then
+  if f.wire_kind ~= W.list then
     error("seq_erase: " .. name .. " must be list/vector")
   end
   if count and count > 1 then
@@ -677,7 +648,7 @@ end
 
 function Record:bag_insert(name, item)
   local f = self:field(name)
-  if f.wire_kind ~= "bag" then
+  if f.wire_kind ~= W.bag then
     error("bag_insert: " .. name .. " must be bag")
   end
   local pairs = self:encode_item_pairs(item, f.item_meta)
@@ -686,7 +657,7 @@ end
 
 function Record:bag_erase(name, id)
   local f = self:field(name)
-  if f.wire_kind ~= "bag" then
+  if f.wire_kind ~= W.bag then
     error("bag_erase: " .. name .. " must be bag")
   end
   self:commit(f, CMD.erase, id)
@@ -694,7 +665,7 @@ end
 
 function Record:bag_get_insert(name, id)
   local f = self:field(name)
-  if f.wire_kind ~= "bag" then
+  if f.wire_kind ~= W.bag then
     error("bag_get_insert: " .. name .. " must be bag")
   end
   local bag = self.obj[f.name]
@@ -708,7 +679,7 @@ end
 
 function Record:bag_item_set(name, id, field_name, value)
   local f = self:field(name)
-  if f.wire_kind ~= "bag" then
+  if f.wire_kind ~= W.bag then
     error("bag_item_set: " .. name .. " must be bag")
   end
   local bag = self.obj[f.name]
@@ -727,7 +698,7 @@ end
 
 function Record:slots_resize(name, size)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_resize: " .. name .. " must be slots")
   end
   self:commit(f, CMD.slot_resize, size)
@@ -736,7 +707,7 @@ end
 --- Insert item; silent no-op (no enqueue) if slot out of capacity — mirrors C++.
 function Record:slots_insert(name, item)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_insert: " .. name .. " must be slots")
   end
   local slots = self.obj[f.name]
@@ -757,7 +728,7 @@ end
 
 function Record:slots_erase_slot(name, slot)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_erase_slot: " .. name .. " must be slots")
   end
   self:commit(f, CMD.erase, slot)
@@ -765,7 +736,7 @@ end
 
 function Record:slots_erase_id(name, id)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_erase_id: " .. name .. " must be slots")
   end
   local slots = self.obj[f.name]
@@ -778,7 +749,7 @@ end
 
 function Record:slots_swap(name, a, b)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_swap: " .. name .. " must be slots")
   end
   self:commit(f, CMD.slot_swap, { a, b })
@@ -786,7 +757,7 @@ end
 
 function Record:slots_move(name, from, to)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_move: " .. name .. " must be slots")
   end
   self:commit(f, CMD.slot_move, { from, to })
@@ -794,7 +765,7 @@ end
 
 function Record:slots_item_set(name, slot, field_name, value)
   local f = self:field(name)
-  if f.wire_kind ~= "slots" then
+  if f.wire_kind ~= W.slots then
     error("slots_item_set: " .. name .. " must be slots")
   end
   local item_field = find_item_field(f.item_meta, field_name)
@@ -819,7 +790,7 @@ end
 
 function Record:vec_push(name, item)
   local f = self:field(name)
-  if f.wire_kind ~= "vec" then
+  if f.wire_kind ~= W.vec then
     error("vec_push: " .. name .. " must be vec")
   end
   local pairs = self:encode_item_pairs(item, f.item_meta)
@@ -828,7 +799,7 @@ end
 
 function Record:vec_pop(name)
   local f = self:field(name)
-  if f.wire_kind ~= "vec" then
+  if f.wire_kind ~= W.vec then
     error("vec_pop: " .. name .. " must be vec")
   end
   self:commit(f, CMD.pop, nil)
@@ -836,7 +807,7 @@ end
 
 function Record:vec_insert(name, idx, item)
   local f = self:field(name)
-  if f.wire_kind ~= "vec" then
+  if f.wire_kind ~= W.vec then
     error("vec_insert: " .. name .. " must be vec")
   end
   local pairs = self:encode_item_pairs(item, f.item_meta)
@@ -845,7 +816,7 @@ end
 
 function Record:vec_erase(name, idx, count)
   local f = self:field(name)
-  if f.wire_kind ~= "vec" then
+  if f.wire_kind ~= W.vec then
     error("vec_erase: " .. name .. " must be vec")
   end
   -- C++ erase_multi always encodes [idx, num]; bare erase encodes idx alone.
@@ -858,7 +829,7 @@ end
 
 function Record:vec_item_set(name, idx, field_name, value)
   local f = self:field(name)
-  if f.wire_kind ~= "vec" then
+  if f.wire_kind ~= W.vec then
     error("vec_item_set: " .. name .. " must be vec")
   end
   local item_field = find_item_field(f.item_meta, field_name)

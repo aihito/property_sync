@@ -72,20 +72,27 @@ target_compile_features(lua_record_replay_json PRIVATE cxx_std_17)
 if(LUA_EXECUTABLE)
 	set(LR_LUA_PATH "${LR_GEN}/lua/?.lua;${LR_ROOT}/lua/?.lua;;")
 
-	add_custom_target(lua_record_test
+	# Single CppRec producer — parallel test/replay/cross must not rewrite fixtures.
+	add_custom_target(lua_record_fixtures
 		COMMAND $<TARGET_FILE:lua_record_cpp>
+		WORKING_DIRECTORY ${LR_FIX}
+		DEPENDS lua_record_cpp
+		COMMENT "lua_record: CppRec → fixtures/*.json"
+		VERBATIM
+	)
+
+	add_custom_target(lua_record_test
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_record_test.lua
 			${LR_GEN}/lua
 			${LR_FIX}/lua_mutates.json
 		WORKING_DIRECTORY ${LR_FIX}
-		DEPENDS lua_record_cpp lua_record_generate
+		DEPENDS lua_record_fixtures lua_record_generate
 		COMMENT "lua_record: API matrix + S5/S6 vs C++ mutates"
 		VERBATIM
 	)
 
 	add_custom_target(lua_record_replay
-		COMMAND $<TARGET_FILE:lua_record_cpp>
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --batch
@@ -103,13 +110,12 @@ if(LUA_EXECUTABLE)
 			${LR_FIX}/lua_mutates_after_checkpoint.json
 			${LR_FIX}/lua_sync_view.json
 		WORKING_DIRECTORY ${LR_FIX}
-		DEPENDS lua_record_cpp
+		DEPENDS lua_record_fixtures
 		COMMENT "lua_record: CppRec→LuaRep batch/snapshot/mixed"
 		VERBATIM
 	)
 
 	add_custom_target(lua_record_cross
-		COMMAND $<TARGET_FILE:lua_record_cpp>
 		COMMAND ${CMAKE_COMMAND} -E env "LUA_PATH=${LR_LUA_PATH}"
 			${LUA_EXECUTABLE} ${LR_ROOT}/lua/lua_replay.lua
 			${LR_GEN}/lua --batch
@@ -121,7 +127,7 @@ if(LUA_EXECUTABLE)
 			${LR_FIX}
 			--cpp-replay $<TARGET_FILE:lua_record_replay_json>
 		WORKING_DIRECTORY ${LR_FIX}
-		DEPENDS lua_record_cpp lua_record_replay_json
+		DEPENDS lua_record_fixtures lua_record_replay_json
 		COMMENT "lua_record: S7 cross matrix"
 		VERBATIM
 	)

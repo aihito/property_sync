@@ -9,7 +9,7 @@ local lua_dir = assert(arg[1], "usage: lua lua_record_test.lua <lua_dir> [cpp_mu
 package.path = lua_dir .. "/?.lua;" .. package.path
 
 local json = require("json")
-local PlayerRecord = require("Player_record")
+local Record = require("property_record")
 local PlayerMeta = require("Player_meta")
 
 local function deep_equal(a, b)
@@ -74,7 +74,7 @@ end
 -- ============================================================================
 do
   local data = PlayerMeta.new_default()
-  local rec = PlayerRecord.open(data)
+  local rec = Record.open(PlayerMeta, data)
   assert(rec:data() == data, "open: 源表 identity")
 
   -- ---- scalar (number / string) ----
@@ -228,7 +228,7 @@ end
 -- S5: 场景回放（标量/array/vector/map）
 -- ============================================================================
 do
-  local rec = PlayerRecord.new()
+  local rec = Record.bind(PlayerMeta)
   rec.nickname = "Alice"
   rec.hp = 80
   rec:clear("hp")
@@ -257,7 +257,7 @@ end
 -- ============================================================================
 local batch_s6
 do
-  local rec2 = PlayerRecord.new()
+  local rec2 = Record.bind(PlayerMeta)
   rec2.inventory:insert({ id = 1001, count = 1, name = "HP Potion" })
   rec2.inventory[1001].count = 5
   rec2.inventory[1001].name = "Greater HP Potion"

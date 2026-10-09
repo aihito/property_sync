@@ -205,7 +205,8 @@ Record 门面       = 元表：__newindex 按 wire_kind 分流；容器读出代
 ```lua
 local Meta = require("Player_meta")
 local data = Meta.new_default()                 -- 源表
-local rec = require("Player_record").open(data) -- 或 .new{ obj = data }
+local Record = require("property_record")
+local rec = Record.open(require("Player_meta"), data) -- 或 Record.bind(Meta)
 
 rec.hp = 80                                     -- 标量赋值 → commit(set)
 rec.tags = { "warrior" }                        -- 整表替换

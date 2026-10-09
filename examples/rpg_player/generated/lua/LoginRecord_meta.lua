@@ -10,9 +10,9 @@ local M = {
   has_slot = false,
   has_bag_id = false,
   fields = {
-    { index = 0, name = "login_ts", wire_kind = "number", flags = { "sync_clients",  } },
-    { index = 1, name = "logout_ts", wire_kind = "number", flags = { "sync_clients",  } },
-    { index = 2, name = "ip", wire_kind = "string", flags = { "save_db",  } },
+    { index = 0, name = "login_ts", wire_kind = Runtime.WIRE.number, flags = { "sync_clients",  } },
+    { index = 1, name = "logout_ts", wire_kind = Runtime.WIRE.number, flags = { "sync_clients",  } },
+    { index = 2, name = "ip", wire_kind = Runtime.WIRE.string, flags = { "save_db",  } },
   },
   INDEX = {
     login_ts = 0,

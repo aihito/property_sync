@@ -21,34 +21,69 @@ local CMD = {
 }
 Runtime.CMD = CMD
 
--- Flags that participate in observer / client sync (annotation names).
-local SYNC_FLAG_SET = {
-  sync_clients = true,
-  sync_self = true,
-  sync_other = true,
-  sync_ghost = true,
+-- Class kind (DSL); attach_meta derives has_bag_id / has_slot from this.
+Runtime.KIND = {
+  entity = 0,
+  object = 1,
+  bag_item = 2,
+  slot_item = 3,
+  vec_item = 4,
 }
 
-local SAVE_DB_FLAG_SET = {
-  save_db = true,
+-- Field wire_kind (DSL / emit). Legacy Meta names vector/map alias list/dict.
+Runtime.WIRE = {
+  number = 0,
+  string = 1,
+  bool = 2,
+  array = 3,
+  list = 4,
+  dict = 5,
+  bag = 6,
+  slots = 7,
+  vec = 8,
+  object = 9,
+  other = 10,
 }
+Runtime.WIRE.vector = Runtime.WIRE.list
+Runtime.WIRE.map = Runtime.WIRE.dict
 
-local function flag_set_from_names(names)
-  if not names or #names == 0 then
-    return SYNC_FLAG_SET
+local W = Runtime.WIRE
+
+--- Resolve flag name list or numeric mask → uint mask (Lua 5.4+).
+--- flags_def is flat: { save_db = 1<<0, sync_clients = ... }.
+function Runtime.resolve_mask(names_or_mask, flags_def)
+  if type(names_or_mask) == "number" then
+    return names_or_mask
   end
-  local set = {}
-  for _, n in ipairs(names) do
-    if n == "sync_clients" then
-      set.sync_clients = true
-      set.sync_self = true
-      set.sync_other = true
-      set.sync_ghost = true
-    else
-      set[n] = true
+  if not names_or_mask or #names_or_mask == 0 then
+    return 0
+  end
+  flags_def = flags_def or {}
+  local mask = 0
+  for _, name in ipairs(names_or_mask) do
+    if name == "*" then
+      return 0x1fffffffffffff
     end
+    local v = flags_def[name]
+    if type(v) ~= "number" then
+      error("unknown flag name: " .. tostring(name))
+    end
+    mask = mask | v
   end
-  return set
+  return mask
+end
+
+-- C++ include_by: (need & data) == need
+function Runtime.include_by(need_mask, data_mask)
+  return (need_mask & data_mask) == need_mask
+end
+
+local function field_flag_mask(field)
+  local f = field and field.flags
+  if type(f) == "number" then
+    return f
+  end
+  return 0
 end
 
 --- Convert property_record_offset uint64 → 0-based field path (top first).
@@ -99,31 +134,30 @@ function Runtime.resolve_path(msg)
   return Runtime.replay_offset_to_path(msg.offset)
 end
 
--- Wire aliases: DSL uses list/dict; Meta path historically emitted vector/map.
 local function is_seq_kind(kind)
-  return kind == "vector" or kind == "list" or kind == "array"
+  return kind == W.list or kind == W.array -- list ≡ vector
 end
 
 local function is_dict_kind(kind)
-  return kind == "map" or kind == "dict"
+  return kind == W.dict -- dict ≡ map
 end
 
 local function default_for_kind(kind)
-  if kind == "bag" then
+  if kind == W.bag then
     return { items = {}, id_to_idx = {} }
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     return { size = 0, by_slot = {}, by_id = {} }
-  elseif kind == "vec" or is_seq_kind(kind) then
+  elseif kind == W.vec or is_seq_kind(kind) then
     return {}
   elseif is_dict_kind(kind) then
     return {}
-  elseif kind == "string" then
+  elseif kind == W.string then
     return ""
-  elseif kind == "number" then
+  elseif kind == W.number then
     return 0
-  elseif kind == "bool" then
+  elseif kind == W.bool then
     return false
-  elseif kind == "object" then
+  elseif kind == W.object then
     return {}
   end
   return nil
@@ -450,7 +484,7 @@ function Runtime.apply_mutate(obj, msg, meta)
   local kind = field.wire_kind
   local slot = obj[field.name]
 
-  if kind == "number" or kind == "string" or kind == "bool" or kind == "object" or kind == "other" then
+  if kind == W.number or kind == W.string or kind == W.bool or kind == W.object or kind == W.other then
     if cmd == CMD.set then
       obj[field.name] = data
       return true
@@ -462,7 +496,7 @@ function Runtime.apply_mutate(obj, msg, meta)
     return vector_apply(slot, cmd, data)
   elseif is_dict_kind(kind) then
     return map_apply(slot, cmd, data)
-  elseif kind == "bag" then
+  elseif kind == W.bag then
     if cmd == CMD.set then
       obj[field.name] = { items = {}, id_to_idx = {} }
       if type(data) == "table" then
@@ -481,12 +515,12 @@ function Runtime.apply_mutate(obj, msg, meta)
     elseif cmd == CMD.item_change then
       return bag_item_change(slot, data, field.item_meta)
     end
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     if cmd == CMD.clear then
-      obj[field.name] = default_for_kind("slots")
+      obj[field.name] = default_for_kind(W.slots)
       return true
     elseif cmd == CMD.set then
-      local s = default_for_kind("slots")
+      local s = default_for_kind(W.slots)
       if type(data) == "table" then
         s.size = data.sz or data.size or 0
         local rows = data.data or data
@@ -511,7 +545,7 @@ function Runtime.apply_mutate(obj, msg, meta)
     elseif cmd == CMD.item_change then
       return slots_item_change(slot, data, field.item_meta)
     end
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     if cmd == CMD.set then
       obj[field.name] = {}
       if type(data) == "table" then
@@ -587,14 +621,14 @@ function Runtime.load_snapshot(obj, snap, meta)
     if snap[f.name] ~= nil then
       local kind = f.wire_kind
       local raw = snap[f.name]
-      if kind == "bag" and type(raw) == "table" then
+      if kind == W.bag and type(raw) == "table" then
         local bag = { items = {}, id_to_idx = {} }
         for _, row in ipairs(raw) do
           bag_add(bag, row, f.item_meta)
         end
         obj[f.name] = bag
-      elseif kind == "slots" and type(raw) == "table" then
-        local s = default_for_kind("slots")
+      elseif kind == W.slots and type(raw) == "table" then
+        local s = default_for_kind(W.slots)
         s.size = raw.sz or raw.size or 0
         local rows = raw.data
         if type(rows) == "table" then
@@ -603,7 +637,7 @@ function Runtime.load_snapshot(obj, snap, meta)
           end
         end
         obj[f.name] = s
-      elseif kind == "vec" and type(raw) == "table" then
+      elseif kind == W.vec and type(raw) == "table" then
         local vec = {}
         for _, row in ipairs(raw) do
           vec_push_item(vec, row, f.item_meta)
@@ -623,28 +657,11 @@ end
 
 -- ---------- encode_sync_view (C++ encode_with_flag mirror) ----------
 
-local function flags_match_set(flags, need_set)
-  if not flags or #flags == 0 then
-    return true
-  end
-  for _, name in ipairs(flags) do
-    if need_set[name] then
-      return true
-    end
-  end
-  return false
-end
-
-local function flags_match_sync(flags)
-  return flags_match_set(flags, SYNC_FLAG_SET)
-end
-
 local function is_default_scalar(v)
   return v == nil or v == 0 or v == "" or v == false
 end
 
-local function encode_item_object(item, item_meta, ignore_default, need_set)
-  need_set = need_set or SYNC_FLAG_SET
+local function encode_item_object(item, item_meta, ignore_default, need_mask)
   local out = {}
   if item_meta and item_meta.has_bag_id and item.id ~= nil then
     out.id = item.id
@@ -654,7 +671,8 @@ local function encode_item_object(item, item_meta, ignore_default, need_set)
   end
   if item_meta then
     for _, f in ipairs(item_meta.fields) do
-      if flags_match_set(f.flags, need_set) then
+      local fm = field_flag_mask(f)
+      if need_mask == 0 or Runtime.include_by(need_mask, fm) then
         local v = item[f.name]
         if v ~= nil and (not ignore_default or not is_default_scalar(v)) then
           out[f.name] = v
@@ -671,15 +689,15 @@ local function encode_item_object(item, item_meta, ignore_default, need_set)
   return out
 end
 
-local function encode_field_value(value, field, ignore_default, need_set)
+local function encode_field_value(value, field, ignore_default, need_mask)
   local kind = field.wire_kind
-  if kind == "bag" then
+  if kind == W.bag then
     local arr = {}
     for _, it in ipairs(value.items or {}) do
-      arr[#arr + 1] = encode_item_object(it, field.item_meta, ignore_default, need_set)
+      arr[#arr + 1] = encode_item_object(it, field.item_meta, ignore_default, need_mask)
     end
     return arr
-  elseif kind == "slots" then
+  elseif kind == W.slots then
     local data = {}
     local max_slot = -1
     for slot, _ in pairs(value.by_slot or {}) do
@@ -690,14 +708,14 @@ local function encode_field_value(value, field, ignore_default, need_set)
     for slot = 0, math.max(max_slot, (value.size or 0) - 1) do
       local it = value.by_slot[slot]
       if it then
-        data[#data + 1] = encode_item_object(it, field.item_meta, ignore_default, need_set)
+        data[#data + 1] = encode_item_object(it, field.item_meta, ignore_default, need_mask)
       end
     end
     return { sz = value.size or 0, data = data }
-  elseif kind == "vec" then
+  elseif kind == W.vec then
     local arr = {}
     for _, it in ipairs(value) do
-      arr[#arr + 1] = encode_item_object(it, field.item_meta, ignore_default, need_set)
+      arr[#arr + 1] = encode_item_object(it, field.item_meta, ignore_default, need_mask)
     end
     return arr
   elseif is_dict_kind(kind) then
@@ -718,29 +736,38 @@ local function encode_field_value(value, field, ignore_default, need_set)
 end
 
 --- Mirror C++ encode_with_flag.
---- opts.need_flag_names = { "sync_clients" } | { "save_db" } (default sync_clients)
+--- opts.need_mask = number, or opts.need_flag_names = { "sync_clients" } (default sync_clients).
 function Runtime.encode_sync_view(obj, meta, opts)
   opts = opts or {}
   local ignore_default = opts.ignore_default
   if ignore_default == nil then
     ignore_default = true
   end
-  local need_set = flag_set_from_names(opts.need_flag_names)
+  local flags_def = meta.FLAGS or {}
+  local need_mask = opts.need_mask
+  if need_mask == nil then
+    if opts.need_flag_names then
+      need_mask = Runtime.resolve_mask(opts.need_flag_names, flags_def)
+    else
+      need_mask = flags_def.sync_clients or 0
+    end
+  end
   local out = {}
   for _, f in ipairs(meta.fields) do
-    if flags_match_set(f.flags, need_set) then
+    local fm = field_flag_mask(f)
+    if need_mask == 0 or Runtime.include_by(need_mask, fm) then
       local v = obj[f.name]
       if v ~= nil then
-        local encoded = encode_field_value(v, f, ignore_default, need_set)
+        local encoded = encode_field_value(v, f, ignore_default, need_mask)
         local skip = false
         if ignore_default then
-          if f.wire_kind == "number" or f.wire_kind == "string" or f.wire_kind == "bool" then
+          if f.wire_kind == W.number or f.wire_kind == W.string or f.wire_kind == W.bool then
             skip = is_default_scalar(encoded)
           elseif is_dict_kind(f.wire_kind) then
             skip = next(encoded) == nil
-          elseif is_seq_kind(f.wire_kind) or f.wire_kind == "vec" or f.wire_kind == "bag" then
+          elseif is_seq_kind(f.wire_kind) or f.wire_kind == W.vec or f.wire_kind == W.bag then
             skip = #encoded == 0
-          elseif f.wire_kind == "slots" then
+          elseif f.wire_kind == W.slots then
             skip = (encoded.sz or 0) == 0 and #(encoded.data or {}) == 0
           end
         end
@@ -753,13 +780,14 @@ function Runtime.encode_sync_view(obj, meta, opts)
   return out
 end
 
-Runtime.SYNC_FLAG_SET = SYNC_FLAG_SET
-Runtime.SAVE_DB_FLAG_SET = SAVE_DB_FLAG_SET
-Runtime.flag_set_from_names = flag_set_from_names
-
 --- Finish a generated *_meta.lua module: by_index / META / INDEX / helpers.
 function Runtime.attach_meta(M)
   assert(M and M.fields, "attach_meta: fields required")
+  local K = Runtime.KIND
+  local kind = M.kind or K.entity
+  M.kind = kind
+  M.has_bag_id = (kind == K.bag_item or kind == K.slot_item)
+  M.has_slot = (kind == K.slot_item)
   M.by_index = {}
   M.INDEX = M.INDEX or {}
   for _, f in ipairs(M.fields) do
@@ -770,6 +798,7 @@ function Runtime.attach_meta(M)
   end
   M.META = {
     fields = M.fields,
+    kind = kind,
     has_slot = M.has_slot,
     has_bag_id = M.has_bag_id,
     SCHEMA_VERSION = M.SCHEMA_VERSION,

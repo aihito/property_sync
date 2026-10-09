@@ -10,7 +10,7 @@ local work_dir = assert(arg[2], "need work_dir")
 package.path = lua_dir .. "/?.lua;" .. package.path
 
 local json = require("json")
-local PlayerRecord = require("Player_record")
+local Record = require("property_record")
 local PlayerMeta = require("Player_meta")
 
 local cpp_bin = nil
@@ -68,9 +68,9 @@ local function read_json(path)
 end
 
 local function run_lua_record_scenario()
-  -- 显式 源表 + meta 门面（与 PlayerRecord.new 等价，展示组合关系）
+  -- 显式 源表 + meta 门面
   local data = PlayerMeta.new_default()
-  local rec = PlayerRecord.new({ obj = data })
+  local rec = Record.bind(PlayerMeta, { obj = data })
 
   rec.nickname = "Alice"
   rec.level = 5

@@ -9,8 +9,8 @@ local M = {
   has_slot = false,
   has_bag_id = true,
   fields = {
-    { index = 1, name = "level", wire_kind = "number", flags = { "sync_clients",  } },
-    { index = 2, name = "expire_ts", wire_kind = "number", flags = { "sync_clients",  } },
+    { index = 1, name = "level", wire_kind = Runtime.WIRE.number, flags = { "sync_clients",  } },
+    { index = 2, name = "expire_ts", wire_kind = Runtime.WIRE.number, flags = { "sync_clients",  } },
   },
   INDEX = {
     level = 1,

@@ -5,7 +5,6 @@
 
 local Record = require("property_record")
 local Meta = require("Player_meta")
-local PlayerRecord = require("Player_record")
 
 local Hub = {}
 Hub.__index = Hub
@@ -17,7 +16,7 @@ end
 function Hub.open(opts)
   opts = opts or {}
   local data = opts.obj or Meta.new_default()
-  local flags = opts.flags or PlayerRecord.FLAGS
+  local flags = opts.flags or Meta.FLAGS
   local rec = Record.bind(Meta, {
     obj = data,
     flags = flags,

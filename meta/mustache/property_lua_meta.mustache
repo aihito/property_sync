@@ -13,7 +13,7 @@ local M = {
   has_bag_id = {{#is_bag_item}}true{{/is_bag_item}}{{^is_bag_item}}{{#is_slot_item}}true{{/is_slot_item}}{{^is_slot_item}}false{{/is_slot_item}}{{/is_bag_item}},
   fields = {
 {{#property_fields}}
-    { index = {{field_index}}, name = "{{field_name}}", wire_kind = "{{wire_kind}}", flags = { {{#flag_names}}"{{flag_name}}", {{/flag_names}} }{{#has_item_meta}}, item_meta = {{item_meta_local}}.META{{/has_item_meta}} },
+    { index = {{field_index}}, name = "{{field_name}}", wire_kind = Runtime.WIRE.{{wire_kind}}, flags = { {{#flag_names}}"{{flag_name}}", {{/flag_names}} }{{#has_item_meta}}, item_meta = {{item_meta_local}}.META{{/has_item_meta}} },
 {{/property_fields}}
   },
   INDEX = {

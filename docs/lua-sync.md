@@ -32,8 +32,9 @@
 | `index` | 与 C++ property index 一致（0-based） |
 | `name` | 去掉 `m_` 后的逻辑名 |
 | `wire_kind` | `number/string/bool/array/vector/map/bag/slots/vec/object` |
-| `flags` | 注解名列表（如 `sync_clients`、`save_db`） |
-| `item_meta` | bag/slots/vec 时指向子类 `META`（含 `has_bag_id` / `has_slot`） |
+| `flags` | **uint 位掩码**（`RpgFlags.sync_clients` 等，Lua 5.4+ `&`/`|`） |
+| `item_meta` | bag/slots/vec 时指向子类 `META` |
+| 类级 `kind` | `Runtime.KIND.entity/bag_item/slot_item/vec_item/...`；`has_bag_id`/`has_slot` 由 `attach_meta` 推导 |
 
 `item_change` 载荷与 C++ 一致：`[item_or_slot_idx, record_offset, cmd, data]`。  
 slots 的第一项是 **格子号**；bag/vec 是稠密下标。`record_offset` 按 `property_record_offset` 解码成字段 path。
