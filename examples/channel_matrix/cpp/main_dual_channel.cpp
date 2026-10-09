@@ -217,7 +217,12 @@ int main(int argc, char** argv)
     }
 
     if (!encode_snapshot_both_roundtrip_ok<Player, psync::Player>(
-            server, db_flag, db_blob, true, 1, &codec_err
+            server,
+            db_flag,
+            db_blob,
+            true,
+            1,
+            &codec_err
         )) {
         std::cerr << "[FAIL] DB codec both roundtrip: " << codec_err << "\n";
         ++g_fail;
